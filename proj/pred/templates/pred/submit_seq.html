@@ -1,0 +1,22 @@
+{% extends "pred/base_layout.html" %}
+
+{%block content_right_panel %}
+
+    {% if username %}
+      {% include "pred/user_header.html" %}
+    {% endif %}
+
+    <h2>ProQ3: Improved model quality assessment</h2>
+    <form name="seq_form" action="/pred/" enctype="multipart/form-data" method="post">
+        {% csrf_token %}
+        {{form.as_p}}
+
+        <script language="javascript">
+            document.getElementById('options').style.display = 'none';
+        </script>
+        <br><br>
+        <p> <input type="submit" name=do value="Submit" /> <INPUT type="reset" value="Clear" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" value="Generate example input" onclick="example_fill();"></p>
+
+    </form>
+
+{% endblock %}

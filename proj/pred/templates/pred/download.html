@@ -1,0 +1,20 @@
+{% extends "pred/base_layout.html" %}
+
+{%block content_right_panel %}
+    {% if username %}
+      {% include "pred/user_header.html" %}
+    {% endif %}
+  <h2>Download</h2>
+  <br><br>
+  <table cellspacing=0 cellpadding=0 border=0>
+    <tr>
+        <td>
+            <h3>The software for ProQ3 can be found at</h3>
+            <p style="margin-left:15px;">
+            <a href="https://bitbucket.org/ElofssonLab/proq3">https://bitbucket.org/ElofssonLab/proq3</a>
+
+        </td>
+    </tr>
+  </table>
+{% endblock %}
+

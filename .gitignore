@@ -1,0 +1,14 @@
+# Compiled source
+*.pyc
+
+# SQLite 
+*.sqlite3
+*.sqlite
+
+# backup folder
+bak/
+result/
+tmp/
+log/
+md5/
+env/

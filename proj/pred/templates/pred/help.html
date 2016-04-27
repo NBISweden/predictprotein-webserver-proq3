@@ -1,0 +1,133 @@
+{% extends "pred/base_layout.html" %}
+
+{%block content_right_panel %}
+    {% if username %}
+      {% include "pred/user_header.html" %}
+    {% endif %}
+  <h2>Help</h2>
+  <table cellspacing=0 cellpadding=0 border=0>
+    <tr>
+      <td class="Greylink"><a href="#1">1.&nbsp;Summary<img src="{{STATIC_URL}}/images/0.gif" height=1 width=5 border=0><img src="{{STATIC_URL}}/images/arrow.png" border=0><img src="{{STATIC_URL}}/images/0.gif" height=1 width=40 border=0></a><td>
+      <td class="Greylink"><a href="#2">2.&nbsp;Usage<img src="{{STATIC_URL}}/images/0.gif" height=1 width=5 border=0><img src="{{STATIC_URL}}/images/arrow.png" border=0><img src="{{STATIC_URL}}/images/0.gif" height=1 width=40 border=0></a><td>
+      <td class="Greylink"><a href="#3">3.&nbsp;Output<img src="{{STATIC_URL}}/images/0.gif" height=1 width=5 border=0><img src="{{STATIC_URL}}/images/arrow.png" border=0><img src="{{STATIC_URL}}/images/0.gif" height=1 width=40 border=0></a><td>
+      <td class="Greylink"><a href="#4">4.&nbsp;References<img src="{{STATIC_URL}}/images/0.gif" height=1 width=5 border=0><img src="{{STATIC_URL}}/images/arrow.png" border=0><img src="{{STATIC_URL}}/images/0.gif" height=1 width=40 border=0></a><td>
+      <td class="Greylink"><a href="#5">5.&nbsp;Contact<img src="{{STATIC_URL}}/images/0.gif" height=1 width=5 border=0><img src="{{STATIC_URL}}/images/arrow.png" border=0><img src="{{STATIC_URL}}/images/0.gif" height=1 width=40 border=0></a><td>
+      </tr>
+  </table>
+
+  <table>
+    <tr>
+      <td valign="top" colspan="2">
+      <br><br>
+      <a name="1"></a>
+      <h3>1. Summary</h3><br>
+      <table cellspacing=0 cellpadding=0 border=0>
+        <tr>
+          <td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=400></td>
+          <td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=50></td>
+        </tr>
+        <tr><td>
+        </td> </tr>
+      </table>
+
+      <br><br>
+
+      <a name="2"></a>
+      <h3>2. Usage</h3><br>
+      <table cellspacing=0 cellpadding=0 border=0>
+        <tr>
+          <td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=400></td>
+          <td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=50></td>
+        </tr>
+        <tr><td>
+            <p>
+            Input to the server are structure models in the PDB format. 
+            You can input the model structures by either paste your data in the text area 
+            or upload a text file containing your data. 
+            You may upload multiple models (up to 5) in one model file. Multiple models should be recognized by the tag "MODEL N" and "ENDMDL" (see format description below).
+
+            If all your models are based on the same target sequence, you are recommended to input 
+            your target sequence in <a
+              href='http://blast.ncbi.nlm.nih.gov/blastcgihelp.shtml'
+              target=\'_blank\'>FASTA</a> format. In that case, profiles are calculated only once for this target sequence.
+            </p>
+            <i>Format of an input model with multiple models</i> <br>
+            <pre>
+  MODEL 0
+  ATOM      1  N   ILE    25      20.054  -1.774  13.539  1.00 13.86
+  ATOM      2  CA  ILE    25      19.853  -1.767  12.074  1.00 13.86
+  ATOM      3  C   ILE    25      19.368  -0.432  11.629  1.00 13.86
+  ...                                                               
+  ENDMDL                                                            
+  MODEL 1                                                           
+  ATOM      1  N   THR     2       6.845  39.808 112.651  1.00  7.56
+  ATOM      2  CA  THR     2       7.837  40.283 113.642  1.00  7.56
+  ATOM      3  C   THR     2       8.964  39.313 113.764  1.00  7.56
+  ATOM      4  O   THR     2       8.919  38.204 113.232  1.00  7.56
+  ATOM      5  1H  THR     2       6.111  40.299 112.478  1.00  7.56
+  ENDMDL                                                            
+            </pre>
+            <br>
+      </td></tr>
+    </table>
+
+    <br><br>
+
+      <a name="3"></a>
+      <h3>3. Output</h3><br>
+      <table cellspacing=0 cellpadding=0 border=0>
+        <tr>
+          <td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=400></td>
+          <td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=50></td></tr>
+        <tr><td>
+                <p>
+                The server outputs the global and local ProQ3 scores of models
+                in a dumped text file.  
+                Additionally, a zipped folder with the
+                with all results  is also downloadable.
+                </p>
+      </td></tr>
+    </table>
+    <br><br>
+
+    <a name="4"></a>
+
+    <h3>4. References</h3><br>
+    <table cellspacing=0 cellpadding=5 border=0>
+      <tr><td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=400></td>
+        <td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=50></td>
+  </table>
+
+  <br><br>
+  <a name="5"></a>
+
+    <h3>5. Contact</h3><br
+    <table cellspacing=0 cellpadding=0 border=0>
+      <tr>
+        <td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=400></td>
+        <td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=50></td>
+      </tr>
+      <tr><td>
+          <b>Arne Elofsson group</b><br><br>
+          <!--<a href="http://www.cbr.su.se/">Center for Biomembrane Research</a><br><br>-->
+          <a href="http://www.dbb.su.se/">Department for Biochemistry and Biophysics</a><br>
+          The Arrhenius Laboratories for Natural Sciences<br>
+          <a href="http://www.su.se/">Stockholm University</a><br>
+          SE-106 91 Stockholm, Sweden<br><br>
+
+          <a href="http://www.scilifelab.se">Science for Life Laboratory</a><br>
+            Box 1031, 17121 Solna, Sweden
+            <br><br>
+          <table cellspacing=0 cellpadding=0 border=0>
+            <tr><td>E-mail:</td><td>&nbsp;&nbsp;&nbsp;</td><td><a href="mailto:arne@bioinfo.se">arne@bioinfo.se</a></td></tr>
+            <tr><td>Phone:</td><td>&nbsp;&nbsp;&nbsp;</td><td>(+46)-8-16&nbsp;4672</td></tr>
+            <tr><td>Fax:</td><td>&nbsp;&nbsp;&nbsp;</td><td>(+46)-8-15 3679</td></tr>
+          </table>
+          <br><br><br>
+    </td></tr>
+  </table>
+
+  </table>
+
+{% endblock %}
+

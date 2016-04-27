@@ -1,0 +1,32 @@
+{% extends "pred/base_layout.html" %}
+
+{%block content_right_panel %}
+    {% if username %}
+      {% include "pred/user_header.html" %}
+    {% endif %}
+   <h2>References</h2>
+   <table cellspacing=0 cellpadding=5 border=0>
+     <tr><td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=400></td>
+       <td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=50></td>
+     </tr>
+     <tr><td>
+         ProQ3: Improved model quality assessments using Rosetta energy terms.
+Karolis Uziela, Björn Wallner, Arne Elofsson
+         [<a
+           href="http://arxiv.org/abs/1602.05832">Arxiv</a>]
+     </td></tr>
+     {% comment %}
+     <tr><td>
+         Ranking models of transmembrane β-barrel proteins using Z-coordinate
+         predictions. Sikander Hayat and Arne Elofsson Bioinformatics, 2012
+         [<a
+           href="http://www.ncbi.nlm.nih.gov/pubmed/22689784">PubMed</a>]
+     </td></tr>
+     {% endcomment %}
+
+ </table>
+
+
+
+{% endblock %}
+
