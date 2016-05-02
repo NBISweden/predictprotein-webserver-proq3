@@ -12,7 +12,7 @@ exec_virtualenv=virtualenv
 if [ -f "/usr/local/bin/virtualenv" ];then
     exec_virtualenv=/usr/local/bin/virtualenv
 fi
-eval "$virtualenv env"
+eval "$exec_virtualenv env"
 source ./env/bin/activate
 pip install --force-reinstall Django==1.6.2
 pip install pysqlite
