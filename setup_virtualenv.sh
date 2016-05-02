@@ -1,9 +1,9 @@
 #!/bin/bash
 # install virtualenv if not installed
 # first install dependencies
-# sudo apt-get -y install python-pip
-# sudo apt-get -y install python2.7-dev
-# sudo pip install virtualenv
+# install python2.7 if not exists by
+# sudo /big/src/install_python2.7_centos.sh
+# sudo pip2.7 install virtualenv
 
 # then install programs in the virtual environment
 rundir=`dirname $0`
