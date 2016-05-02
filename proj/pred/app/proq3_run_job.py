@@ -18,6 +18,7 @@ import glob
 import hashlib
 import shutil
 from datetime import datetime
+os.environ["PATH"] += os.pathsep + "/usr/local/bin" # this solved the problem for CentOS6.4
 progname =  os.path.basename(sys.argv[0])
 wspace = ''.join([" "]*len(progname))
 rundir = os.path.dirname(os.path.realpath(__file__))
@@ -174,12 +175,15 @@ def CreateProfile(seqfile, outpath_profile, outpath_result, tmp_outpath_result, 
         cmd = [runscript, "-fasta", seqfile,  "-outpath", tmp_outpath_profile, "-only-build-profile"]
         g_params['runjob_log'].append(" ".join(cmd))
         begin_time = time.time()
+        cmdline = " ".join(cmd)
+        #os.system("%s >> %s 2>&1"%(cmdline, runjob_errfile)) #DEBUG
         try:
             rmsg = subprocess.check_output(cmd)
             g_params['runjob_log'].append("profile_building:\n"+rmsg+"\n")
         except subprocess.CalledProcessError, e:
             g_params['runjob_err'].append(str(e)+"\n")
-            g_params['runjob_err'].append(rmsg + "\n")
+            g_params['runjob_err'].append("cmdline: "+cmdline+"\n")
+            g_params['runjob_err'].append("profile_building:\n"+rmsg + "\n")
             pass
         end_time = time.time()
         runtime_in_sec = end_time - begin_time
@@ -256,7 +260,8 @@ def ScoreModel(model_file, outpath_this_model, profilename, outpath_result, #{{{
         g_params['runjob_log'].append("model scoring:\n"+rmsg+"\n")
     except subprocess.CalledProcessError, e:
         g_params['runjob_err'].append(str(e)+"\n")
-        g_params['runjob_err'].append(rmsg + "\n")
+        g_params['runjob_err'].append("cmdline: "+ cmdline + "\n")
+        g_params['runjob_err'].append("model scoring:\n" + rmsg + "\n")
         pass
     end_time = time.time()
     runtime_in_sec = end_time - begin_time
@@ -312,6 +317,8 @@ def RunJob(modelfile, seqfile, isRepack, isKeepFiles, targetlength, #{{{
 
     tmp_outpath_result = "%s/%s"%(tmpdir, resultpathname)
     isOK = True
+    if os.path.exists(tmp_outpath_result):
+        shutil.rmtree(tmp_outpath_result)
     try:
         os.makedirs(tmp_outpath_result)
         isOK = True
@@ -321,6 +328,8 @@ def RunJob(modelfile, seqfile, isRepack, isKeepFiles, targetlength, #{{{
         isOK = False
         pass
 
+    if os.path.exists(outpath_result):
+        shutil.rmtree(outpath_result)
     try:
         os.makedirs(outpath_result)
         isOK = True
