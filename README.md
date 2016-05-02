@@ -8,6 +8,12 @@
 
     $ bash setup_virtualenv.sh
 
+    If your system is CentOS6, you need also run 
+
+    $ bash install_python2.7.sh
+
+    to install python2.7 to the virtual environment
+
 3. Create the django database db.sqlite3
 
 4. Run 
