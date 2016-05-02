@@ -8,7 +8,11 @@
 # then install programs in the virtual environment
 rundir=`dirname $0`
 cd $rundir
-virtualenv env
+exec_virtualenv=virtualenv
+if [ -f "/usr/local/bin/virtualenv" ];then
+    exec_virtualenv=/usr/local/bin/virtualenv
+fi
+eval "$virtualenv env"
 source ./env/bin/activate
 pip install --force-reinstall Django==1.6.2
 pip install pysqlite
