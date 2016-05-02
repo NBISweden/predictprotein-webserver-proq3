@@ -151,6 +151,7 @@ def CreateProfile(seqfile, outpath_profile, outpath_result, tmp_outpath_result, 
     subfoldername_profile = os.path.basename(outpath_profile)
     tmp_outpath_profile = "%s/%s"%(tmp_outpath_result, subfoldername_profile)
     isSkip = False
+    rmsg = ""
     if not g_params['isForceRun']:
         md5_key = hashlib.md5(seq).hexdigest()
         subfoldername = md5_key[:2]
@@ -241,6 +242,7 @@ def ScoreModel(model_file, outpath_this_model, profilename, outpath_result, #{{{
         targetlength): 
     subfoldername_this_model = os.path.basename(outpath_this_model)
     modelidx = int(subfoldername_this_model.split("model_")[1])
+    rmsg = ""
     tmp_outpath_this_model = "%s/%s"%(tmp_outpath_result, subfoldername_this_model)
     cmd = [runscript, "-profile", profilename,  "-outpath",
             tmp_outpath_this_model, model_file, "-r", isRepack, "-k",
