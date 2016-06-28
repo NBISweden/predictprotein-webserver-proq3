@@ -27,6 +27,19 @@
           <td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=50></td>
         </tr>
         <tr><td>
+                <p>
+                ProQ3 is a Model Quality Assessment (MQA) program that predicts
+                the quality of model structures based on single model. It
+                empolys both the structural information derived from the
+                three-dimensional (3D) structure of the model to be predicted
+                and the evolutionary information derived from the amino acid
+                sequence of this model.  ProQ3 is based on a combination of our
+                previously developed ProQ2 and two newly developed methods
+                ProQCenFA and ProQRosCen, where ProQCenFA uses ful-atom model
+                and ProQROsCen uses centriod model. Our benchmark based on the
+                CASP11 dataset and CAMEO dataset shows that ProQ3 outperforms
+                the best previously developed MQA method, ProQ2.
+                </p>
         </td> </tr>
       </table>
 
@@ -42,14 +55,20 @@
         <tr><td>
             <p>
             Input to the server are structure models in the PDB format. 
-            You can input the model structures by either paste your data in the text area 
+            You can input the model structures by either paste your data in the <b>first</b> text area 
             or upload a text file containing your data. 
             You may upload multiple models (up to 5) in one model file. Multiple models should be recognized by the tag "MODEL N" and "ENDMDL" (see format description below).
 
+            </p>
+            <p>
             If all your models are based on the same target sequence, you are recommended to input 
             your target sequence in <a
               href='http://blast.ncbi.nlm.nih.gov/blastcgihelp.shtml'
-              target=\'_blank\'>FASTA</a> format. In that case, profiles are calculated only once for this target sequence.
+              target=\'_blank\'>FASTA</a> format. You can input your target sequence by either paste your sequence in the <b>second</b> text area or upload a text file containing your sequence under this text area. In that case, profiles are calculated only once for this target sequence, and the global scores are normalized by the length of the target sequence as well.
+            </p>
+
+            <p>
+            To generate an example input, just click the button <button>Generate example input</button> in the panel <a href="/pred/">New query</a> and then click <button>Submit</button>.
             </p>
             <i>Format of an input model with multiple models</i> <br>
             <pre>
@@ -81,11 +100,21 @@
           <td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=50></td></tr>
         <tr><td>
                 <p>
-                The server outputs the global and local ProQ3 scores of models
-                in a dumped text file.  
-                Additionally, a zipped folder with the
-                with all results  is also downloadable.
+                The server outputs both the global and local scores of the models to be predicted.
+                If the target sequence is not given nor the target length is provided, the global scores are normalized by the length of the model sequence. Otherwise, the global scores are normalized by the target length.
                 </p>
+
+                <p>
+                A link to the dumped text file with both global scores and local scores is also provided in the result page given the successful prediction.
+                </p>
+
+                <p>
+                Additionally, a zipped folder with the with all intermediate result files is also downloadable.
+                </p>
+                <p>
+                An example of the predicted result can be found <a href="/pred/result/example/">here</a>
+                </p>
+                
       </td></tr>
     </table>
     <br><br>
@@ -96,6 +125,11 @@
     <table cellspacing=0 cellpadding=5 border=0>
       <tr><td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=400></td>
         <td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=50></td>
+        <tr><td>
+         ProQ3: Improved model quality assessments using Rosetta energy terms.  Karolis Uziela,
+Nanjiang Shu, Bj&ouml;rn Wallner and Arne Elofsson. Submitted to Scientific
+Report, 2016.
+        </td></tr>
   </table>
 
   <br><br>
