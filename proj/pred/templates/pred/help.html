@@ -29,16 +29,18 @@
         <tr><td>
                 <p>
                 ProQ3 is a Model Quality Assessment (MQA) program that predicts
-                the quality of model structures based on single model. It
-                empolys both the structural information derived from the
+                the quality of model structures based on a single model. It
+                employs both the structural information derived from the
                 three-dimensional (3D) structure of the model to be predicted
                 and the evolutionary information derived from the amino acid
-                sequence of this model.  ProQ3 is based on a combination of our
+                sequence of this model. ProQ3 is based on a combination of our
                 previously developed ProQ2 and two newly developed methods
-                ProQCenFA and ProQRosCen, where ProQCenFA uses ful-atom model
-                and ProQROsCen uses centriod model. Our benchmark based on the
+                ProQCenFA and ProQRosCen, where ProQCenFA uses full-atom model
+                and ProQRosCen uses centroid model. Our benchmark based on the
                 CASP11 dataset and CAMEO dataset shows that ProQ3 outperforms
-                the best previously developed MQA method, ProQ2.
+                the best previously developed MQA method, ProQ2. ProQ3 server
+                outputs results for ProQ3, ProQCenFA, ProQRosCen and ProQ2
+                methods.
                 </p>
         </td> </tr>
       </table>
@@ -100,16 +102,22 @@
           <td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=50></td></tr>
         <tr><td>
                 <p>
-                The server outputs both the global and local scores of the models to be predicted.
+                The server outputs both the global and local scores of the
+                models to be predicted. ProQ3 server outputs results for ProQ3,
+                ProQCenFA, ProQRosCen and ProQ2 methods.
+                </p>
+                <p>
                 If the target sequence is not given nor the target length is provided, the global scores are normalized by the length of the model sequence. Otherwise, the global scores are normalized by the target length.
                 </p>
 
                 <p>
                 A link to the dumped text file with both global scores and local scores is also provided in the result page given the successful prediction.
+
                 </p>
 
                 <p>
-                Additionally, a zipped folder with the with all intermediate result files is also downloadable.
+                Additionally, a zipped folder with all intermediate result files is also downloadable.
+
                 </p>
                 <p>
                 An example of the predicted result can be found <a href="/pred/result/example/">here</a>
