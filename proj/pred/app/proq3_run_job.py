@@ -120,7 +120,7 @@ def WriteTextResultFile(outfile, outpath_result, modelFileList, runtime_in_sec, 
         print >> fpout, "##############################################################################"
         print >> fpout
         print >> fpout, "# Global scores"
-        print >> fpout, "# %10s %12s %12s %12s %12s"%("Model", "ProQ2","ProQ_Lowres","ProQ_Highres","ProQ3")
+        print >> fpout, "# %10s %12s %12s %12s %12s"%("Model", "ProQ2","ProQRosCen","ProQRosFA","ProQ3")
 
         cnt = 0
         for i  in xrange(numModel):
@@ -130,8 +130,8 @@ def WriteTextResultFile(outfile, outpath_result, modelFileList, runtime_in_sec, 
             try:
                 if globalscore:
                     print >> fpout, "%2s %10s %12f %12f %12f %12f"%("", "model_%d"%(i),
-                            globalscore['ProQ2'], globalscore['ProQ_Lowres'],
-                            globalscore['ProQ_Highres'], globalscore['ProQ3'])
+                            globalscore['ProQ2'], globalscore['ProQRosCen'],
+                            globalscore['ProQRosFA'], globalscore['ProQ3'])
                 else:
                     print >> fpout, "%2s %10s"%("", "model_%d"%(i))
             except:
@@ -290,8 +290,8 @@ def ScoreModel(model_file, outpath_this_model, profilename, outpath_result, #{{{
     modelinfo = [subfoldername_this_model, str(modellength), str(runtime_in_sec)]
     if globalscore:
         modelinfo.append(str(globalscore['ProQ2']))
-        modelinfo.append(str(globalscore['ProQ_Lowres']))
-        modelinfo.append(str(globalscore['ProQ_Highres']))
+        modelinfo.append(str(globalscore['ProQRosCen']))
+        modelinfo.append(str(globalscore['ProQRosFA']))
         modelinfo.append(str(globalscore['ProQ3']))
     return modelinfo
 #}}}
