@@ -254,8 +254,8 @@ def ScoreModel(model_file, outpath_this_model, profilename, outpath_result, #{{{
             "-deep", g_params['isDeepLearning'],
             "-k", g_params['isKeepFiles']
             ]
-    if targetlength != None:
-        cmd += ["-t", str(targetlength)]
+    if g_params['targetlength'] != None:
+        cmd += ["-t", str(g_params['targetlength'])]
     g_params['runjob_log'].append(" ".join(cmd))
     begin_time = time.time()
     try:
