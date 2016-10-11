@@ -38,6 +38,7 @@ class SubmissionForm(forms.Form):
     jobname = forms.CharField(label='Job name (optional)', max_length=100, required=False)
     email = forms.EmailField(label='Email (recommended)', max_length=100, required=False)
     repacking = forms.BooleanField(label='Perform side chain repacking', initial=True, required=False)
+    deep = forms.BooleanField(label='Using deep learning', initial=False, required=False)
     #keepfile = forms.BooleanField(label='Keep repacked models and SVM output', required=False)
     forcerun = forms.BooleanField(label='Force run (do not use cached profiles)', required=False)
 

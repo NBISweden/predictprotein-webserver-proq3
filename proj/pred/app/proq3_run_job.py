@@ -44,7 +44,7 @@ vip_user_list = [
 
 usage_short="""
 Usage: %s dumped-model-file [-fasta seqfile]
-       %s [-r yes|no] [-k yes|no] [-t INT]
+       %s [-r yes|no] [-k yes|no] [-t INT] [-deep yes|no]
        %s -jobid JOBID -outpath DIR -tmpdir DIR
        %s -email EMAIL -baseurl BASE_WWW_URL
        %s [-force]
@@ -58,10 +58,11 @@ OPTIONS:
   -r    yes|no  Whether do repacking
   -k    yes|no  Whether keep SVM results and repacked models
   -t       INT  Set the target length
+  -deep yes|no  Whether use deep learning
   -force        Do not use cahced result
   -h, --help    Print this help message and exit
 
-Created 2016-02-02, updated 2016-02-02, Nanjiang Shu
+Created 2016-02-02, updated 2016-10-11, Nanjiang Shu
 """
 usage_exp="""
 Examples:
@@ -242,15 +243,17 @@ def CreateProfile(seqfile, outpath_profile, outpath_result, tmp_outpath_result, 
                     pass
 #}}}
 def ScoreModel(model_file, outpath_this_model, profilename, outpath_result, #{{{
-        tmp_outpath_result, timefile, runjob_errfile, isRepack, isKeepFiles,
-        targetlength): 
+        tmp_outpath_result, timefile, runjob_errfile): 
     subfoldername_this_model = os.path.basename(outpath_this_model)
     modelidx = int(subfoldername_this_model.split("model_")[1])
     rmsg = ""
     tmp_outpath_this_model = "%s/%s"%(tmp_outpath_result, subfoldername_this_model)
     cmd = [runscript, "-profile", profilename,  "-outpath",
-            tmp_outpath_this_model, model_file, "-r", isRepack, "-k",
-            isKeepFiles]
+            tmp_outpath_this_model, model_file, 
+            "-r", g_params['isRepack'],
+            "-deep", g_params['isDeepLearning'],
+            "-k", g_params['isKeepFiles']
+            ]
     if targetlength != None:
         cmd += ["-t", str(targetlength)]
     g_params['runjob_log'].append(" ".join(cmd))
@@ -292,8 +295,7 @@ def ScoreModel(model_file, outpath_this_model, profilename, outpath_result, #{{{
         modelinfo.append(str(globalscore['ProQ3']))
     return modelinfo
 #}}}
-def RunJob(modelfile, seqfile, isRepack, isKeepFiles, targetlength, #{{{
-        outpath, tmpdir, email, jobid, g_params):
+def RunJob(modelfile, seqfile, outpath, tmpdir, email, jobid, g_params):#{{{
     all_begin_time = time.time()
 
     rootname = os.path.basename(os.path.splitext(modelfile)[0])
@@ -370,7 +372,7 @@ def RunJob(modelfile, seqfile, isRepack, isKeepFiles, targetlength, #{{{
 
                 modelinfo = ScoreModel(tmp_model_file, outpath_this_model, profilename,
                         outpath_result, tmp_outpath_result, timefile,
-                        runjob_errfile, isRepack, isKeepFiles, targetlength)
+                        runjob_errfile)
                 myfunc.WriteFile("\t".join(modelinfo)+"\n", finished_model_file, "a")
                 modelFileList.append("%s/%s"%(outpath_this_model, "query_%d.pdb"%(ii)))
 
@@ -407,7 +409,7 @@ def RunJob(modelfile, seqfile, isRepack, isKeepFiles, targetlength, #{{{
                 profilename = "%s/%s"%(outpath_profile, "query.fasta")
                 modelinfo = ScoreModel(tmp_model_file, outpath_this_model, profilename,
                         outpath_result, tmp_outpath_result, timefile,
-                        runjob_errfile, isRepack, isKeepFiles, targetlength)
+                        runjob_errfile)
                 myfunc.WriteFile("\t".join(modelinfo)+"\n", finished_model_file, "a")
                 modelFileList.append("%s/%s"%(outpath_this_model, "query_%d.pdb"%(ii)))
 
@@ -502,9 +504,10 @@ def main(g_params):#{{{
     tmpdir = ""
     email = ""
     jobid = ""
-    isKeepFiles = "no"
-    isRepack = "yes"
-    targetlength = None
+#     isKeepFiles = "no"
+#     isRepack = "yes"
+#     isDeepLearning = "no"
+#     targetlength = None
 
     i = 1
     isNonOptionArg=False
@@ -529,11 +532,13 @@ def main(g_params):#{{{
             elif argv[i] in ["-fasta", "--fasta"] :
                 (seqfile, i) = myfunc.my_getopt_str(argv, i)
             elif argv[i] in ["-k", "--k"] :
-                (isKeepFiles, i) = myfunc.my_getopt_str(argv, i)
+                (g_params['isKeepFiles'], i) = myfunc.my_getopt_str(argv, i)
             elif argv[i] in ["-r", "--r"] :
-                (isRepack, i) = myfunc.my_getopt_str(argv, i)
+                (g_params['isRepack'], i) = myfunc.my_getopt_str(argv, i)
+            elif argv[i] in ["-deep", "--deep"] :
+                (g_params['isDeepLearning'], i) = myfunc.my_getopt_str(argv, i)
             elif argv[i] in ["-t", "--t"] :
-                (targetlength, i) = myfunc.my_getopt_int(argv, i)
+                (g_params['targetlength'], i) = myfunc.my_getopt_int(argv, i)
             elif argv[i] in ["-baseurl", "--baseurl"] :
                 (g_params['base_www_url'], i) = myfunc.my_getopt_str(argv, i)
             elif argv[i] in ["-email", "--email"] :
@@ -581,12 +586,11 @@ def main(g_params):#{{{
     if not os.path.exists(path_profile_cache):
         os.makedirs(path_profile_cache)
 
-    g_params['proq3opt']  = "-r %s -k %s "%(isRepack, isKeepFiles)
-    if targetlength != None:
-        g_params['proq3opt'] += "-t %d"%(targetlength)
+    g_params['proq3opt']  = "-r %s -deep %s -k %s "%(g_params['isRepack'], g_params['isDeepLearning'], g_params['isKeepFiles'])
+    if g_params['targetlength'] != None:
+        g_params['proq3opt'] += "-t %d"%(g_params['targetlength'])
 
-    return RunJob(modelfile, seqfile, isRepack, isKeepFiles, targetlength,
-            outpath, tmpdir, email, jobid, g_params)
+    return RunJob(modelfile, seqfile, outpath, tmpdir, email, jobid, g_params)
 
 #}}}
 
@@ -598,6 +602,10 @@ def InitGlobalParameter():#{{{
     g_params['isForceRun'] = False
     g_params['base_www_url'] = ""
     g_params['proq3opt']  = ""
+    g_params['isRepack'] = 'yes'
+    g_params['isDeepLearning'] = 'no'
+    g_params['isKeepFiles'] = 'no'
+    g_params['targetlength'] = None
     return g_params
 #}}}
 if __name__ == '__main__' :

@@ -29,7 +29,7 @@ gen_errfile = "%s/static/log/%s.log"%(basedir, progname)
 
 usage_short="""
 Usage: %s -nmodel INT -jobid STR -outpath DIR -datapath DIR
-       %s [-r yes|no] [-k yes|no] [-t INT]
+       %s [-r yes|no] [-k yes|no] [-t INT] [-deep yes|no]
        %s -email EMAIL -host IP -baseurl BASE_WWW_URL
        %s -nmodel-this-user INT
        %s [-force]
@@ -47,11 +47,12 @@ OPTIONS:
   -r    yes|no      Whether do repacking
   -k    yes|no      Whether keep SVM results and repacked models
   -t       INT      Set the target length
+  -deep yes|no      Whether use deep learning
   -force            Do not use cahced result
   -nmodel-this-user Number of models in the queue submitted by this user
   -h, --help    Print this help message and exit
 
-Created 2015-01-20, updated 2016-02-04, Nanjiang Shu
+Created 2015-01-20, updated 2016-10-11, Nanjiang Shu
 """
 usage_exp="""
 Examples:
@@ -206,6 +207,8 @@ def main(g_params):#{{{
                 (g_params['isKeepFiles'], i) = myfunc.my_getopt_str(argv, i)
             elif argv[i] in ["-r", "--r"] :
                 (g_params['isRepack'], i) = myfunc.my_getopt_str(argv, i)
+            elif argv[i] in ["-deep", "--deep"] :
+                (g_params['isDeepLearning'], i) = myfunc.my_getopt_str(argv, i)
             elif argv[i] in ["-t", "--t"] :
                 (g_params['targetlength'], i) = myfunc.my_getopt_int(argv, i)
             elif argv[i] in ["-host", "--host"]:
@@ -271,6 +274,7 @@ def InitGlobalParameter():#{{{
     g_params['isQuiet'] = True
     g_params['isForceRun'] = False
     g_params['isRepack'] = "yes"
+    g_params['isDeepLearning'] = "no"
     g_params['isKeepFiles'] = "no"
     g_params['targetlength'] = None
     g_params['fperr'] = None

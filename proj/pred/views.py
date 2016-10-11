@@ -174,6 +174,7 @@ def submit_seq(request):#{{{
             isForceRun = False
             isKeepFiles = True
             isRepack = True
+            isDeepLearning = False
 
             if 'forcerun' in request.POST:
                 isForceRun = True
@@ -185,6 +186,11 @@ def submit_seq(request):#{{{
                 isRepack = True
             else:
                 isRepack = False
+
+            if 'deep' in request.POST:
+                isDeepLearning = True
+            else:
+                isDeepLearning = False
 
             try:
                 seqfile = request.FILES['seqfile']
@@ -211,6 +217,7 @@ def submit_seq(request):#{{{
             query['username'] = username
             query['isKeepFiles'] = isKeepFiles
             query['isRepack'] = isRepack
+            query['isDeepLearning'] = isDeepLearning
 
             is_valid = ValidateQuery(request, query)
 
@@ -845,6 +852,11 @@ def SubmitQueryToLocalQueue(query, tmpdir, rstdir):#{{{
         cmd += ["-r", "yes"]
     else:
         cmd += ["-r", "no"]
+
+    if query['isDeepLearning']:
+        cmd += ["-deep", "yes"]
+    else:
+        cmd += ["-deep", "no"]
 
     if query['targetlength'] != None:
         cmd += ['-t', str(query['targetlength'])]
