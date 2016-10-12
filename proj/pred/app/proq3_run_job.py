@@ -449,6 +449,9 @@ def RunJob(modelfile, seqfile, outpath, tmpdir, email, jobid, g_params):#{{{
     if (os.path.exists(finishtagfile) and os.path.exists(zipfile_fullpath)):
         isSuccess = True
         # delete the tmpdir if succeeded
+        outfile_runscript = glob.glob("%s/*.out"%(tmpdir))
+        if os.path.exists(outfile_runscript):
+            shutil.move(outfile_runscript, outpath)
         shutil.rmtree(tmpdir) #DEBUG, keep tmpdir
     else:
         isSuccess = False
