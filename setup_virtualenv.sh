@@ -21,9 +21,10 @@ pip install suds
 #pip install misc/spyne.github.tar.gz
 pip install --upgrade requests
 pip install keras
+pip install Theano
 # this is just for Ubuntu
-export TF_BINARY_URL=https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-0.11.0rc0-cp27-none-linux_x86_64.whl
-pip install --upgrade $TF_BINARY_URL
+# export TF_BINARY_URL=https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-0.11.0rc0-cp27-none-linux_x86_64.whl
+# pip install --upgrade $TF_BINARY_URL
 pip install --upgrade h5py
 #pip install matplotlib
 
