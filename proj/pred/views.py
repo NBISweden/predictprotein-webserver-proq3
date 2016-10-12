@@ -315,6 +315,24 @@ def get_job_status(jobid):#{{{
         status = "Wait"
     return status
 #}}}
+def IsDeepLearningFromLogFile(infile):#{{{
+# determine whether deep learning is used based on the log file
+    content = myfunc.ReadFile(infile)
+    lines = content.split("\n")
+    for line in lines:
+        if line.find("-deep") != -1:
+            strs = line.split()
+            idx = strs.index("-deep")
+            try:
+                isDeepLearning = strs[idx+1]
+                if isDeepLearning == "yes":
+                    return True
+                else:
+                    return False
+            except IndexError:
+                return False
+    return False
+#}}}
 
 def login(request):#{{{
     #logout(request)
@@ -1798,6 +1816,7 @@ def get_results(request, jobid="1"):#{{{
     starttagfile = "%s/%s"%(rstdir, "runjob.start")
     finishtagfile = "%s/%s"%(rstdir, "runjob.finish")
     failtagfile = "%s/%s"%(rstdir, "runjob.failed")
+    runjob_logfile = "%s/runjob.log"%(rstdir)
     errfile = "%s/%s"%(rstdir, "runjob.err")
     query_seqfile = "%s/%s"%(rstdir, "query.fa")
     raw_query_seqfile = "%s/%s"%(rstdir, "query.raw.fa")
@@ -1944,8 +1963,14 @@ def get_results(request, jobid="1"):#{{{
     cntcached = 0
 # get seqid_index_map
     if os.path.exists(finished_model_file):
-        resultdict['index_table_header'] = ["ModelNo.", "Length", "RunTime(s)",
-                "ProQ2", "ProQ_Lowres", "ProQ_Highres", "ProQ3"]
+        isDeepLearning = IsDeepLearningFromLogFile(runjob_logfile)
+        if isDeepLearning:
+            resultdict['index_table_header'] = ["ModelNo.", "Length", "RunTime(s)",
+                    "ProQ2D", "ProQRosCenD", "ProQRosFAD", "ProQ3D"]
+        else:
+            resultdict['index_table_header'] = ["ModelNo.", "Length", "RunTime(s)",
+                    "ProQ2", "ProQRosCen", "ProQRosFA", "ProQ3"]
+
         index_table_content_list = []
         indexmap_content = myfunc.ReadFile(finished_model_file).split("\n")
         cnt = 0
