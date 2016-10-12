@@ -75,7 +75,10 @@ def PrintHelp(fpout=sys.stdout):#{{{
     print >> fpout, usage_exp#}}}
 
 def ReadProQ3GlobalScore(infile):#{{{
+    #return globalscore and itemList
+    #itemList is the name of the items
     globalscore = {}
+    keys = []
     try:
         fpin = open(infile, "r")
         lines = fpin.read().split("\n")
@@ -97,7 +100,7 @@ def ReadProQ3GlobalScore(infile):#{{{
                 globalscore[keys[i]] = values[i]
     except IOError:
         pass
-    return globalscore
+    return (globalscore, keys)
 #}}}
 def WriteTextResultFile(outfile, outpath_result, modelFileList, runtime_in_sec, statfile=""):#{{{
     try:
@@ -120,18 +123,24 @@ def WriteTextResultFile(outfile, outpath_result, modelFileList, runtime_in_sec, 
         print >> fpout, "##############################################################################"
         print >> fpout
         print >> fpout, "# Global scores"
-        print >> fpout, "# %10s %12s %12s %12s %12s"%("Model", "ProQ2","ProQRosCen","ProQRosFA","ProQ3")
+        fpout.write("# %10s"%("Model"))
 
         cnt = 0
         for i  in xrange(numModel):
             modelfile = modelFileList[i]
             globalscorefile = "%s.proq3.global"%(modelfile)
-            globalscore = ReadProQ3GlobalScore(globalscorefile)
+            (globalscore, itemList) = ReadProQ3GlobalScore(globalscorefile)
+            if i == 0:
+                for ss in itemList:
+                    fpout.write(" %12s"%(ss))
+                fpout.write("\n")
+
             try:
                 if globalscore:
-                    print >> fpout, "%2s %10s %12f %12f %12f %12f"%("", "model_%d"%(i),
-                            globalscore['ProQ2'], globalscore['ProQRosCen'],
-                            globalscore['ProQRosFA'], globalscore['ProQ3'])
+                    fpout.write("%2s %10s"%("", "model_%d"%(i)))
+                    for jj in xrange(len(itemList)):
+                        fpout.write(" %12f"%(globalscore[itemList[jj]]))
+                    fpout.write("\n")
                 else:
                     print >> fpout, "%2s %10s"%("", "model_%d"%(i))
             except:
@@ -283,16 +292,14 @@ def ScoreModel(model_file, outpath_this_model, profilename, outpath_result, #{{{
             pass
     modelfile = "%s/query_%d.pdb"%(outpath_this_model,modelidx)
     globalscorefile = "%s.proq3.global"%(modelfile)
-    globalscore = ReadProQ3GlobalScore(globalscorefile)
+    (globalscore, itemList) = ReadProQ3GlobalScore(globalscorefile)
     modelseqfile = "%s/query_%d.pdb.fasta"%(outpath_this_model, modelidx)
     modellength = myfunc.GetSingleFastaLength(modelseqfile)
 
     modelinfo = [subfoldername_this_model, str(modellength), str(runtime_in_sec)]
     if globalscore:
-        modelinfo.append(str(globalscore['ProQ2']))
-        modelinfo.append(str(globalscore['ProQRosCen']))
-        modelinfo.append(str(globalscore['ProQRosFA']))
-        modelinfo.append(str(globalscore['ProQ3']))
+        for i in xrange(len(itemList)):
+            modelinfo.append(str(globalscore[itemList[i]]))
     return modelinfo
 #}}}
 def RunJob(modelfile, seqfile, outpath, tmpdir, email, jobid, g_params):#{{{
