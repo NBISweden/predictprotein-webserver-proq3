@@ -39,6 +39,7 @@ else:
     os.environ['LD_LIBRARY_PATH'] = "/usr/local/lib"
 
 os.environ['KERAS_BACKEND'] = 'theano'
+os.environ[‘THEANO_FLAGS’] = 'base_compiledir=/tmp/.theano/'
 
 from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()
