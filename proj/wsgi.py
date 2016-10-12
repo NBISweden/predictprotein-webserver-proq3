@@ -38,6 +38,7 @@ if 'LD_LIBRARY_PATH' in os.environ:
 else:
     os.environ['LD_LIBRARY_PATH'] = "/usr/local/lib"
 
+os.environ['KERAS_BACKEND'] = 'theano'
 
 from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()
