@@ -105,7 +105,7 @@ def SubmitJobToQueue(jobid, datapath, outpath, nummodel, nummodel_this_user, ema
     code_str_list = []
     code_str_list.append("#!/bin/bash")
     cmdline = "%s %s -outpath %s -tmpdir %s -jobid %s "%(runjob, modelfile, outpath, datapath, jobid)
-    cmdline += "-r %s -k %s "%(g_params['isRepack'], g_params['isKeepFiles'])
+    cmdline += "-r %s -k %s -deep %s"%(g_params['isRepack'], g_params['isKeepFiles'], g_params['isDeepLearning'])
     if g_params['targetlength'] != None:
         cmdline += "-t %d "%(g_params['targetlength'])
     if email != "":

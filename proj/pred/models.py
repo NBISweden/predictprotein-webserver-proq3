@@ -40,7 +40,7 @@ class SubmissionForm(forms.Form):
     repacking = forms.BooleanField(label='Perform side chain repacking', initial=True, required=False)
     deep = forms.BooleanField(label='Using deep learning', initial=False, required=False)
     #keepfile = forms.BooleanField(label='Keep repacked models and SVM output', required=False)
-    forcerun = forms.BooleanField(label='Force run (do not use cached profiles)', required=False)
+    forcerun = forms.BooleanField(label='Force run (do not use cached profiles)', initial=False, required=False)
 
 
 class FieldContainer(models.Model):

@@ -862,6 +862,7 @@ def SubmitQueryToLocalQueue(query, tmpdir, rstdir):#{{{
         cmd += ['-t', str(query['targetlength'])]
     cmdline = " ".join(cmd)
     try:
+        myfunc.WriteFile("cmdline: " + cmdline +"\n", debugfile, "a")
         rmsg = myfunc.check_output(cmd, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError, e:
         failtagfile = "%s/%s"%(rstdir, "runjob.failed")
