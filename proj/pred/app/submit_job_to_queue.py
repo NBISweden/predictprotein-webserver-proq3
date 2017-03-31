@@ -19,6 +19,7 @@ vip_user_list = [
 rundir = os.path.dirname(os.path.realpath(__file__))
 basedir = os.path.realpath("%s/../"%(rundir))
 python_exec = os.path.realpath("%s/../../env/bin/python"%(basedir))
+virt_env_path = os.path.realpath("%s/../../env"%(basedir))   
 suq_basedir = "/tmp"
 if os.path.exists("/scratch"):
     suq_basedir = "/scratch"
@@ -104,6 +105,7 @@ def SubmitJobToQueue(jobid, datapath, outpath, nummodel, nummodel_this_user, ema
     scriptfile = "%s/runjobSPLIT%sSPLIT%sSPLIT%sSPLIT%d.sh"%(datapath, jobid, host_ip, email, nummodel)
     code_str_list = []
     code_str_list.append("#!/bin/bash")
+    code_str_list.append("source %s/bin/activate"%(virt_env_path))
     cmdline = "%s %s -outpath %s -tmpdir %s -jobid %s "%(runjob, modelfile, outpath, datapath, jobid)
     cmdline += "-r %s -k %s -deep %s "%(g_params['isRepack'], g_params['isKeepFiles'], g_params['isDeepLearning'])
     if g_params['targetlength'] != None:
