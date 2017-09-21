@@ -29,7 +29,7 @@ DEBUG = False
 
 TEMPLATE_DEBUG = DEBUG
 
-ALLOWED_HOSTS = ['localhost', 'proq3.bioinfo.se']
+ALLOWED_HOSTS = ['localhost', 'dev.proq3.bioinfo.se', 'proq3.bioinfo.se']
 
 computenodefile = "%s/pred/static/computenode.txt"%(BASE_DIR)
 if os.path.exists(computenodefile):
