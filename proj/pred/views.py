@@ -8,6 +8,7 @@ from datetime import datetime
 import time
 import math
 import shutil
+import json
 
 os.environ['TZ'] = 'Europe/Stockholm'
 time.tzset()
@@ -51,6 +52,7 @@ python_exec = os.path.realpath("%s/../../env/bin/python"%(SITE_ROOT))
 
 
 import myfunc
+import webserver_common
 
 rundir = SITE_ROOT
 
@@ -164,6 +166,7 @@ def submit_seq(request):#{{{
 
             jobname = request.POST['jobname']
             email = request.POST['email']
+            method_quality = request.POST['method_quality']
             try:
                 targetlength = int(request.POST['targetlength'])
             except ValueError:
@@ -192,6 +195,11 @@ def submit_seq(request):#{{{
             else:
                 isDeepLearning = False
 
+            for tup in form.method_quality_choices:
+                if tup[0] == method_quality:
+                    method_quality = tup[1]
+                    break
+
             try:
                 seqfile = request.FILES['seqfile']
             except KeyError, MultiValueDictKeyError:
@@ -209,6 +217,7 @@ def submit_seq(request):#{{{
             query['targetlength'] = targetlength
             query['email'] = email
             query['jobname'] = jobname
+            query['method_quality'] = method_quality
             query['date'] = date
             query['client_ip'] = client_ip
             query['errinfo'] = ""
@@ -253,7 +262,7 @@ def submit_seq(request):#{{{
                 # start the qd_fe if not, in the background
 #                 cmd = [qd_fe_scriptfile]
                 base_www_url = "http://" + request.META['HTTP_HOST']
-                if base_www_url.find("topcons.net") != -1: #run the daemon only at the frontend
+                if webserver_common.IsFrontEndNode(base_www_url): #run the daemon only at the frontend
                     cmd = "nohup python %s &"%(qd_fe_scriptfile)
                     os.system(cmd)
 #                 try:
@@ -500,6 +509,14 @@ def ValidateQuery(request, query):#{{{
     if query['modelfile'] != "":
         has_upload_modelfile = True
 
+
+    if not query['isDeepLearning'] and query['method_quality'] in ['lddt', 'tmscore', 'cad']:
+        query['errinfo_br'] += "Bad ProQ3 option!"
+        query['errinfo_content'] = "Method for quality assessment '%s' "\
+                "can only be used for deep learning version of ProQ3. "\
+                "Please click checkbox 'Use deep learning' in the submission page "\
+                "and submit your job again."%(query['method_quality'])
+        return False
 
     if has_pasted_model and has_upload_modelfile:
         query['errinfo_br'] += "Confused input!"
@@ -751,6 +768,14 @@ def RunQuery(request, query):#{{{
     warnfile = "%s/warn.txt"%(tmpdir)
     logfile = "%s/runjob.log"%(rstdir)
 
+    query_para = {}
+    query_para['name_software'] = "proq3"
+    for item in ['targetlength', 'isRepack',
+            'isDeepLearning','isKeepFiles','method_quality', 'isForceRun']:
+        if item in query and query[item] != None:
+            query_para[item] = query[item]
+    query_parafile = "%s/query.para.txt"%(rstdir)
+
     myfunc.WriteFile("tmpdir = %s\n"%(tmpdir), logfile, "a")
 
     jobinfo_str = "%s\t%s\t%s\t%s\t%d\t%s\t%s\t%s\n"%(query['date'], jobid,
@@ -766,6 +791,7 @@ def RunQuery(request, query):#{{{
         errmsg.append(myfunc.WriteFile(query['filtered_seq'], seqfile_r, "w"))
     errmsg.append(myfunc.WriteFile(query['filtered_model'], modelfile_t, "w"))
     errmsg.append(myfunc.WriteFile(query['filtered_model'], modelfile_r, "w"))
+    errmsg.append(myfunc.WriteFile(json.dumps(query_para, sort_keys=True), query_parafile, "w"))
     base_www_url = "http://" + request.META['HTTP_HOST']
     query['base_www_url'] = base_www_url
 
@@ -861,23 +887,6 @@ def SubmitQueryToLocalQueue(query, tmpdir, rstdir):#{{{
     if query['isForceRun']:
         cmd += ["-force"]
 
-    if query['isKeepFiles']:
-        cmd += ["-k", "yes"]
-    else:
-        cmd += ["-k", "no"]
-
-    if query['isRepack']:
-        cmd += ["-r", "yes"]
-    else:
-        cmd += ["-r", "no"]
-
-    if query['isDeepLearning']:
-        cmd += ["-deep", "yes"]
-    else:
-        cmd += ["-deep", "no"]
-
-    if query['targetlength'] != None:
-        cmd += ['-t', str(query['targetlength'])]
     cmdline = " ".join(cmd)
     try:
         myfunc.WriteFile("cmdline: " + cmdline +"\n", debugfile, "a")
@@ -1720,7 +1729,7 @@ def help_wsdl_api(request):#{{{
     info['client_ip'] = client_ip
 
 
-    api_script_rtname =  "topcons2_wsdl"
+    api_script_rtname =  "proq3_wsdl"
     extlist = [".py"]
     api_script_lang_list = ["Python"]
     api_script_info_list = []
@@ -1823,6 +1832,8 @@ def get_results(request, jobid="1"):#{{{
     raw_query_modelfile = "%s/%s"%(rstdir, "query.raw.pdb")
     seqid_index_mapfile = "%s/%s/%s"%(rstdir,jobid, "seqid_index_map.txt")
     finished_model_file = "%s/%s/finished_models.txt"%(rstdir, jobid)
+    globalscorefile = "%s/%s/model_0/query_0.pdb.proq3.global"%(rstdir, jobid)
+    dumped_resultfile = "%s/%s/%s"%(rstdir, jobid, "query.proq3.txt")
     statfile = "%s/%s/stat.txt"%(rstdir, jobid)
     method_submission = "web"
 
@@ -1963,13 +1974,11 @@ def get_results(request, jobid="1"):#{{{
     cntcached = 0
 # get seqid_index_map
     if os.path.exists(finished_model_file):
-        isDeepLearning = IsDeepLearningFromLogFile(runjob_logfile)
-        if isDeepLearning:
-            resultdict['index_table_header'] = ["ModelNo.", "Length", "RunTime(s)",
-                    "ProQ2D", "ProQRosCenD", "ProQRosFAD", "ProQ3D"]
-        else:
-            resultdict['index_table_header'] = ["ModelNo.", "Length", "RunTime(s)",
-                    "ProQ2", "ProQRosCen", "ProQRosFA", "ProQ3"]
+        # get headers for global scores from global score file
+        proq3ScoreList = []
+        if os.path.exists(globalscorefile):
+            proq3ScoreList = webserver_common.GetProQ3ScoreListFromGlobalScoreFile(globalscorefile)
+        resultdict['index_table_header'] = ["ModelNo.", "Length", "RunTime(s)"] + proq3ScoreList
 
         index_table_content_list = []
         indexmap_content = myfunc.ReadFile(finished_model_file).split("\n")
@@ -1977,7 +1986,7 @@ def get_results(request, jobid="1"):#{{{
         set_seqidx = set([])
         for line in indexmap_content:
             strs = line.split("\t")
-            if len(strs)>=7:
+            if len(strs)>=4:
                 subfolder = strs[0]
                 if not subfolder in set_seqidx:
                     length_str = strs[1]
@@ -1985,26 +1994,17 @@ def get_results(request, jobid="1"):#{{{
                         runtime_in_sec_str = "%.1f"%(float(strs[2]))
                     except:
                         runtime_in_sec_str = ""
-                    try:
-                        s_proq2 = "%.3f"%(float(strs[3]))
-                    except:
-                        s_proq2 = ""
-                    try:
-                        s_proqlowres = "%.3f"%(float(strs[4]))
-                    except:
-                        s_proqlowres = ""
-                    try:
-                        s_proqhighres = "%.3f"%(float(strs[5]))
-                    except:
-                        s_proqhighres = ""
-                    try:
-                        s_proq3 = "%.3f"%(float(strs[6]))
-                    except:
-                        s_proq3 = ""
+
+                    scoreList = []
+                    for jj in range(3, len(strs)):
+                        try:
+                            score = "%.3f"%(float(strs[jj]))
+                        except:
+                            score = ""
+                        scoreList.append(score)
                     rank = "%d"%(cnt)
                     index_table_content_list.append([rank, length_str,
-                        runtime_in_sec_str, s_proq2, s_proqlowres,
-                        s_proqhighres, s_proq3])
+                        runtime_in_sec_str] + scoreList)
                     cnt += 1
                     set_seqidx.add(subfolder)
         if cntnewrun > 0:
@@ -2071,9 +2071,6 @@ def get_results(request, jobid="1"):#{{{
                 newkey = strs[0].replace('num_', 'per_')
                 resultdict[newkey] = percent
 #}}}
-    dumped_resultfile = "%s/%s/%s"%(rstdir, jobid, "query.proq3.txt")
-
-
     resultdict['jobcounter'] = GetJobCounter(client_ip, isSuperUser,
             divided_logfile_query, divided_logfile_finished_jobid)
     return render(request, 'pred/get_results.html', resultdict)

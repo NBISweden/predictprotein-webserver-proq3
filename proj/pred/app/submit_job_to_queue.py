@@ -9,6 +9,7 @@ import myfunc
 import subprocess
 import time
 import math
+import json
 progname =  os.path.basename(__file__)
 wspace = ''.join([" "]*len(progname))
 
@@ -30,14 +31,13 @@ gen_errfile = "%s/static/log/%s.log"%(basedir, progname)
 
 usage_short="""
 Usage: %s -nmodel INT -jobid STR -outpath DIR -datapath DIR
-       %s [-r yes|no] [-k yes|no] [-t INT] [-deep yes|no]
        %s -email EMAIL -host IP -baseurl BASE_WWW_URL
        %s -nmodel-this-user INT
        %s [-force]
 
 Description: 
     BASE_WWW_URL e.g. topcons.net
-"""%(progname, wspace, wspace, wspace, wspace)
+"""%(progname, wspace, wspace, wspace)
 
 usage_ext="""
 Description:
@@ -45,15 +45,11 @@ Description:
     datapath should include query.fa
 
 OPTIONS:
-  -r    yes|no      Whether do repacking
-  -k    yes|no      Whether keep SVM results and repacked models
-  -t       INT      Set the target length
-  -deep yes|no      Whether use deep learning
   -force            Do not use cahced result
   -nmodel-this-user Number of models in the queue submitted by this user
   -h, --help    Print this help message and exit
 
-Created 2015-01-20, updated 2016-10-11, Nanjiang Shu
+Created 2015-01-20, updated 2017-10-10, Nanjiang Shu
 """
 usage_exp="""
 Examples:
@@ -101,19 +97,27 @@ def SubmitJobToQueue(jobid, datapath, outpath, nummodel, nummodel_this_user, ema
     if nummodel_this_user == -1:
         nummodel_this_user = nummodel
 
+    query_parafile = "%s/query.para.txt"%(outpath)
+
+    query_para = {}
+    content = myfunc.ReadFile(query_parafile)
+    para_str = content
+    if content != "":
+        query_para = json.loads(content)
+
+    try:
+        name_software = query_para['name_software']
+    except KeyError:
+        name_software = "proq3"
+
     runjob = "%s %s/run_job.py"%(python_exec, rundir)
-    scriptfile = "%s/runjobSPLIT%sSPLIT%sSPLIT%sSPLIT%d.sh"%(datapath, jobid, host_ip, email, nummodel)
+    scriptfile = "%s/runjob,%s,%s,%s,%s,%d.sh"%(outpath, name_software, jobid, host_ip, email, nummodel)
     code_str_list = []
     code_str_list.append("#!/bin/bash")
     code_str_list.append("source %s/bin/activate"%(virt_env_path))
     cmdline = "%s %s -outpath %s -tmpdir %s -jobid %s "%(runjob, modelfile, outpath, datapath, jobid)
-    cmdline += "-r %s -k %s -deep %s "%(g_params['isRepack'], g_params['isKeepFiles'], g_params['isDeepLearning'])
-    if g_params['targetlength'] != None:
-        cmdline += "-t %d "%(g_params['targetlength'])
     if email != "":
         cmdline += "-email \"%s\" "%(email)
-    if os.path.exists(seqfile):
-        cmdline += "-fasta %s "%(seqfile)
     if base_www_url != "":
         cmdline += "-baseurl \"%s\" "%(base_www_url)
     if g_params['isForceRun']:
@@ -136,14 +140,14 @@ def SubmitJobToQueue(jobid, datapath, outpath, nummodel, nummodel_this_user, ema
 
     myfunc.WriteFile("priority=%d\n"%(priority), g_params['debugfile'], "a")
 
-    st1 = SubmitSuqJob(suq_basedir, datapath, priority, scriptfile)
+    st1 = SubmitSuqJob(suq_basedir, datapath, outpath, priority, scriptfile)
 
     return st1
 #}}}
-def SubmitSuqJob(suq_basedir, datapath, priority, scriptfile):#{{{
+def SubmitSuqJob(suq_basedir, datapath, outpath, priority, scriptfile):#{{{
     myfunc.WriteFile("Entering SubmitSuqJob()\n", g_params['debugfile'], "a")
     rmsg = ""
-    cmd = [suq_exec,"-b", suq_basedir, "run", "-d", datapath, "-p", "%d"%(priority), scriptfile]
+    cmd = [suq_exec,"-b", suq_basedir, "run", "-d", outpath, "-p", "%d"%(priority), scriptfile]
     cmdline = " ".join(cmd)
     myfunc.WriteFile("cmdline: %s\n\n"%(cmdline), g_params['debugfile'], "a")
     MAX_TRY = 5
@@ -205,14 +209,6 @@ def main(g_params):#{{{
                 (outpath, i) = myfunc.my_getopt_str(argv, i)
             elif argv[i] in ["-email", "--email"]:
                 (email, i) = myfunc.my_getopt_str(argv, i)
-            elif argv[i] in ["-k", "--k"] :
-                (g_params['isKeepFiles'], i) = myfunc.my_getopt_str(argv, i)
-            elif argv[i] in ["-r", "--r"] :
-                (g_params['isRepack'], i) = myfunc.my_getopt_str(argv, i)
-            elif argv[i] in ["-deep", "--deep"] :
-                (g_params['isDeepLearning'], i) = myfunc.my_getopt_str(argv, i)
-            elif argv[i] in ["-t", "--t"] :
-                (g_params['targetlength'], i) = myfunc.my_getopt_int(argv, i)
             elif argv[i] in ["-host", "--host"]:
                 (host_ip, i) = myfunc.my_getopt_str(argv, i)
             elif argv[i] in ["-nmodel", "--nmodel"]:
@@ -275,10 +271,6 @@ def InitGlobalParameter():#{{{
     g_params = {}
     g_params['isQuiet'] = True
     g_params['isForceRun'] = False
-    g_params['isRepack'] = "yes"
-    g_params['isDeepLearning'] = "no"
-    g_params['isKeepFiles'] = "no"
-    g_params['targetlength'] = None
     g_params['fperr'] = None
     return g_params
 #}}}

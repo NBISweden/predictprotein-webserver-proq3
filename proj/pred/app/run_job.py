@@ -17,7 +17,9 @@ import myfunc
 import glob
 import hashlib
 import shutil
-from datetime import datetime
+import json
+import webserver_common
+import datetime
 os.environ["PATH"] += os.pathsep + "/usr/local/bin" # this solved the problem for CentOS6.4
 progname =  os.path.basename(sys.argv[0])
 wspace = ''.join([" "]*len(progname))
@@ -44,25 +46,20 @@ vip_user_list = [
 
 usage_short="""
 Usage: %s dumped-model-file [-fasta seqfile]
-       %s [-r yes|no] [-k yes|no] [-t INT] [-deep yes|no]
        %s -jobid JOBID -outpath DIR -tmpdir DIR
        %s -email EMAIL -baseurl BASE_WWW_URL
        %s [-force]
-"""%(progname, wspace, wspace, wspace, wspace)
+"""%(progname, wspace, wspace, wspace)
 
 usage_ext="""\
 Description:
     run job
 
 OPTIONS:
-  -r    yes|no  Whether do repacking
-  -k    yes|no  Whether keep SVM results and repacked models
-  -t       INT  Set the target length
-  -deep yes|no  Whether use deep learning
   -force        Do not use cahced result
   -h, --help    Print this help message and exit
 
-Created 2016-02-02, updated 2016-10-11, Nanjiang Shu
+Created 2016-02-02, updated 2017-10-09, Nanjiang Shu
 """
 usage_exp="""
 Examples:
@@ -74,89 +71,6 @@ def PrintHelp(fpout=sys.stdout):#{{{
     print >> fpout, usage_ext
     print >> fpout, usage_exp#}}}
 
-def ReadProQ3GlobalScore(infile):#{{{
-    #return globalscore and itemList
-    #itemList is the name of the items
-    globalscore = {}
-    keys = []
-    try:
-        fpin = open(infile, "r")
-        lines = fpin.read().split("\n")
-        fpin.close()
-        for line in lines:
-            line = line.strip()
-            if not line:
-                continue
-            if line[0] == "P":
-                keys = line.split()
-            elif line[0].isdigit():
-                values = line.split()
-                try:
-                    values = [float(x) for x in values]
-                except:
-                    values = []
-        if len(keys) == len(values):
-            for i in xrange(len(keys)):
-                globalscore[keys[i]] = values[i]
-    except IOError:
-        pass
-    return (globalscore, keys)
-#}}}
-def WriteTextResultFile(outfile, outpath_result, modelFileList, runtime_in_sec, statfile=""):#{{{
-    try:
-        fpout = open(outfile, "w")
-
-        fpstat = None
-        numTMPro = 0
-
-        if statfile != "":
-            fpstat = open(statfile, "w")
-        numModel = len(modelFileList)
-
-        date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        print >> fpout, "##############################################################################"
-        print >> fpout, "# ProQ3 result file"
-        print >> fpout, "# Generated from %s at %s"%(g_params['base_www_url'], date)
-        print >> fpout, "# Options for Proq3: %s"%(g_params['proq3opt'])
-        print >> fpout, "# Total request time: %.1f seconds."%(runtime_in_sec)
-        print >> fpout, "# Number of finished models: %d"%(numModel)
-        print >> fpout, "##############################################################################"
-        print >> fpout
-        print >> fpout, "# Global scores"
-        fpout.write("# %10s"%("Model"))
-
-        cnt = 0
-        for i  in xrange(numModel):
-            modelfile = modelFileList[i]
-            globalscorefile = "%s.proq3.global"%(modelfile)
-            (globalscore, itemList) = ReadProQ3GlobalScore(globalscorefile)
-            if i == 0:
-                for ss in itemList:
-                    fpout.write(" %12s"%(ss))
-                fpout.write("\n")
-
-            try:
-                if globalscore:
-                    fpout.write("%2s %10s"%("", "model_%d"%(i)))
-                    for jj in xrange(len(itemList)):
-                        fpout.write(" %12f"%(globalscore[itemList[jj]]))
-                    fpout.write("\n")
-                else:
-                    print >> fpout, "%2s %10s"%("", "model_%d"%(i))
-            except:
-                pass
-
-        print >> fpout, "\n# Local scores"
-        for i  in xrange(numModel):
-            modelfile = modelFileList[i]
-            localscorefile = "%s.proq3.local"%(modelfile)
-            print >> fpout, "\n# Model %d"%(i)
-            content = myfunc.ReadFile(localscorefile)
-            print >> fpout, content
-
-    except IOError:
-        print "Failed to write to file %s"%(outfile)
-#}}}
 def CreateProfile(seqfile, outpath_profile, outpath_result, tmp_outpath_result, timefile, runjob_errfile):#{{{
     (seqid, seqanno, seq) = myfunc.ReadSingleFasta(seqfile)
     subfoldername_profile = os.path.basename(outpath_profile)
@@ -251,21 +165,40 @@ def CreateProfile(seqfile, outpath_profile, outpath_result, tmp_outpath_result, 
                 except:
                     pass
 #}}}
-def ScoreModel(model_file, outpath_this_model, profilename, outpath_result, #{{{
+def GetProQ3Option(query_para):#{{{
+    """Return the proq3opt in list
+    """
+    yes_or_no_opt = {}
+    for item in ['isDeepLearning', 'isRepack', 'isKeepFiles']:
+        if query_para[item]:
+            yes_or_no_opt[item] = "yes"
+        else:
+            yes_or_no_opt[item] = "no"
+
+    proq3opt = [
+            "-r", yes_or_no_opt['isRepack'],
+            "-deep", yes_or_no_opt['isDeepLearning'],
+            "-k", yes_or_no_opt['isKeepFiles'],
+            "-quality", query_para['method_quality']
+            ]
+    if 'targetlength' in query_para:
+        proq3opt += ["-t", str(query_para['targetlength'])]
+
+    return proq3opt
+
+#}}}
+def ScoreModel(query_para, model_file, outpath_this_model, profilename, outpath_result, #{{{
         tmp_outpath_result, timefile, runjob_errfile): 
     subfoldername_this_model = os.path.basename(outpath_this_model)
     modelidx = int(subfoldername_this_model.split("model_")[1])
     rmsg = ""
     tmp_outpath_this_model = "%s/%s"%(tmp_outpath_result, subfoldername_this_model)
+    proq3opt = GetProQ3Option(query_para)
     cmd = [runscript, "-profile", profilename,  "-outpath",
-            tmp_outpath_this_model, model_file, 
-            "-r", g_params['isRepack'],
-            "-deep", g_params['isDeepLearning'],
-            "-k", g_params['isKeepFiles']
-            ]
-    if g_params['targetlength'] != None:
-        cmd += ["-t", str(g_params['targetlength'])]
+            tmp_outpath_this_model, model_file
+            ] + proq3opt
     g_params['runjob_log'].append(" ".join(cmd))
+    cmdline = " ".join(cmd)
     begin_time = time.time()
     try:
         rmsg = subprocess.check_output(cmd)
@@ -292,7 +225,7 @@ def ScoreModel(model_file, outpath_this_model, profilename, outpath_result, #{{{
             pass
     modelfile = "%s/query_%d.pdb"%(outpath_this_model,modelidx)
     globalscorefile = "%s.proq3.global"%(modelfile)
-    (globalscore, itemList) = ReadProQ3GlobalScore(globalscorefile)
+    (globalscore, itemList) = webserver_common.ReadProQ3GlobalScore(globalscorefile)
     modelseqfile = "%s/query_%d.pdb.fasta"%(outpath_this_model, modelidx)
     modellength = myfunc.GetSingleFastaLength(modelseqfile)
 
@@ -312,6 +245,11 @@ def RunJob(modelfile, seqfile, outpath, tmpdir, email, jobid, g_params):#{{{
     finishtagfile = "%s/runjob.finish"%(outpath)
     rmsg = ""
 
+    query_parafile = "%s/query.para.txt"%(outpath)
+    query_para = {}
+    content = myfunc.ReadFile(query_parafile)
+    if content != "":
+        query_para = json.loads(content)
 
     resultpathname = jobid
 
@@ -377,7 +315,7 @@ def RunJob(modelfile, seqfile, outpath, tmpdir, email, jobid, g_params):#{{{
                 subfoldername_this_model = "model_%d"%(ii)
                 outpath_this_model = "%s/%s"%(outpath_result, subfoldername_this_model)
 
-                modelinfo = ScoreModel(tmp_model_file, outpath_this_model, profilename,
+                modelinfo = ScoreModel(query_para, tmp_model_file, outpath_this_model, profilename,
                         outpath_result, tmp_outpath_result, timefile,
                         runjob_errfile)
                 myfunc.WriteFile("\t".join(modelinfo)+"\n", finished_model_file, "a")
@@ -414,7 +352,7 @@ def RunJob(modelfile, seqfile, outpath, tmpdir, email, jobid, g_params):#{{{
 
                 outpath_this_model = "%s/%s"%(outpath_result, subfoldername_this_model)
                 profilename = "%s/%s"%(outpath_profile, "query.fasta")
-                modelinfo = ScoreModel(tmp_model_file, outpath_this_model, profilename,
+                modelinfo = ScoreModel(query_para, tmp_model_file, outpath_this_model, profilename,
                         outpath_result, tmp_outpath_result, timefile,
                         runjob_errfile)
                 myfunc.WriteFile("\t".join(modelinfo)+"\n", finished_model_file, "a")
@@ -437,8 +375,9 @@ def RunJob(modelfile, seqfile, outpath, tmpdir, email, jobid, g_params):#{{{
         #statfile = "%s/%s"%(outpath_result, "stat.txt")
         statfile = ""
         dumped_resultfile = "%s/%s"%(outpath_result, "query.proq3.txt")
-        WriteTextResultFile(dumped_resultfile, outpath_result, modelFileList,
-                all_runtime_in_sec, statfile=statfile)
+        proq3opt = GetProQ3Option(query_para)
+        webserver_common.WriteProQ3TextResultFile(dumped_resultfile, outpath_result, modelFileList,
+                all_runtime_in_sec, g_params['base_www_url'], proq3opt, statfile=statfile)
 
         # now making zip instead (for windows users)
         # note that zip rq will zip the real data for symbolic links
@@ -518,10 +457,6 @@ def main(g_params):#{{{
     tmpdir = ""
     email = ""
     jobid = ""
-#     isKeepFiles = "no"
-#     isRepack = "yes"
-#     isDeepLearning = "no"
-#     targetlength = None
 
     i = 1
     isNonOptionArg=False
@@ -545,14 +480,6 @@ def main(g_params):#{{{
                 (jobid, i) = myfunc.my_getopt_str(argv, i)
             elif argv[i] in ["-fasta", "--fasta"] :
                 (seqfile, i) = myfunc.my_getopt_str(argv, i)
-            elif argv[i] in ["-k", "--k"] :
-                (g_params['isKeepFiles'], i) = myfunc.my_getopt_str(argv, i)
-            elif argv[i] in ["-r", "--r"] :
-                (g_params['isRepack'], i) = myfunc.my_getopt_str(argv, i)
-            elif argv[i] in ["-deep", "--deep"] :
-                (g_params['isDeepLearning'], i) = myfunc.my_getopt_str(argv, i)
-            elif argv[i] in ["-t", "--t"] :
-                (g_params['targetlength'], i) = myfunc.my_getopt_int(argv, i)
             elif argv[i] in ["-baseurl", "--baseurl"] :
                 (g_params['base_www_url'], i) = myfunc.my_getopt_str(argv, i)
             elif argv[i] in ["-email", "--email"] :
@@ -600,9 +527,6 @@ def main(g_params):#{{{
     if not os.path.exists(path_profile_cache):
         os.makedirs(path_profile_cache)
 
-    g_params['proq3opt']  = "-r %s -deep %s -k %s "%(g_params['isRepack'], g_params['isDeepLearning'], g_params['isKeepFiles'])
-    if g_params['targetlength'] != None:
-        g_params['proq3opt'] += "-t %d"%(g_params['targetlength'])
 
     return RunJob(modelfile, seqfile, outpath, tmpdir, email, jobid, g_params)
 
@@ -615,11 +539,6 @@ def InitGlobalParameter():#{{{
     g_params['runjob_err'] = []
     g_params['isForceRun'] = False
     g_params['base_www_url'] = ""
-    g_params['proq3opt']  = ""
-    g_params['isRepack'] = 'yes'
-    g_params['isDeepLearning'] = 'no'
-    g_params['isKeepFiles'] = 'no'
-    g_params['targetlength'] = None
     return g_params
 #}}}
 if __name__ == '__main__' :

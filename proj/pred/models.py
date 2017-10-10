@@ -30,7 +30,7 @@ class SubmissionForm(forms.Form):
             widget=forms.Textarea(attrs={'cols': 70, 'rows': 10, 'wrap': 'off'}),
             required=False)
     modelfile = forms.FileField(label="Or, upload the model file (up to 10 MB)", required=False)
-    rawseq = forms.CharField(label='Paste the amino acid sequence of your model in FASTA format (optional, up to 10 KB)\n', max_length=100000,
+    rawseq = forms.CharField(label='Paste the amino acid sequence of your model in FASTA format (recommended, up to 10 KB)\n', max_length=100000,
         widget=forms.Textarea(attrs={'cols': 70, 'rows': 4}),
             required=False)
     seqfile = forms.FileField(label="Or, upload your sequence file (up to 10 KB)", required=False)
@@ -38,6 +38,8 @@ class SubmissionForm(forms.Form):
     jobname = forms.CharField(label='Job name (optional)', max_length=100, required=False)
     email = forms.EmailField(label='Email (recommended)', max_length=100, required=False)
     repacking = forms.BooleanField(label='Perform side chain repacking', initial=True, required=False)
+    method_quality_choices = (('1', 'sscore'), ('2', 'cad'),('3', 'tmscore'),('4', 'lddt') )
+    method_quality = forms.TypedChoiceField(label='Method for quality measurement', choices=method_quality_choices, initial='1', required=False)
     deep = forms.BooleanField(label='Using deep learning', initial=False, required=False)
     #keepfile = forms.BooleanField(label='Keep repacked models and SVM output', required=False)
     forcerun = forms.BooleanField(label='Force run (do not use cached profiles)', initial=False, required=False)
