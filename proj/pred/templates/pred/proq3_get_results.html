@@ -48,6 +48,8 @@ function readfile() {
                 target="_blank"  >this link</a> to see details
             </p>
         {% endif %}
+
+        {% if not raw_query_seqfile %}
             <p>
             <font color="brown">Warning! You did not provide target protein
                 amino acid sequence in FASTA format, so the sequence will be
@@ -55,8 +57,6 @@ function readfile() {
                 unless you are sure that the model has a full amino acid sequence as in the
                 target protein. Otherwise, the ProQ3 results might not be accurate.</font>
             </p>
-
-        {% if not raw_query_seqfile %}
         {% endif %}
 
 
