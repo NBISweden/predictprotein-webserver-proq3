@@ -510,13 +510,21 @@ def ValidateQuery(request, query):#{{{
         has_upload_modelfile = True
 
 
-    if not query['isDeepLearning'] and query['method_quality'] in ['lddt', 'tmscore', 'cad']:
-        query['errinfo_br'] += "Bad ProQ3 option!"
-        query['errinfo_content'] = "Method for quality assessment '%s' "\
-                "can only be used for deep learning version of ProQ3. "\
-                "Please click checkbox 'Use deep learning' in the submission page "\
-                "and submit your job again."%(query['method_quality'])
-        return False
+    if query['method_quality'] in ['lddt', 'tmscore', 'cad']:
+        if not query['isDeepLearning']:
+            query['errinfo_br'] += "Bad ProQ3 option!"
+            query['errinfo_content'] = "Method for quality assessment '%s' "\
+                    "can only be used for deep learning version of ProQ3. "\
+                    "Please click checkbox 'Use deep learning' in the submission page "\
+                    "and submit your job again."%(query['method_quality'])
+            return False
+        elif not query['isRepack']:
+            query['errinfo_br'] += "Bad ProQ3 option!"
+            query['errinfo_content'] = "Method for quality assessment '%s' "\
+                    "can only be used for repacked models. "\
+                    "Please click checkbox 'Perform side chain repacking' in the submission page "\
+                    "and submit your job again."%(query['method_quality'])
+            return False
 
     if has_pasted_model and has_upload_modelfile:
         query['errinfo_br'] += "Confused input!"
