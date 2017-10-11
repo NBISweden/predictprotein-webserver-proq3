@@ -40,7 +40,7 @@ class SubmissionForm(forms.Form):
     repacking = forms.BooleanField(label='Perform side chain repacking', initial=True, required=False)
     method_quality_choices = (('1', 'sscore'), ('2', 'cad'),('3', 'tmscore'),('4', 'lddt') )
     method_quality = forms.TypedChoiceField(label='Method for quality measurement', choices=method_quality_choices, initial='1', required=False)
-    deep = forms.BooleanField(label='Using deep learning', initial=False, required=False)
+    deep = forms.BooleanField(label='Using deep learning', initial=True, required=False)
     #keepfile = forms.BooleanField(label='Keep repacked models and SVM output', required=False)
     forcerun = forms.BooleanField(label='Force run (do not use cached profiles)', initial=False, required=False)
 
