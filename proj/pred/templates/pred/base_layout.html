@@ -50,11 +50,18 @@ function example_fill(){
   } else {
       xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
   }
-  var filename = "{{STATIC_URL}}doc/1e12A_0001.pdb";
-  xmlhttp.open("GET", filename, false);
+  var exp_modelfile = "{{STATIC_URL}}doc/1e12A_0001.pdb";
+  xmlhttp.open("GET", exp_modelfile, false);
   xmlhttp.send();
   xmlDoc = xmlhttp.responseText;
   document.seq_form.rawmodel.value= xmlDoc;
+
+  var exp_seqfile = "{{STATIC_URL}}doc/1e12A.fa";
+  xmlhttp.open("GET", exp_seqfile, false);
+  xmlhttp.send();
+  xmlDoc = xmlhttp.responseText;
+  document.seq_form.rawseq.value= xmlDoc;
+
   document.seq_form.jobname.value='mytest';
 }
 
