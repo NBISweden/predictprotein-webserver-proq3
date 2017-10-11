@@ -80,7 +80,7 @@ function readfile() {
             </p>
             {% if raw_query_seqfile %}
                 <p>
-                    The sequence you submitted can be found in 
+                    The target sequence you submitted can be found in 
                     <a href="{{STATIC_URL}}result/{{jobid}}/{{raw_query_seqfile}}">{{raw_query_seqfile}}</a>
                 </p>
             {% endif %}
@@ -114,13 +114,17 @@ function readfile() {
                     {%endif%}
                     {% for record in index_table_content_list %}
                         <tr>
-                            <td><a href="{{STATIC_URL}}result/{{jobid}}/{{jobid}}/model_{{record.0}}/query_{{record.0}}.pdb.proq3.local">Model {{record.0}}</a></td>
-                            <td align="center">{{record.1}}</td>
-                            <td align="center">{{record.2}}</td>
-                            <td align="center">{{record.3}}</td>
-                            <td align="center">{{record.4}}</td>
-                            <td align="center">{{record.5}}</td>
-                            <td align="center">{{record.6}}</td>
+                            {% for field in record %}
+
+                                {% if forloop.counter0 == 0 %}
+                                    <td align="center"><a href="{{STATIC_URL}}result/{{jobid}}/{{jobid}}/model_{{record.0}}/query_{{record.0}}.pdb.proq3.local">Model {{record.0}}</a></td>
+                                    {% if not isHasTargetseq %}
+                                        <td align="center"><a href="{{STATIC_URL}}result/{{jobid}}/{{jobid}}/model_{{record.0}}/query_{{record.0}}.pdb.fasta">Sequence</a></td>
+                                    {%endif%}
+                                {%else%}
+                                    <td align="center">{{field}}</td>
+                                {%endif%}
+                            {% endfor %}
                         </tr>
                     {% endfor %}
                     {% if nummodel >= 20 %}
@@ -158,7 +162,7 @@ function readfile() {
             </p>
             {% if raw_query_seqfile %}
                 <p>
-                    The sequence you submitted can be found in 
+                    The target sequence you submitted can be found in 
                     <a href="{{STATIC_URL}}result/{{jobid}}/{{raw_query_seqfile}}">{{raw_query_seqfile}}</a>
                 </p>
             {% endif %}
@@ -198,13 +202,17 @@ function readfile() {
                   {%endif%}
                     {% for record in index_table_content_list %}
                         <tr>
-                            <td><a href="{{STATIC_URL}}result/{{jobid}}/{{jobid}}/model_{{record.0}}/query_{{record.0}}.pdb.proq3.local">Model {{record.0}}</a></td>
-                            <td align="center">{{record.1}}</td>
-                            <td align="center">{{record.2}}</td>
-                            <td align="center">{{record.3}}</td>
-                            <td align="center">{{record.4}}</td>
-                            <td align="center">{{record.5}}</td>
-                            <td align="center">{{record.6}}</td>
+                            {% for field in record %}
+
+                                {% if forloop.counter0 == 0 %}
+                                    <td align="center"><a href="{{STATIC_URL}}result/{{jobid}}/{{jobid}}/model_{{record.0}}/query_{{record.0}}.pdb.proq3.local">Model {{record.0}}</a></td>
+                                    {% if not isHasTargetseq %}
+                                        <td align="center"><a href="{{STATIC_URL}}result/{{jobid}}/{{jobid}}/model_{{record.0}}/query_{{record.0}}.pdb.fasta">Sequence</a></td>
+                                    {%endif%}
+                                {%else%}
+                                    <td align="center">{{field}}</td>
+                                {%endif%}
+                            {% endfor %}
                         </tr>
                     {% endfor %}
                     {% if nummodel >= 20 %}
@@ -238,7 +246,7 @@ function readfile() {
             </p>
             {% if raw_query_seqfile %}
                 <p>
-                    The sequence you submitted can be found in 
+                    The target sequence you submitted can be found in 
                     <a href="{{STATIC_URL}}result/{{jobid}}/{{raw_query_seqfile}}">{{raw_query_seqfile}}</a>
                 </p>
             {% endif %}
@@ -274,13 +282,17 @@ function readfile() {
                     {%endif%}
                     {% for record in index_table_content_list %}
                         <tr>
-                            <td><a href="{{STATIC_URL}}result/{{jobid}}/{{jobid}}/model_{{record.0}}/query_{{record.0}}.pdb.proq3.local">Model {{record.0}}</a></td>
-                            <td align="center">{{record.1}}</td>
-                            <td align="center">{{record.2}}</td>
-                            <td align="center">{{record.3}}</td>
-                            <td align="center">{{record.4}}</td>
-                            <td align="center">{{record.5}}</td>
-                            <td align="center">{{record.6}}</td>
+                            {% for field in record %}
+
+                                {% if forloop.counter0 == 0 %}
+                                    <td align="center"><a href="{{STATIC_URL}}result/{{jobid}}/{{jobid}}/model_{{record.0}}/query_{{record.0}}.pdb.proq3.local">Model {{record.0}}</a></td>
+                                    {% if not isHasTargetseq %}
+                                        <td align="center"><a href="{{STATIC_URL}}result/{{jobid}}/{{jobid}}/model_{{record.0}}/query_{{record.0}}.pdb.fasta">Sequence</a></td>
+                                    {%endif%}
+                                {%else%}
+                                    <td align="center">{{field}}</td>
+                                {%endif%}
+                            {% endfor %}
                         </tr>
                     {% endfor %}
                     {% if nummodel >= 20 %}

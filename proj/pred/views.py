@@ -1966,10 +1966,14 @@ def get_results(request, jobid="1"):#{{{
     resultdict['color_status'] = color_status
     resultdict['nummodel'] = nummodel
     resultdict['query_seqfile'] = os.path.basename(query_seqfile)
+    isHasTargetseq = False  # whether target sequence input in the submission page
     if os.path.exists(raw_query_seqfile):
         resultdict['raw_query_seqfile'] = os.path.basename(raw_query_seqfile)
+        isHasTargetseq = True
     else:
         resultdict['raw_query_seqfile'] = ""
+
+    resultdict['isHasTargetseq'] = isHasTargetseq
     resultdict['raw_query_modelfile'] = os.path.basename(raw_query_modelfile)
     base_www_url = "http://" + request.META['HTTP_HOST']
 #   note that here one must add http:// in front of the url
@@ -1983,10 +1987,15 @@ def get_results(request, jobid="1"):#{{{
 # get seqid_index_map
     if os.path.exists(finished_model_file):
         # get headers for global scores from global score file
+        if isHasTargetseq:
+            resultdict['index_table_header'] = ["Model", "Length", "RunTime(s)"]
+        else:
+            resultdict['index_table_header'] = ["Model", "ModelSeq", "Length", "RunTime(s)"]
+
         proq3ScoreList = []
         if os.path.exists(globalscorefile):
             proq3ScoreList = webserver_common.GetProQ3ScoreListFromGlobalScoreFile(globalscorefile)
-        resultdict['index_table_header'] = ["ModelNo.", "Length", "RunTime(s)"] + proq3ScoreList
+        resultdict['index_table_header'] += proq3ScoreList
 
         index_table_content_list = []
         indexmap_content = myfunc.ReadFile(finished_model_file).split("\n")
