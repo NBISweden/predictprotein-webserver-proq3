@@ -67,6 +67,22 @@ exec_cmd "sudo chmod 644 $logfile_submit"
 exec_cmd "sudo chown $user:$group $logfile_submit"
 
 # fix the settings.py
-if [ ! -f $rundir/settings.py -a ! -L $rundir/settting.py ];then
+if [ ! -f $rundir/proj/settings.py -a ! -L $rundir/proj/settting.py ];then
     pushd $rundir/proj; ln -s pro_settings.py settings.py; popd;
 fi
+
+# create example result
+example_folder_list="
+example_oneseq_cad
+example_oneseq_lddt
+example_oneseq_sscore
+example_oneseq_tmscore
+"
+pushd $rundir/proj/pred/static/result
+
+for item in $example_folder_list; do
+    if [ ! -d $item ]; then
+        sudo ln -s ../download/example/$item  .
+    fi
+done
+popd
