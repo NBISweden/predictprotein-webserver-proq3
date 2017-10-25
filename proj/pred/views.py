@@ -1827,6 +1827,13 @@ def get_results(request, jobid="1"):#{{{
     #url_img1 =  serve(request, os.path.basename(img1), os.path.dirname(img1))
     rstdir = "%s/%s"%(path_result, jobid)
     outpathname = jobid
+
+    query_parafile = "%s/query.para.txt"%(rstdir)
+    query_para = {}
+    content = myfunc.ReadFile(query_parafile)
+    if content != "":
+        query_para = json.loads(content)
+
     resultfile = "%s/%s/%s/%s"%(rstdir, jobid, outpathname, "query.result.txt")
     tarball = "%s/%s.tar.gz"%(rstdir, outpathname)
     zipfile = "%s/%s.zip"%(rstdir, outpathname)
@@ -1840,7 +1847,17 @@ def get_results(request, jobid="1"):#{{{
     raw_query_modelfile = "%s/%s"%(rstdir, "query.raw.pdb")
     seqid_index_mapfile = "%s/%s/%s"%(rstdir,jobid, "seqid_index_map.txt")
     finished_model_file = "%s/%s/finished_models.txt"%(rstdir, jobid)
-    globalscorefile = "%s/%s/model_0/query_0.pdb.proq3.global"%(rstdir, jobid)
+
+    try:
+        method_quality = query_para['method_quality']
+    except KeyError:
+        method_quality = 'sscore'
+
+    globalscorefile = "%s/%s/model_0/query_0.pdb.proq3.%s.global"%(rstdir, jobid, method_quality)
+    if not os.path.exists(globalscorefile): # fall back for the old results,
+                                            # before method_quality is used in filename
+        globalscorefile =  "%s/%s/model_0/query_0.pdb.proq3.global"%(rstdir, jobid)
+
     dumped_resultfile = "%s/%s/%s"%(rstdir, jobid, "query.proq3.txt")
     statfile = "%s/%s/stat.txt"%(rstdir, jobid)
     method_submission = "web"
@@ -1984,7 +2001,7 @@ def get_results(request, jobid="1"):#{{{
     num_finished = 0
     cntnewrun = 0
     cntcached = 0
-# get seqid_index_map
+    # get seqid_index_map
     if os.path.exists(finished_model_file):
         # get headers for global scores from global score file
         if isHasTargetseq:
@@ -1994,7 +2011,8 @@ def get_results(request, jobid="1"):#{{{
 
         proq3ScoreList = []
         if os.path.exists(globalscorefile):
-            proq3ScoreList = webserver_common.GetProQ3ScoreListFromGlobalScoreFile(globalscorefile)
+            proq3ScoreList = webserver_common.GetProQ3ScoreListFromGlobalScoreFile(
+                    globalscorefile)
         resultdict['index_table_header'] += proq3ScoreList
 
         index_table_content_list = []

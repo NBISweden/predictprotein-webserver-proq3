@@ -191,6 +191,10 @@ def ScoreModel(query_para, model_file, outpath_this_model, profilename, outpath_
         tmp_outpath_result, timefile, runjob_errfile): 
     subfoldername_this_model = os.path.basename(outpath_this_model)
     modelidx = int(subfoldername_this_model.split("model_")[1])
+    try:
+        method_quality = query_para['method_quality']
+    except KeyError:
+        method_quality = 'sscore'
     rmsg = ""
     tmp_outpath_this_model = "%s/%s"%(tmp_outpath_result, subfoldername_this_model)
     proq3opt = GetProQ3Option(query_para)
@@ -224,7 +228,9 @@ def ScoreModel(query_para, model_file, outpath_this_model, profilename, outpath_
             g_params['runjob_err'].append(str(e)+"\n")
             pass
     modelfile = "%s/query_%d.pdb"%(outpath_this_model,modelidx)
-    globalscorefile = "%s.proq3.global"%(modelfile)
+    globalscorefile = "%s.proq3.%s.global"%(modelfile, method_quality)
+    if not os.path.exists(globalscorefile):
+        globalscorefile = "%s.proq3.global"%(modelfile)
     (globalscore, itemList) = webserver_common.ReadProQ3GlobalScore(globalscorefile)
     modelseqfile = "%s/query_%d.pdb.fasta"%(outpath_this_model, modelidx)
     modellength = myfunc.GetSingleFastaLength(modelseqfile)
@@ -376,7 +382,7 @@ def RunJob(modelfile, seqfile, outpath, tmpdir, email, jobid, g_params):#{{{
         statfile = ""
         dumped_resultfile = "%s/%s"%(outpath_result, "query.proq3.txt")
         proq3opt = GetProQ3Option(query_para)
-        webserver_common.WriteProQ3TextResultFile(dumped_resultfile, outpath_result, modelFileList,
+        webserver_common.WriteProQ3TextResultFile(dumped_resultfile, query_para, modelFileList,
                 all_runtime_in_sec, g_params['base_www_url'], proq3opt, statfile=statfile)
 
         # now making zip instead (for windows users)

@@ -103,10 +103,15 @@ def WriteSubconsTextResultFile(outfile, outpath_result, maplist,#{{{
     except IOError:
         print "Failed to write to file %s"%(outfile)
 #}}}
-def WriteProQ3TextResultFile(outfile, outpath_result, modelFileList, #{{{
+def WriteProQ3TextResultFile(outfile, query_para, modelFileList, #{{{
         runtime_in_sec, base_www_url, proq3opt, statfile=""):
     try:
         fpout = open(outfile, "w")
+
+        try:
+            method_quality = query_para['method_quality']
+        except KeyError:
+            method_quality = 'sscore'
 
         fpstat = None
         numTMPro = 0
@@ -130,7 +135,9 @@ def WriteProQ3TextResultFile(outfile, outpath_result, modelFileList, #{{{
         cnt = 0
         for i  in xrange(numModel):
             modelfile = modelFileList[i]
-            globalscorefile = "%s.proq3.global"%(modelfile)
+            globalscorefile = "%s.proq3.%s.global"%(modelfile, method_quality)
+            if not os.path.exists(globalscorefile):
+                globalscorefile = "%s.proq3.global"%(modelfile)
             (globalscore, itemList) = ReadProQ3GlobalScore(globalscorefile)
             if i == 0:
                 for ss in itemList:
@@ -151,7 +158,9 @@ def WriteProQ3TextResultFile(outfile, outpath_result, modelFileList, #{{{
         print >> fpout, "\n# Local scores"
         for i  in xrange(numModel):
             modelfile = modelFileList[i]
-            localscorefile = "%s.proq3.local"%(modelfile)
+            localscorefile = "%s.proq3.%s.local"%(modelfile, method_quality)
+            if not os.path.exists(localscorefile):
+                localscorefile = "%s.proq3.local"%(modelfile)
             print >> fpout, "\n# Model %d"%(i)
             content = myfunc.ReadFile(localscorefile)
             print >> fpout, content
