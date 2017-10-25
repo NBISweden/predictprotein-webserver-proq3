@@ -1,0 +1,27 @@
+tmpdir = /big/server/var/www/web_proq3/proj/pred/static/tmp/tmp_0cr4jF
+/big/server/var/www/web_proq3/proj/pred/app/soft/proq3/bin/aa321CA.pl /big/server/var/www/web_proq3/proj/pred/static/tmp/tmp_0cr4jF/rst_w4UfAQ/query_0.pdb
+extracting sequence from modelfile:
+LLSSSLWVNVALAGIAILVFVYMGRTIRPGRPRLIWGATLMIPLVSISSYLGLLSGLTVGMIEMPAGHALAGEMVRSQWGRYLTWALSTPMILLALGLLADVDLGSLFTVIAADIGMCVTGLAAAMTTSALLFRWAFYAISCAFFVVVLSALVTDWAASASSAGTAEIFDTLRVLTVVLWLGYPIVWAVGVEGLALVQSVGATSWAYSVLDVFAKYVFAFILLRWVANNERTVAV
+
+
+/big/server/var/www/web_proq3/proj/pred/app/soft/proq3/run_proq3.sh -profile /big/server/var/www/web_proq3/proj/pred/static/result/rst_w4UfAQ/rst_w4UfAQ/profile_0/query.fasta -outpath /big/server/var/www/web_proq3/proj/pred/static/tmp/tmp_0cr4jF/rst_w4UfAQ/model_0 /big/server/var/www/web_proq3/proj/pred/static/tmp/tmp_0cr4jF/rst_w4UfAQ/query_0.pdb -r yes -deep yes -k yes -quality lddt
+model scoring:
+in script: /big/software/proq3/paths.sh, python_path="/big/server/var/www/web_proq3/env/bin/python"
+in script: /big/software/proq3/paths.sh, PYTHON_BIN=""
+/big/server/var/www/web_proq3/env/bin/python -c "import keras"
+/big/server/var/www/web_proq3/env/bin/python -c "import numpy"
+in script: /big/software/proq3/paths.sh, python_path="/big/server/var/www/web_proq3/env/bin/python"
+in script: /big/software/proq3/paths.sh, PYTHON_BIN=""
+/big/server/var/www/web_proq3/env/bin/python -c "import keras"
+/big/server/var/www/web_proq3/env/bin/python -c "import numpy"
+------------------- Repacking the side chains -----------------
+------------------- Extracting ProQ2 features -------------------
+------------------- Minimizing energies -------------------
+------------------- Calculating Rosetta energies -------------------
+------------------- Generating input for regressor -------------------
+------------------- Making predictions -------------------
+ 32/235 [===>..........................] - ETA: 0s
+ 32/235 [===>..........................] - ETA: 0s
+ProQ3 run finished for /big/server/var/www/web_proq3/proj/pred/static/tmp/tmp_0cr4jF/rst_w4UfAQ/model_0/query_0.pdb
+
+

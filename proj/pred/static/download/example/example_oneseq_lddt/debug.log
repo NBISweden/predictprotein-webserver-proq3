@@ -1,0 +1,11 @@
+cmdline: /big/server/var/www/web_proq3/env/bin/python2.7 /big/server/var/www/web_proq3/proj/pred/app/submit_job_to_queue.py -nmodel 1 -nmodel-this-user 1 -jobid rst_w4UfAQ -outpath /big/server/var/www/web_proq3/proj/pred/static/result/rst_w4UfAQ -datapath /big/server/var/www/web_proq3/proj/pred/static/tmp/tmp_0cr4jF -baseurl http://proq3.bioinfo.se -host 130.229.48.10
+Entering SubmitJobToQueue()
+Write scriptfile /big/server/var/www/web_proq3/proj/pred/static/result/rst_w4UfAQ/runjob,proq3,rst_w4UfAQ,130.229.48.10,,1.sh
+Getting priority
+priority=662704837
+Entering SubmitSuqJob()
+cmdline: /usr/bin/suq -b /scratch run -d /big/server/var/www/web_proq3/proj/pred/static/result/rst_w4UfAQ -p 662704837 /big/server/var/www/web_proq3/proj/pred/static/result/rst_w4UfAQ/runjob,proq3,rst_w4UfAQ,130.229.48.10,,1.sh
+
+run cmd: cnttry = 0, MAX_TRY=5
+Leaving SubmitSuqJob() with success
+

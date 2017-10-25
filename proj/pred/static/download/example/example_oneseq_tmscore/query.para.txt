@@ -1,0 +1,1 @@
+{"isDeepLearning": true, "isForceRun": false, "isKeepFiles": true, "isRepack": true, "method_quality": "tmscore", "name_software": "proq3"}

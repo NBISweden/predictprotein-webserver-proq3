@@ -1,0 +1,29 @@
+tmpdir = /big/server/var/www/web_proq3/proj/pred/static/tmp/tmp_gm80HM
+/big/server/var/www/web_proq3/proj/pred/app/soft/proq3/bin/aa321CA.pl /big/server/var/www/web_proq3/proj/pred/static/tmp/tmp_gm80HM/rst__OKB59/query_0.pdb
+extracting sequence from modelfile:
+LLSSSLWVNVALAGIAILVFVYMGRTIRPGRPRLIWGATLMIPLVSISSYLGLLSGLTVGMIEMPAGHALAGEMVRSQWGRYLTWALSTPMILLALGLLADVDLGSLFTVIAADIGMCVTGLAAAMTTSALLFRWAFYAISCAFFVVVLSALVTDWAASASSAGTAEIFDTLRVLTVVLWLGYPIVWAVGVEGLALVQSVGATSWAYSVLDVFAKYVFAFILLRWVANNERTVAV
+
+
+/big/server/var/www/web_proq3/proj/pred/app/soft/proq3/run_proq3.sh -profile /big/server/var/www/web_proq3/proj/pred/static/result/rst__OKB59/rst__OKB59/profile_0/query.fasta -outpath /big/server/var/www/web_proq3/proj/pred/static/tmp/tmp_gm80HM/rst__OKB59/model_0 /big/server/var/www/web_proq3/proj/pred/static/tmp/tmp_gm80HM/rst__OKB59/query_0.pdb -r yes -deep yes -k yes -quality sscore
+model scoring:
+in script: /big/software/proq3/paths.sh, python_path="/big/server/var/www/web_proq3/env/bin/python"
+in script: /big/software/proq3/paths.sh, PYTHON_BIN=""
+/big/server/var/www/web_proq3/env/bin/python -c "import keras"
+/big/server/var/www/web_proq3/env/bin/python -c "import numpy"
+in script: /big/software/proq3/paths.sh, python_path="/big/server/var/www/web_proq3/env/bin/python"
+in script: /big/software/proq3/paths.sh, PYTHON_BIN=""
+/big/server/var/www/web_proq3/env/bin/python -c "import keras"
+/big/server/var/www/web_proq3/env/bin/python -c "import numpy"
+------------------- Repacking the side chains -----------------
+------------------- Extracting ProQ2 features -------------------
+------------------- Minimizing energies -------------------
+------------------- Calculating Rosetta energies -------------------
+------------------- Generating input for regressor -------------------
+------------------- Making predictions -------------------
+ 32/235 [===>..........................] - ETA: 0s
+ 32/235 [===>..........................] - ETA: 0s
+ 32/235 [===>..........................] - ETA: 0s
+ 32/235 [===>..........................] - ETA: 0s
+ProQ3 run finished for /big/server/var/www/web_proq3/proj/pred/static/tmp/tmp_gm80HM/rst__OKB59/model_0/query_0.pdb
+
+

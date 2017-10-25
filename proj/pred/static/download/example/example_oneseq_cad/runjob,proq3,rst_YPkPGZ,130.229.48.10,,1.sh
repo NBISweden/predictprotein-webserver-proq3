@@ -1,0 +1,3 @@
+#!/bin/bash
+source /big/server/var/www/web_proq3/env/bin/activate
+/big/server/var/www/web_proq3/env/bin/python2.7 /big/server/var/www/web_proq3/proj/pred/app/run_job.py /big/server/var/www/web_proq3/proj/pred/static/tmp/tmp_wX924N/query.pdb -outpath /big/server/var/www/web_proq3/proj/pred/static/result/rst_YPkPGZ -tmpdir /big/server/var/www/web_proq3/proj/pred/static/tmp/tmp_wX924N -jobid rst_YPkPGZ -baseurl "http://proq3.bioinfo.se" 
