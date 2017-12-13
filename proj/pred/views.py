@@ -1982,6 +1982,7 @@ def get_results(request, jobid="1"):#{{{
     resultdict['status'] = status
     resultdict['color_status'] = color_status
     resultdict['nummodel'] = nummodel
+    resultdict['method_quality'] = method_quality
     resultdict['query_seqfile'] = os.path.basename(query_seqfile)
     isHasTargetseq = False  # whether target sequence input in the submission page
     if os.path.exists(raw_query_seqfile):
