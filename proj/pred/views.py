@@ -782,6 +782,7 @@ def RunQuery(request, query):#{{{
             'isDeepLearning','isKeepFiles','method_quality', 'isForceRun']:
         if item in query and query[item] != None:
             query_para[item] = query[item]
+    query_para['isOutputPDB'] = True  #always output PDB file (with proq3 score written at the B-factor column)
     query_parafile = "%s/query.para.txt"%(rstdir)
 
     myfunc.WriteFile("tmpdir = %s\n"%(tmpdir), logfile, "a")

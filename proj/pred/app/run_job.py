@@ -179,7 +179,8 @@ def GetProQ3Option(query_para):#{{{
             "-r", yes_or_no_opt['isRepack'],
             "-deep", yes_or_no_opt['isDeepLearning'],
             "-k", yes_or_no_opt['isKeepFiles'],
-            "-quality", query_para['method_quality']
+            "-quality", query_para['method_quality'],
+            "-output_pdbs", "yes"         #always output PDB file (with proq3 written at the B-factor column)
             ]
     if 'targetlength' in query_para:
         proq3opt += ["-t", str(query_para['targetlength'])]
