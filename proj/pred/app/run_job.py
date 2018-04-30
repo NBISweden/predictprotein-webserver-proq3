@@ -134,7 +134,20 @@ def CreateProfile(seqfile, outpath_profile, outpath_result, tmp_outpath_result, 
                 g_params['runjob_err'].append(str(e)+"\n")
                 pass
 
-            if isCmdSuccess and g_params['base_www_url'].find("bioinfo") != -1:
+            if isCmdSuccess and webserver_common.IsFrontEndNode(g_params['base_www_url']):
+
+                # make zip folder for the cached profile
+                cwd = os.getcwd()
+                os.chdir(subfolder_profile_cache)
+                cmd = ["zip", "-rq", "%s.zip"%(md5_key), md5_key]
+                try:
+                    subprocess.check_output(cmd)
+                except subprocess.CalledProcessError, e:
+                    g_params['runjob_err'].append(str(e))
+                    pass
+                os.chdir(cwd)
+
+
                 # create soft link for profile and for md5
                 # first create a soft link for outpath_profile to outpath_profile_cache
                 rela_path = os.path.relpath(outpath_profile_cache, outpath_result) #relative path
