@@ -118,6 +118,8 @@ def SubmitJobToQueue(jobid, datapath, outpath, nummodel, nummodel_this_user, ema
     cmdline = "%s %s -outpath %s -tmpdir %s -jobid %s "%(runjob, modelfile, outpath, datapath, jobid)
     if email != "":
         cmdline += "-email \"%s\" "%(email)
+    if os.path.exists(seqfile):
+        cmdline += "-fasta \"%s\" "%(seqfile)
     if base_www_url != "":
         cmdline += "-baseurl \"%s\" "%(base_www_url)
     if g_params['isForceRun']:
