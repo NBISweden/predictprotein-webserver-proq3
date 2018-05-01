@@ -250,3 +250,19 @@ sequences
 
 
 #}}}
+def GetRunTimeFromTimeFile(timefile, keyword=""):# {{{
+    runtime = 0.0
+    if os.path.exists(timefile):
+        lines = myfunc.ReadFile(timefile).split("\n")
+        for line in lines:
+            if keyword == "" or (keyword != "" and line.find(keyword) != -1):
+                ss2 = line.split(";")
+                try:
+                    runtime = float(ss2[1])
+                    if keyword == "":
+                        break
+                except:
+                    runtime = 0.0
+                    pass
+    return runtime
+# }}}

@@ -1,6 +1,7 @@
 import os
 import sys
 import myfunc
+import webserver_common
 
 rundir = os.path.dirname(__file__)
 basedir = os.path.realpath("%s/../"%(rundir))
@@ -26,8 +27,13 @@ if 0:#{{{
     print "size=",size
     print "humansize=", myfunc.Size_byte2human(size)#}}}
 
-if 1:
+if 0:# {{{
     newsfile = "%s/static/doc/news.txt"%(basedir)
     newsList = myfunc.ReadNews(newsfile)
     print newsList
+# }}}
 
+if 1:
+    timefile = "/home/nanjiang/tmp/time.txt"
+    runtime = webserver_common.GetRunTimeFromTimeFile(timefile, keyword="model_0")
+    print runtime

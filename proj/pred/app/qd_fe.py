@@ -196,6 +196,8 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
     #   1. runjoblogfile 
     #   2. finishedjoblogfile
     # when loop == 0, for unfinished jobs, re-generate finished_seqs.txt
+
+
     hdl = myfunc.ReadLineByBlock(submitjoblogfile)
     if hdl.failure:
         return 1
@@ -205,7 +207,12 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
     if os.path.exists(finishedjoblogfile):
         finished_job_dict = myfunc.ReadFinishedJobLog(finishedjoblogfile)
 
+    # these two list try to update the finished list and submitted list so that
+    # deleted jobs will not be included, there is a separate list started with
+    # all_xxx which keeps also the historical jobs
     new_finished_list = []  # Finished or Failed
+    new_submitted_list = []  # 
+
     new_runjob_list = []    # Running
     new_waitjob_list = []    # Queued
     lines = hdl.readlines()
@@ -231,8 +238,15 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
             except:
                 pass
 
+            isRstFolderExist = False
+            if os.path.exists(rstdir):
+                isRstFolderExist = True
+
+            if isRstFolderExist:
+                new_submitted_list.append([jobid,line])
+
             if jobid in finished_job_dict:
-                if os.path.exists(rstdir):
+                if isRstFolderExist:
                     li = [jobid] + finished_job_dict[jobid]
                     new_finished_list.append(li)
                 continue
@@ -277,6 +291,15 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
         lines = hdl.readlines()
     hdl.close()
 
+# re-write logs of submitted jobs
+    li_str = []
+    for li in new_submitted_list:
+        li_str.append(li[1])
+    if len(li_str)>0:
+        myfunc.WriteFile("\n".join(li_str)+"\n", submitjoblogfile, "w", True)
+    else:
+        myfunc.WriteFile("", submitjoblogfile, "w", True)
+
 # re-write logs of finished jobs
     li_str = []
     for li in new_finished_list:
@@ -305,15 +328,15 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
             myfunc.WriteFile("", divide_finishedjoblogfile, "w", True)
 
 # update all_submitted jobs
-    allsubmittedjoblogfile = "%s/all_submitted_seq.log"%(path_log)
-    allsubmitted_jobid_set = set(myfunc.ReadIDList2(allsubmittedjoblogfile, col=0, delim="\t"))
+    allsubmitjoblogfile = "%s/all_submitted_seq.log"%(path_log)
+    allsubmitted_jobid_set = set(myfunc.ReadIDList2(allsubmitjoblogfile, col=0, delim="\t"))
     li_str = []
     for li in new_submitted_list:
         jobid = li[0]
         if not jobid in allsubmitted_jobid_set:
             li_str.append(li[1])
     if len(li_str)>0:
-        myfunc.WriteFile("\n".join(li_str)+"\n", allsubmittedjoblogfile, "a", True)
+        myfunc.WriteFile("\n".join(li_str)+"\n", allsubmitjoblogfile, "a", True)
 
 # update allfinished jobs
     allfinishedjoblogfile = "%s/all_finished_job.log"%(path_log)
@@ -342,11 +365,21 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
             email = li[4].strip()
             rstdir = "%s/%s"%(path_result, jobid)
             outpath_result = "%s/%s"%(rstdir, jobid)
+            query_parafile = "%s/query.para.txt"%(outpath_result)
+            query_para = {}
+            content = myfunc.ReadFile(query_parafile)
+            if content != "":
+                query_para = json.loads(content)
+
+            try:
+                method_quality = query_para['method_quality']
+            except KeyError:
+                method_quality = 'sscore'
 
             # if loop == 0 , for new_waitjob_list and new_runjob_list
             # re-generate finished_seqs.txt
             if loop == 0 and os.path.exists(outpath_result):#{{{
-                finished_seq_file = "%s/finished_seqs.txt"%(outpath_result)
+                finished_model_file = "%s/finished_models.txt"%(outpath_result)
                 finished_idx_file = "%s/finished_seqindex.txt"%(rstdir)
                 finished_idx_set = set([])
 
@@ -354,52 +387,41 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
                 if os.path.exists(finished_seq_file):
                     finished_seqs_idlist = myfunc.ReadIDList2(finished_seq_file, col=0, delim="\t")
                 finished_seqs_idset = set(finished_seqs_idlist)
-                finished_info_list = []
                 queryfile = "%s/query.fa"%(rstdir)
                 (seqidlist, seqannolist, seqlist) = myfunc.ReadFasta(queryfile)
                 try:
                     dirlist = os.listdir(outpath_result)
                     for dd in dirlist:
-                        if dd.find("seq_") == 0:
+                        if dd.find("model_") == 0:
                             origIndex_str = dd.split("_")[1]
                             finished_idx_set.add(origIndex_str)
 
-                        if dd.find("seq_") == 0 and dd not in finished_seqs_idset:
+                        if dd.find("model_") == 0 and dd not in finished_seqs_idset:
                             origIndex = int(dd.split("_")[1])
-                            outpath_this_seq = "%s/%s"%(outpath_result, dd)
-                            timefile = "%s/time.txt"%(outpath_this_seq)
-                            runtime1 = 0.0
-                            seq = seqlist[origIndex]
-                            description = seqannolist[origIndex]
-                            if os.path.exists(timefile):
-                                txt = myfunc.ReadFile(timefile).strip()
-                                ss2 = txt.split(";")
-                                try:
-                                    runtime = float(ss2[1])
-                                except:
-                                    runtime = runtime1
-                                    pass
-                            else:
-                                runtime = runtime1
+                            outpath_this_model = "%s/%s"%(outpath_result, dd)
+                            timefile = "%s/time.txt"%(outpath_this_model)
+                            runtime = webserver_common.GetRunTimeFromTimeFile(timefile, keyword="")
+                            modelfile = "%s/query.pdb"%(outpath_this_model)
+                            modelseqfile = "%s/query.pdb.fasta"%(outpath_this_model)
+                            globalscorefile = "%s.proq3.%s.global"%(modelfile, method_quality)
+                            modellength = myfunc.GetSingleFastaLength(modelseqfile)
 
-                            finalpredfile = "%s/%s/query_0.subcons-final-pred.csv"%(
-                                    outpath_this_seq, "final-prediction")
-                            (loc_def, loc_def_score) = webserver_common.GetLocDef(finalpredfile)
-                            info_finish = [ dd, str(len(seq)), 
-                                    str(loc_def), str(loc_def_score),
-                                    "newrun", str(runtime), description]
-                            finished_info_list.append("\t".join(info_finish))
-                except:
-                    date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-                    myfunc.WriteFile("[Date: %s] Failed to os.listdir(%s)\n"%(date_str, outpath_result), gen_errfile, "a", True)
+                            (globalscore, itemList) = webserver_common.ReadProQ3GlobalScore(globalscorefile)
+                            modelinfo = [dd, str(modellength), str(runtime)]
+                            if globalscore:
+                                for i in xrange(len(itemList)):
+                                    modelinfo.append(str(globalscore[itemList[i]]))
+
+                            myfunc.WriteFile("\t".join(modelinfo)+"\n", finished_model_file, "a", True)
+                except Exception as e:
+                    datetime = time.strftime("%Y-%m-%d %H:%M:%S")
+                    msg = "Init scanning resut folder for jobid %s failed with message \"%s\""%(jobid, str(e))
+                    myfunc.WriteFile("[%s] %s\n"%(datetime, msg), gen_errfile, "a", True)
                     raise
-                if len(finished_info_list)>0:
-                    myfunc.WriteFile("\n".join(finished_info_list)+"\n", finished_seq_file, "a", True)
                 if len(finished_idx_set) > 0:
                     myfunc.WriteFile("\n".join(list(finished_idx_set))+"\n", finished_idx_file, "w", True)
                 else:
                     myfunc.WriteFile("", finished_idx_file, "w", True)
-
 
             #}}}
 
@@ -503,67 +525,6 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
 
     if not os.path.exists(tmpdir):
         os.mkdir(tmpdir)
-
-    # the first time when the this jobid is processed, do the following
-    # 1. generate a file with sorted seqindex
-    # 2. generate splitted sequence files named by the original seqindex
-    if not os.path.exists(qdinittagfile): #initialization#{{{
-
-        init_finished_idx_list = [] # [origIndex]
-        if os.path.exists(finished_idx_file):
-            init_finished_idx_list = myfunc.ReadIDList(finished_idx_file)
-
-        init_finished_idx_set = set(init_finished_idx_list)
-        if g_params['DEBUG']:
-            myfunc.WriteFile("DEBUG: init_finished_idx_list = %s"%(str(init_finished_idx_list)), gen_logfile, "a", True)
-
-        # ==== 1.dealing with cached results 
-        (seqIDList, seqAnnoList, seqList) = myfunc.ReadFasta(fafile)
-        if len(seqIDList) <= 0:
-            date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-            myfunc.WriteFile(date_str, failedtagfile, "w", True)
-            myfunc.WriteFile("Read query seq file failed. Zero sequence read in.\n", errfile, "a", True)
-            return 1
-        toRunDict = {}
-        if os.path.exists(forceruntagfile):
-            for i in xrange(len(seqIDList)):
-                toRunDict[i] = [seqList[i], 0, seqAnnoList[i]]
-        else:
-            for i in xrange(len(seqIDList)):
-                if not str(i) in init_finished_idx_set:
-                    toRunDict[i] = [seqList[i], 0, seqAnnoList[i]] #init value for numTM is 0
-
-
-        sortedlist = sorted(toRunDict.items(), key=lambda x:x[1][1], reverse=True)
-
-        # Write splitted fasta file and write a torunlist.txt
-        if not os.path.exists(split_seq_dir):
-            os.mkdir(split_seq_dir)
-
-        torun_index_str_list = [str(x[0]) for x in sortedlist]
-        if len(torun_index_str_list)>0:
-            myfunc.WriteFile("\n".join(torun_index_str_list)+"\n", torun_idx_file, "w", True)
-        else:
-            myfunc.WriteFile("", torun_idx_file, "w", True)
-
-        # write cnttry file for each jobs to run
-        cntTryDict = {}
-        for idx in torun_index_str_list:
-            cntTryDict[int(idx)] = 0
-        json.dump(cntTryDict, open(cnttry_idx_file, "w"))
-
-        for item in sortedlist:
-            origIndex = item[0]
-            seq = item[1][0]
-            description = item[1][2]
-            seqfile_this_seq = "%s/%s"%(split_seq_dir, "query_%d.fa"%(origIndex))
-            seqcontent = ">%s\n%s\n"%(description, seq)
-            myfunc.WriteFile(seqcontent, seqfile_this_seq, "w", True)
-        # qdinit file is written at the end of initialization, to make sure
-        # that initialization is either not started or completed
-        date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-        myfunc.WriteFile(date_str, qdinittagfile, "w", True)
-#}}}
 
 
     # 3. try to submit the job 
