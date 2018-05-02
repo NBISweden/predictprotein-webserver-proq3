@@ -17,7 +17,7 @@ import subprocess
 import requests
 import gzip
 import time
-from datetime import datetime
+import datetime
 from Bio.PDB.PDBParser import PDBParser
 from Bio.PDB.Polypeptide import PPBuilder
 GAP = "-"

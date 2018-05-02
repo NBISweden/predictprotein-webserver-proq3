@@ -416,9 +416,9 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
 
                             myfunc.WriteFile("\t".join(modelinfo)+"\n", finished_model_file, "a", True)
                 except Exception as e:
-                    datetime = time.strftime("%Y-%m-%d %H:%M:%S")
+                    date_str = time.strftime("%Y-%m-%d %H:%M:%S")
                     msg = "Init scanning resut folder for jobid %s failed with message \"%s\""%(jobid, str(e))
-                    myfunc.WriteFile("[%s] %s\n"%(datetime, msg), gen_errfile, "a", True)
+                    myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_errfile, "a", True)
                     raise
                 if len(finished_idx_set) > 0:
                     myfunc.WriteFile("\n".join(list(finished_idx_set))+"\n", finished_idx_file, "w", True)
@@ -489,8 +489,8 @@ def InitJob(jobid):# {{{
         seqfile_this_model = "%s/query_%d.fa"%(tmpdir, ii)
         modelfile_this_model = "%s/query_%d.pdb"%(tmpdir, ii)
         myfunc.WriteFile(model+"\n", modelfile_this_model)
-        if seqfile != "":
-            os.copyfile(seqfile, seqfile_this_model)
+        if os.path.exists(seqfile):
+            shutil.copyfile(seqfile, seqfile_this_model)
         else:
             seq = myfunc.PDB2Seq(modelfile_this_model)[0]
             myfunc.WriteFile(">query_0\n%s\n"%(seq), seqfile_this_model, "w")
@@ -604,10 +604,10 @@ def SubmitJob(jobid, cntSubmitJobDict, numModel_this_user, query_para):#{{{
                 if g_params['DEBUG']:
                     myfunc.WriteFile("DEBUG: cnt (%d) < maxnum (%d) "\
                             "and iToRun(%d) < numToRun(%d)"%(cnt, maxnum, iToRun, numToRun), gen_logfile, "a", True)
-                fastaseq = myfunc.ReadFile(seqfile_this_seq)#seq text in fasta format
+                fastaseq = myfunc.ReadFile(seqfile_this_model)#seq text in fasta format
                 model = myfunc.ReadFile(modelfile_this_model)#model text in PDB format
-                (t_seqid, t_seqanno, t_seq) = myfunc.ReadSingleFasta(seqfile)
-                md5_key = hashlib.md5(t_seq).hexdigest()
+                (seqid, seqanno, seq) = myfunc.ReadSingleFasta(seqfile_this_model)
+                md5_key = hashlib.md5(seq).hexdigest()
                 subfoldername = md5_key[:2]
 
                 isSubmitSuccess = False
@@ -873,10 +873,15 @@ def GetResult(jobid, query_para):#{{{
                         #update profilecache
                         if  query_para['isForceRun'] or not os.path.exists(zipfile_profilecache):
                             cwd = os.getcwd()
-                            os.chdir("%s/%s"(tmpdir, remote_jobid))
+                            os.chdir("%s/%s"%(tmpdir, remote_jobid))
+                            if os.path.exists(md5_key):
+                                shutil.rmtree(md5_key)
                             os.rename("profile_0", md5_key)
                             cmd = ["zip", "-rq", "%s.zip"%(md5_key), md5_key]
                             webserver_common.RunCmd(cmd, gen_logfile, gen_errfile)
+                            if not os.path.exists(os.path.dirname(zipfile_profilecache)):
+                                os.makedirs(os.path.dirname(zipfile_profilecache))
+
                             shutil.copyfile("%s.zip"%(md5_key), zipfile_profilecache)
                             os.chdir(cwd)
 
@@ -1047,7 +1052,7 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
         # Now write the text output to a single file
         statfile = "%s/%s"%(outpath_result, "stat.txt")
         resultfile_text = "%s/%s"%(outpath_result, "query.proq3.txt")
-        proq3opt = GetProQ3Option(query_para)
+        proq3opt = webserver_common.GetProQ3Option(query_para)
         (seqIDList, seqAnnoList, seqList) = myfunc.ReadFasta(seqfile)
         modelFileList = []
         for ii in xrange(numModel):
@@ -1828,7 +1833,7 @@ def main(g_params):#{{{
         base_www_url_file = "%s/static/log/base_www_url.txt"%(basedir)
         if os.path.exists(base_www_url_file):
             g_params['base_www_url'] = myfunc.ReadFile(base_www_url_file).strip()
-        if base_www_url == "":
+        if g_params['base_www_url'] == "":
             g_params['base_www_url'] = "http://proq3.bioinfo.se"
 
         # load the config file if exists

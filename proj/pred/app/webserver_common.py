@@ -11,8 +11,10 @@ import os
 import sys
 import myfunc
 import datetime
+import time
 import tabulate
 import logging
+import subprocess
 def ReadProQ3GlobalScore(infile):#{{{
     #return globalscore and itemList
     #itemList is the name of the items
@@ -46,6 +48,29 @@ def GetProQ3ScoreListFromGlobalScoreFile(globalscorefile):
     (globalscore, itemList) = ReadProQ3GlobalScore(globalscorefile)
     return itemList
 
+def GetProQ3Option(query_para):#{{{
+    """Return the proq3opt in list
+    """
+    yes_or_no_opt = {}
+    for item in ['isDeepLearning', 'isRepack', 'isKeepFiles']:
+        if query_para[item]:
+            yes_or_no_opt[item] = "yes"
+        else:
+            yes_or_no_opt[item] = "no"
+
+    proq3opt = [
+            "-r", yes_or_no_opt['isRepack'],
+            "-deep", yes_or_no_opt['isDeepLearning'],
+            "-k", yes_or_no_opt['isKeepFiles'],
+            "-quality", query_para['method_quality'],
+            "-output_pdbs", "yes"         #always output PDB file (with proq3 written at the B-factor column)
+            ]
+    if 'targetlength' in query_para:
+        proq3opt += ["-t", str(query_para['targetlength'])]
+
+    return proq3opt
+
+#}}}
 def WriteSubconsTextResultFile(outfile, outpath_result, maplist,#{{{
         runtime_in_sec, base_www_url, statfile=""):
     try:
@@ -268,14 +293,14 @@ def GetRunTimeFromTimeFile(timefile, keyword=""):# {{{
 # }}}
 def WriteDateTimeTagFile(outfile, runjob_logfile, runjob_errfile):# {{{
     if not os.path.exists(outfile):
-        datetime = time.strftime("%Y-%m-%d %H:%M:%S")
+        date_str = time.strftime("%Y-%m-%d %H:%M:%S")
         try:
-            myfunc.WriteFile(datetime, outfile)
+            myfunc.WriteFile(date_str, outfile)
             msg = "Write tag file %s succeeded"%(outfile)
-            myfunc.WriteFile("[%s] %s\n"%(datetime, msg),  runjob_logfile, "a", True)
+            myfunc.WriteFile("[%s] %s\n"%(date_str, msg),  runjob_logfile, "a", True)
         except Exception as e:
             msg = "Failed to write to file %s with message: \"%s\""%(outfile, str(e))
-            myfunc.WriteFile("[%s] %s\n"%(datetime, msg),  runjob_errfile, "a", True)
+            myfunc.WriteFile("[%s] %s\n"%(date_str, msg),  runjob_errfile, "a", True)
 # }}}
 def RunCmd(cmd, runjob_logfile, runjob_errfile):# {{{
     """Input cmd in list
@@ -284,17 +309,17 @@ def RunCmd(cmd, runjob_logfile, runjob_errfile):# {{{
     begin_time = time.time()
 
     cmdline = " ".join(cmd)
-    datetime = time.strftime("%Y-%m-%d %H:%M:%S")
+    date_str = time.strftime("%Y-%m-%d %H:%M:%S")
     msg = cmdline
-    myfunc.WriteFile("[%s] %s\n"%(datetime, msg),  runjob_logfile, "a", True)
+    myfunc.WriteFile("[%s] %s\n"%(date_str, msg),  runjob_logfile, "a", True)
     rmsg = ""
     try:
         rmsg = subprocess.check_output(cmd)
         msg = "workflow: %s"%(rmsg)
-        myfunc.WriteFile("[%s] %s\n"%(datetime, msg),  runjob_logfile, "a", True)
+        myfunc.WriteFile("[%s] %s\n"%(date_str, msg),  runjob_logfile, "a", True)
     except subprocess.CalledProcessError, e:
         msg = "cmdline: %s\nFailed with message \"%s\""%(cmdline, str(e))
-        myfunc.WriteFile("[%s] %s\n"%(datetime, msg),  runjob_errfile, "a", True)
+        myfunc.WriteFile("[%s] %s\n"%(date_str, msg),  runjob_errfile, "a", True)
         pass
 
     end_time = time.time()

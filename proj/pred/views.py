@@ -784,9 +784,7 @@ def RunQuery(request, query):#{{{
         errmsg.append(myfunc.WriteFile(query['rawseq'], rawseqfile, "w"))
     errmsg.append(myfunc.WriteFile(query['rawmodel'], rawmodelfile, "w"))
     if  query['filtered_seq'] != "":
-        errmsg.append(myfunc.WriteFile(query['filtered_seq'], seqfile_t, "w"))
         errmsg.append(myfunc.WriteFile(query['filtered_seq'], seqfile_r, "w"))
-    errmsg.append(myfunc.WriteFile(query['filtered_model'], modelfile_t, "w"))
     errmsg.append(myfunc.WriteFile(query['filtered_model'], modelfile_r, "w"))
     errmsg.append(myfunc.WriteFile(json.dumps(query_para, sort_keys=True), query_parafile, "w"))
     base_www_url = "http://" + request.META['HTTP_HOST']
