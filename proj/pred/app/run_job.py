@@ -433,7 +433,7 @@ def RunJob(modelfile, seqfile, outpath, tmpdir, email, jobid, g_params):#{{{
 
 # send the result to email
 # do not sendmail at the cloud VM
-    if (g_params['base_www_url'].find("bioinfo.se") != -1 and
+    if ( webserver_common.IsFrontEndNode(g_params['base_www_url']) and
             myfunc.IsValidEmailAddress(email)):
         from_email = "proq3@proq3.bioinfo.se"
         to_email = email

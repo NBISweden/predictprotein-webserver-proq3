@@ -266,3 +266,39 @@ def GetRunTimeFromTimeFile(timefile, keyword=""):# {{{
                     pass
     return runtime
 # }}}
+def WriteDateTimeTagFile(outfile, runjob_logfile, runjob_errfile):# {{{
+    if not os.path.exists(outfile):
+        datetime = time.strftime("%Y-%m-%d %H:%M:%S")
+        try:
+            myfunc.WriteFile(datetime, outfile)
+            msg = "Write tag file %s succeeded"%(outfile)
+            myfunc.WriteFile("[%s] %s\n"%(datetime, msg),  runjob_logfile, "a", True)
+        except Exception as e:
+            msg = "Failed to write to file %s with message: \"%s\""%(outfile, str(e))
+            myfunc.WriteFile("[%s] %s\n"%(datetime, msg),  runjob_errfile, "a", True)
+# }}}
+def RunCmd(cmd, runjob_logfile, runjob_errfile):# {{{
+    """Input cmd in list
+       Run the command and also output message to logs
+    """
+    begin_time = time.time()
+
+    cmdline = " ".join(cmd)
+    datetime = time.strftime("%Y-%m-%d %H:%M:%S")
+    msg = cmdline
+    myfunc.WriteFile("[%s] %s\n"%(datetime, msg),  runjob_logfile, "a", True)
+    rmsg = ""
+    try:
+        rmsg = subprocess.check_output(cmd)
+        msg = "workflow: %s"%(rmsg)
+        myfunc.WriteFile("[%s] %s\n"%(datetime, msg),  runjob_logfile, "a", True)
+    except subprocess.CalledProcessError, e:
+        msg = "cmdline: %s\nFailed with message \"%s\""%(cmdline, str(e))
+        myfunc.WriteFile("[%s] %s\n"%(datetime, msg),  runjob_errfile, "a", True)
+        pass
+
+    end_time = time.time()
+    runtime_in_sec = end_time - begin_time
+
+    return runtime_in_sec
+# }}}

@@ -150,23 +150,22 @@ def IsHaveAvailNode(cntSubmitJobDict):#{{{
             return True
     return False
 #}}}
-def GetNumSeqSameUserDict(joblist):#{{{
-# calculate the number of sequences for each user in the queue or running
-# Fixed error for getting numseq at 2015-04-11
-    numseq_user_dict = {}
+def GetNumModelSameUserDict(joblist):#{{{
+# calculate the number of models for each user in the queue or running
+    numModel_user_dict = {}
     for i in xrange(len(joblist)):
         li1 = joblist[i]
         jobid1 = li1[0]
         ip1 = li1[3]
         email1 = li1[4]
         try:
-            numseq1 = int(li1[5])
+            numModel1 = int(li1[5])
         except:
-            numseq1 = 123
+            numModel1 = 1
             pass
-        if not jobid1 in numseq_user_dict:
-            numseq_user_dict[jobid1] = 0
-        numseq_user_dict[jobid1] += numseq1
+        if not jobid1 in numModel_user_dict:
+            numModel_user_dict[jobid1] = 0
+        numModel_user_dict[jobid1] += numModel1
         if ip1 == "" and email1 == "":
             continue
 
@@ -179,14 +178,14 @@ def GetNumSeqSameUserDict(joblist):#{{{
             ip2 = li2[3]
             email2 = li2[4]
             try:
-                numseq2 = int(li2[5])
+                numModel2 = int(li2[5])
             except:
-                numseq2 = 123
+                numModel2 = 1
                 pass
             if ((ip2 != "" and ip2 == ip1) or
                     (email2 != "" and email2 == email1)):
-                numseq_user_dict[jobid1] += numseq2
-    return numseq_user_dict
+                numModel_user_dict[jobid1] += numModel2
+    return numModel_user_dict
 #}}}
 def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
         finishedjoblogfile, loop):
@@ -232,6 +231,8 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
             finish_date_str = ""
             rstdir = "%s/%s"%(path_result, jobid)
 
+            numModelFile = "%s/query.numModel.txt"%(rstdir)
+
             numseq = 1
             try:
                 numseq = int(numseq_str)
@@ -251,8 +252,9 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
                     new_finished_list.append(li)
                 continue
 
-
             status = get_job_status(jobid)
+
+            numModel_str = myfunc.ReadFile(numModelFile).strip()
 
             starttagfile = "%s/%s"%(rstdir, "runjob.start")
             finishtagfile = "%s/%s"%(rstdir, "runjob.finish")
@@ -261,7 +263,7 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
             if os.path.exists(finishtagfile):
                 finish_date_str = myfunc.ReadFile(finishtagfile).strip()
 
-            li = [jobid, status, jobname, ip, email, numseq_str,
+            li = [jobid, status, jobname, ip, email, numModel_str,
                     method_submission, submit_date_str, start_date_str,
                     finish_date_str]
             if status in ["Finished", "Failed"]:
@@ -351,11 +353,11 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
 
 # write logs of running and queuing jobs
 # the queuing jobs are sorted in descending order by the suq priority
-# frist get numseq_this_user for each jobs
-# format of numseq_this_user: {'jobid': numseq_this_user}
-    numseq_user_dict = GetNumSeqSameUserDict(new_runjob_list + new_waitjob_list)
+# frist get numModel_this_user for each jobs
+# format of numModel_this_user: {'jobid': numModel_this_user}
+    numModel_user_dict = GetNumModelSameUserDict(new_runjob_list + new_waitjob_list)
 
-# now append numseq_this_user and priority score to new_waitjob_list and
+# now append numModel_this_user and priority score to new_waitjob_list and
 # new_runjob_list
 
     for joblist in [new_waitjob_list, new_runjob_list]:
@@ -365,7 +367,7 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
             email = li[4].strip()
             rstdir = "%s/%s"%(path_result, jobid)
             outpath_result = "%s/%s"%(rstdir, jobid)
-            query_parafile = "%s/query.para.txt"%(outpath_result)
+            query_parafile = "%s/query.para.txt"%(rstdir)
             query_para = {}
             content = myfunc.ReadFile(query_parafile)
             if content != "":
@@ -426,19 +428,19 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
             #}}}
 
             try:
-                numseq = int(li[5])
+                numModel = int(li[5])
             except:
-                numseq = 1
+                numModel = 1
                 pass
             try:
-                numseq_this_user = numseq_user_dict[jobid]
+                numModel_this_user = numModel_user_dict[jobid]
             except:
-                numseq_this_user = numseq
+                numModel_this_user = numModel
                 pass
             # note that the priority is deducted by numseq so that for jobs
             # from the same user, jobs with fewer sequences are placed with
             # higher priority
-            priority = myfunc.GetSuqPriority(numseq_this_user) - numseq
+            priority = myfunc.GetSuqPriority(numModel_this_user) - numModel
 
             if ip in g_params['blackiplist']:
                 priority = priority/1000.0
@@ -448,7 +450,7 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
                 priority = 999999999.0
                 myfunc.WriteFile("email %s in vip_user_list\n"%(email), gen_logfile, "a", True)
 
-            li.append(numseq_this_user)
+            li.append(numModel_this_user)
             li.append(priority)
 
 
@@ -462,15 +464,45 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
         for li in joblist:
             li2 = li[:10]+[str(li[10]), str(li[11])]
             li_str.append("\t".join(li2))
-#     print "write to", runjoblogfile
-#     print "\n".join(li_str)
     if len(li_str)>0:
         myfunc.WriteFile("\n".join(li_str)+"\n", runjoblogfile, "w", True)
     else:
         myfunc.WriteFile("", runjoblogfile, "w", True)
 
 #}}}
-def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
+def InitJob(jobid):# {{{
+    """Init job before submission
+    """
+    rstdir = "%s/%s"%(path_result, jobid)
+    tmpdir = "%s/tmpdir"%(rstdir)
+    qdinittagfile = "%s/runjob.qdinit"%(rstdir)
+    runjob_logfile = "%s/runjob.log"%(rstdir)
+    runjob_errfile = "%s/runjob.err"%(rstdir)
+    modelfile = "%s/query.pdb"%(rstdir)
+    modelList = myfunc.ReadPDBModel(modelfile)
+    seqfile = "%s/query.fa"%(rstdir)
+    numModelFile = "%s/query.numModel.txt"%(rstdir)
+    numModel = len(modelList)
+    myfunc.WriteFile(str(numModel), numModelFile, "w")
+    for ii in xrange(len(modelList)):
+        model = modelList[ii]
+        seqfile_this_model = "%s/query_%d.fa"%(tmpdir, ii)
+        modelfile_this_model = "%s/query_%d.pdb"%(tmpdir, ii)
+        myfunc.WriteFile(model+"\n", modelfile_this_model)
+        if seqfile != "":
+            os.copyfile(seqfile, seqfile_this_model)
+        else:
+            seq = myfunc.PDB2Seq(modelfile_this_model)[0]
+            myfunc.WriteFile(">query_0\n%s\n"%(seq), seqfile_this_model, "w")
+
+    torun_idx_file = "%s/torun_seqindex.txt"%(rstdir) # model index to be run
+    torun_idx_str_list = [str(x) for x in xrange(numModel)]
+    myfunc.WriteFile("\n".join(torun_idx_str_list)+"\n", torun_idx_file, "w", True)
+
+    webserver_common.WriteDateTimeTagFile(qdinittagfile, runjob_logfile, runjob_errfile)
+
+# }}}
+def SubmitJob(jobid, cntSubmitJobDict, numModel_this_user, query_para):#{{{
 # for each job rstdir, keep three log files, 
 # 1.seqs finished, finished_seq log keeps all information, finished_index_log
 #   can be very compact to speed up reading, e.g.
@@ -481,8 +513,8 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
 #    origIndex
 
     rmsg = ""
-    myfunc.WriteFile("SubmitJob for %s, numseq_this_user=%d\n"%(jobid,
-        numseq_this_user), gen_logfile, "a", True)
+    myfunc.WriteFile("SubmitJob for %s, numModel_this_user=%d\n"%(jobid,
+        numModel_this_user), gen_logfile, "a", True)
     rstdir = "%s/%s"%(path_result, jobid)
     outpath_result = "%s/%s"%(rstdir, jobid)
     if not os.path.exists(outpath_result):
@@ -526,15 +558,19 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
     if not os.path.exists(tmpdir):
         os.mkdir(tmpdir)
 
+    # Initialization
+    if not os.path.exists(qdinittagfile):
+        InitJob(jobid)
 
-    # 3. try to submit the job 
+    # 2. try to submit the job 
     if os.path.exists(forceruntagfile):
         isforcerun = "True"
+        query_para['isForceRun'] = True
     else:
         isforcerun = "False"
+        query_para['isForceRun'] = False
     toRunIndexList = [] # index in str
-    processedIndexSet = set([]) #seq index set that are already processed
-    submitted_loginfo_list = []
+    processedIndexSet = set([]) #model index set that are already processed
     if os.path.exists(torun_idx_file):
         toRunIndexList = myfunc.ReadIDList(torun_idx_file)
         # unique the list but keep the order
@@ -558,83 +594,74 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
             cnttry = 0
             while cnt < maxnum and iToRun < numToRun:
                 origIndex = int(toRunIndexList[iToRun])
-                seqfile_this_seq = "%s/%s"%(split_seq_dir, "query_%d.fa"%(origIndex))
+                seqfile_this_model = "%s/query_%d.fa"%(tmpdir, origIndex)
+                modelfile_this_model = "%s/query_%d.pdb"%(tmpdir, origIndex)
                 # ignore already existing query seq, this is an ugly solution,
                 # the generation of torunindexlist has a bug
-                outpath_this_seq = "%s/%s"%(outpath_result, "seq_%d"%origIndex)
-                if os.path.exists(outpath_this_seq):
+                outpath_this_model = "%s/%s"%(outpath_result, "model_%d"%origIndex)
+                if os.path.exists(outpath_this_model):
                     iToRun += 1
                     continue
-
 
                 if g_params['DEBUG']:
                     myfunc.WriteFile("DEBUG: cnt (%d) < maxnum (%d) "\
                             "and iToRun(%d) < numToRun(%d)"%(cnt, maxnum, iToRun, numToRun), gen_logfile, "a", True)
-                fastaseq = ""
-                seqid = ""
-                seqanno = ""
-                seq = ""
-                if not os.path.exists(seqfile_this_seq):
-                    all_seqfile = "%s/query.fa"%(rstdir)
-                    try:
-                        (allseqidlist, allannolist, allseqlist) = myfunc.ReadFasta(all_seqfile)
-                        seqid = allseqidlist[origIndex]
-                        seqanno = allannolist[origIndex]
-                        seq = allseqlist[origIndex]
-                        fastaseq = ">%s\n%s\n"%(seqanno, seq)
-                    except:
-                        pass
-                else:
-                    fastaseq = myfunc.ReadFile(seqfile_this_seq)#seq text in fasta format
-                    (seqid, seqanno, seq) = myfunc.ReadSingleFasta(seqfile_this_seq)
-
+                fastaseq = myfunc.ReadFile(seqfile_this_seq)#seq text in fasta format
+                model = myfunc.ReadFile(modelfile_this_model)#model text in PDB format
+                (t_seqid, t_seqanno, t_seq) = myfunc.ReadSingleFasta(seqfile)
+                md5_key = hashlib.md5(t_seq).hexdigest()
+                subfoldername = md5_key[:2]
 
                 isSubmitSuccess = False
-                if len(seq) > 0:
-                    query_para = {}
-                    if wsdl_url.find("commonbackend") != -1:
-                        query_para['name_software'] = "docker_subcons"
-                    else:
-                        query_para['name_software'] = "subcons"
+                if wsdl_url.find("commonbackend") != -1:
+                    query_para['name_software'] = "docker_proq3"
+                else:
+                    query_para['name_software'] = "docker_proq3"
 
-                    para_str = json.dumps(query_para, sort_keys=True)
-                    jobname = ""
-                    if not email in vip_user_list:
-                        useemail = ""
+                if query_para['isForceRun']:
+                    query_para['url_profile'] = ""
+                else:
+                    query_para['url_profile'] = "http://proq3.bioinfo.se/static/result/profilecache/%s/%s.zip"%(subfoldername,  md5_key) 
+
+                query_para['pdb_model'] = model
+                para_str = json.dumps(query_para, sort_keys=True)
+                jobname = ""
+                if not email in vip_user_list:
+                    useemail = ""
+                else:
+                    useemail = email
+                try:
+                    myfunc.WriteFile("\tSubmitting seq %4d "%(origIndex), gen_logfile, "a", True)
+                    rtValue = myclient.service.submitjob_remote(fastaseq, para_str,
+                            jobname, useemail, str(numModel_this_user), isforcerun)
+                except Exception as e:
+                    date_str = time.strftime("%Y-%m-%d %H:%M:%S")
+                    msg = "Failed to run myclient.service.submitjob_remote with message \"%s\""%(str(e))
+                    myfunc.WriteFile("[%s] %s"%(date_str, msg), gen_errfile, "a", True)
+                    rtValue = []
+                    pass
+
+                cnttry += 1
+                if len(rtValue) >= 1:
+                    strs = rtValue[0]
+                    if len(strs) >=5:
+                        remote_jobid = strs[0]
+                        result_url = strs[1]
+                        numseq_str = strs[2]
+                        errinfo = strs[3]
+                        warninfo = strs[4]
+                        if remote_jobid != "None" and remote_jobid != "":
+                            isSubmitSuccess = True
+                            epochtime = time.time()
+                            # 6 fields in the file remotequeue_idx_file
+                            txt =  "%d\t%s\t%s\t%s\t%s\t%f"%( origIndex,
+                                    node, remote_jobid, seqanno, seq,
+                                    epochtime)
+                            myfunc.WriteFile(txt+"\n", remotequeue_idx_file, "a", True)
+                            cnttry = 0  #reset cnttry to zero
                     else:
-                        useemail = email
-                    try:
-                        myfunc.WriteFile("\tSubmitting seq %4d "%(origIndex),
-                                gen_logfile, "a", True)
-                        rtValue = myclient.service.submitjob_remote(fastaseq, para_str,
-                                jobname, useemail, str(numseq_this_user), isforcerun)
-                    except:
                         date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-                        myfunc.WriteFile("[Date: %s] Failed to run myclient.service.submitjob_remote\n"%(date_str), gen_errfile, "a", True)
-                        rtValue = []
-                        pass
-
-                    cnttry += 1
-                    if len(rtValue) >= 1:
-                        strs = rtValue[0]
-                        if len(strs) >=5:
-                            remote_jobid = strs[0]
-                            result_url = strs[1]
-                            numseq_str = strs[2]
-                            errinfo = strs[3]
-                            warninfo = strs[4]
-                            if remote_jobid != "None" and remote_jobid != "":
-                                isSubmitSuccess = True
-                                epochtime = time.time()
-                                # 6 fields in the file remotequeue_idx_file
-                                txt =  "%d\t%s\t%s\t%s\t%s\t%f"%( origIndex,
-                                        node, remote_jobid, seqanno, seq,
-                                        epochtime)
-                                submitted_loginfo_list.append(txt)
-                                cnttry = 0  #reset cnttry to zero
-                        else:
-                            date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-                            myfunc.WriteFile("[Date: %s] bad wsdl return value\n"%(date_str), gen_errfile, "a", True)
+                        myfunc.WriteFile("[Date: %s] bad wsdl return value\n"%(date_str), gen_errfile, "a", True)
                 if isSubmitSuccess:
                     cnt += 1
                     myfunc.WriteFile(" succeeded\n", gen_logfile, "a", True)
@@ -649,9 +676,6 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
             # update cntSubmitJobDict for this node
             cntSubmitJobDict[node] = [cnt, maxnum]
 
-    # finally, append submitted_loginfo_list to remotequeue_idx_file 
-    if len(submitted_loginfo_list)>0:
-        myfunc.WriteFile("\n".join(submitted_loginfo_list)+"\n", remotequeue_idx_file, "a", True)
     # update torun_idx_file
     newToRunIndexList = []
     for idx in toRunIndexList:
@@ -667,7 +691,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
 
     return 0
 #}}}
-def GetResult(jobid):#{{{
+def GetResult(jobid, query_para):#{{{
     # retrieving result from the remote server for this job
     myfunc.WriteFile("GetResult for %s.\n" %(jobid), gen_logfile, "a", True)
     rstdir = "%s/%s"%(path_result, jobid)
@@ -1021,7 +1045,7 @@ def GetResult(jobid):#{{{
     return 0
 #}}}
 
-def CheckIfJobFinished(jobid, numseq, email):#{{{
+def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
     # check if the job is finished and write tagfiles
     myfunc.WriteFile("CheckIfJobFinished for %s.\n" %(jobid), gen_logfile, "a", True)
     rstdir = "%s/%s"%(path_result, jobid)
@@ -1032,9 +1056,6 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
     finished_idx_file = "%s/finished_seqindex.txt"%(rstdir)
     failed_idx_file = "%s/failed_seqindex.txt"%(rstdir)
     seqfile = "%s/query.fa"%(rstdir)
-
-    base_www_url_file = "%s/static/log/base_www_url.txt"%(basedir)
-    base_www_url = ""
 
     finished_idx_list = []
     failed_idx_list = []
@@ -1051,18 +1072,14 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
 
     num_processed = len(finished_idx_list)+len(failed_idx_list)
     finish_status = "" #["success", "failed", "partly_failed"]
-    if num_processed >= numseq:# finished
+    if num_processed >= numModel:# finished
         if len(failed_idx_list) == 0:
             finish_status = "success"
-        elif len(failed_idx_list) >= numseq:
+        elif len(failed_idx_list) >= numModel:
             finish_status = "failed"
         else:
             finish_status = "partly_failed"
 
-        if os.path.exists(base_www_url_file):
-            base_www_url = myfunc.ReadFile(base_www_url_file).strip()
-        if base_www_url == "":
-            base_www_url = "http://subcons.bioinfo.se"
 
         date_str = time.strftime("%Y-%m-%d %H:%M:%S")
         date_str_epoch = time.time()
@@ -1070,18 +1087,18 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
 
         # Now write the text output to a single file
         statfile = "%s/%s"%(outpath_result, "stat.txt")
-        resultfile_text = "%s/%s"%(outpath_result, "query.result.txt")
+        resultfile_text = "%s/%s"%(outpath_result, "query.proq3.txt")
+        proq3opt = GetProQ3Option(query_para)
         (seqIDList, seqAnnoList, seqList) = myfunc.ReadFasta(seqfile)
-        maplist = []
-        for i in xrange(len(seqIDList)):
-            maplist.append("%s\t%d\t%s\t%s"%("seq_%d"%i, len(seqList[i]),
-                seqAnnoList[i], seqList[i]))
+        modelFileList = []
+        for ii in xrange(numModel):
+            modelFileList.append("%s/%s/%s"%(outpath_result, "model_%d"%(ii), "query.pdb"))
         start_date_str = myfunc.ReadFile(starttagfile).strip()
         start_date_epoch = datetime.datetime.strptime(start_date_str, "%Y-%m-%d %H:%M:%S").strftime('%s')
         all_runtime_in_sec = float(date_str_epoch) - float(start_date_epoch)
+        webserver_common.WriteProQ3TextResultFile(resultfile_text, query_para, modelFileList,
+                all_runtime_in_sec, g_params['base_www_url'], proq3opt, statfile=statfile)
 
-        webserver_common.WriteSubconsTextResultFile(resultfile_text, outpath_result, maplist,
-                all_runtime_in_sec, base_www_url, statfile=statfile)
 
         # now making zip instead (for windows users)
         # note that zip rq will zip the real data for symbolic links
@@ -1107,17 +1124,17 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
             if os.path.exists(errfile):
                 err_msg = myfunc.ReadFile(errfile)
 
-            from_email = "info@subcons.bioinfo.se"
+            from_email = "info@proq3.bioinfo.se"
             to_email = email
-            subject = "Your result for Subcons JOBID=%s"%(jobid)
+            subject = "Your result for ProQ3/ProQ3D JOBID=%s"%(jobid)
             if finish_status == "success":
                 bodytext = """
     Your result is ready at %s/pred/result/%s
 
-    Thanks for using Subcons
+    Thanks for using ProQ3/ProQ3D!
 
-            """%(base_www_url, jobid)
-            elif finish_status == "failed":
+            """%(g_params['base_www_url'], jobid)
+            else:
                 bodytext="""
     We are sorry that your job with jobid %s is failed.
 
@@ -1126,19 +1143,6 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
     Attached below is the error message:
     %s
                 """%(jobid, contact_email, err_msg)
-            else:
-                bodytext="""
-    Your result is ready at %s/pred/result/%s
-
-    We are sorry that Subcons failed to predict some sequences of your job.
-
-    Please re-submit the queries that have been failed.
-
-    If you have any further questions, please contact %s.
-
-    Attached below is the error message:
-    %s
-                """%(base_www_url, jobid, contact_email, err_msg)
 
             myfunc.WriteFile("Sendmail %s -> %s, %s"% (from_email, to_email, subject), logfile, "a", True)
             rtValue = myfunc.Sendmail(from_email, to_email, subject, bodytext)
@@ -1862,6 +1866,11 @@ def main(g_params):#{{{
 
     loop = 0
     while 1:
+        base_www_url_file = "%s/static/log/base_www_url.txt"%(basedir)
+        if os.path.exists(base_www_url_file):
+            g_params['base_www_url'] = myfunc.ReadFile(base_www_url_file).strip()
+        if base_www_url == "":
+            g_params['base_www_url'] = "http://proq3.bioinfo.se"
 
         # load the config file if exists
         configfile = "%s/config/config.json"%(basedir)
@@ -1911,7 +1920,7 @@ def main(g_params):#{{{
                             remotequeueDict[node].append(remotejobid)
 
 
-        if loop % 100 == 1:
+        if loop % 200 == 11:
             RunStatistics(path_result, path_log)
             DeleteOldResult(path_result, path_log)
 
@@ -1948,24 +1957,30 @@ def main(g_params):#{{{
                             numseq = 1
                             pass
                         try:
-                            numseq_this_user = int(strs[10])
+                            numModel_this_user = int(strs[10])
                         except:
-                            numseq_this_user = 1
+                            numModel_this_user = 1
                             pass
                         rstdir = "%s/%s"%(path_result, jobid)
                         finishtagfile = "%s/%s"%(rstdir, "runjob.finish")
                         status = strs[1]
+
+                        query_parafile = "%s/query.para.txt"%(rstdir)
+                        query_para = {}
+                        content = myfunc.ReadFile(query_parafile)
+                        if content != "":
+                            query_para = json.loads(content)
+
 
                         lock_file = "%s/%s/%s.lock"%(path_result, jobid, "runjob.lock")
                         if os.path.exists(lock_file):
                             continue
 
                         myfunc.WriteFile("CompNodeStatus: %s\n"%(str(cntSubmitJobDict)), gen_logfile, "a", True)
-                        if IsHaveAvailNode(cntSubmitJobDict):
-                            if not g_params['DEBUG_NO_SUBMIT']:
-                                SubmitJob(jobid, cntSubmitJobDict, numseq_this_user)
-                        GetResult(jobid) # the start tagfile is written when got the first result
-                        CheckIfJobFinished(jobid, numseq, email)
+                        if IsHaveAvailNode(cntSubmitJobDict) and not g_params['DEBUG_NO_SUBMIT']:
+                            SubmitJob(jobid, cntSubmitJobDict, numModel_this_user, query_para)
+                        GetResult(jobid, query_para) # the start tagfile is written when got the first result
+                        CheckIfJobFinished(jobid, numseq, email, query_para)
 
                 lines = hdl.readlines()
             hdl.close()
@@ -1992,6 +2007,7 @@ def InitGlobalParameter():#{{{
     g_params['MAX_RESUBMIT'] = 2
     g_params['MAX_SUBMIT_TRY'] = 3
     g_params['MAX_TIME_IN_REMOTE_QUEUE'] = 3600*24 # one day in seconds
+    g_params['base_www_url'] = "http://proq3.bioinfo.se"
     return g_params
 #}}}
 if __name__ == '__main__' :

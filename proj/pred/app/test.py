@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import os
 import sys
 import myfunc
@@ -33,7 +34,12 @@ if 0:# {{{
     print newsList
 # }}}
 
-if 1:
+if 0:
     timefile = "/home/nanjiang/tmp/time.txt"
     runtime = webserver_common.GetRunTimeFromTimeFile(timefile, keyword="model_0")
     print runtime
+
+if 1:
+    pdbfile = "/media/data3/server/web_common_backend/proj/pred/static/result/rst_lovfGb/query.pdb"
+    seq = myfunc.PDB2Seq(pdbfile)[0]
+    print seq

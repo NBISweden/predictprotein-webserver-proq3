@@ -18,6 +18,8 @@ import requests
 import gzip
 import time
 from datetime import datetime
+from Bio.PDB.PDBParser import PDBParser
+from Bio.PDB.Polypeptide import PPBuilder
 GAP = "-"
 BLOCK_SIZE = 100000 #set a good value for reading text file by block reading
 
@@ -2076,7 +2078,17 @@ def ArchiveFile(filename, maxsize):#{{{
         return 0
 #}}}
 def GetSuqPriority(numseq_this_user):#{{{
-    prio = int(( (1/time.time()*1e10) * 1e8 ) ) - int(numseq_this_user**1.5)
+### the jobs queued for more than one day should have higher priority no matter how many sequences it is
+    year = datetime.datetime.today().year
+    lastyear = year-1
+    epoch_time_lastyear = datetime.datetime.strptime(str(lastyear), '%Y').strftime('%s')
+    seconds_since_lastyear = time.time() - float(epoch_time_lastyear) 
+    if numseq_this_user > 20000:
+        numseq_this_user = 20000
+    prio = int(( (1/seconds_since_lastyear*1e10) * 1e6 ) ) - int(numseq_this_user**1.35)
+    if prio < 0:
+        prio = 0
+
     return prio
 #}}}
 def WriteTOPCONSTextResultFile(outfile, outpath_result, maplist,#{{{
@@ -2326,7 +2338,7 @@ def ReadNews(infile):#{{{
         return []
 #}}}
 
-def ReadPDBModelFromBuff(buff):
+def ReadPDBModelFromBuff(buff):# {{{
     modelList = []
     tmpli = buff.split("\nENDMDL")
     if len(tmpli) == 1:
@@ -2341,8 +2353,8 @@ def ReadPDBModelFromBuff(buff):
                     newss = ss[pos+1:]
                     modelList.append(newss)
     return modelList
-
-def ReadPDBModel(infile):
+# }}}
+def ReadPDBModel(infile):# {{{
     """
     Read PDB model file and return the model list, each contains a single model
     """
@@ -2355,4 +2367,16 @@ def ReadPDBModel(infile):
     except IOError:
         print >> sys.stderr, "Failed to read modelfile %s"%(infile)
         return []
+# }}}
 
+def PDB2Seq(pdbfile):# {{{
+    """Return a list of sequences given the pdbfile
+    """
+    seqList = []
+    structure = PDBParser().get_structure('', pdbfile)
+    ppb=PPBuilder()
+    for pp in ppb.build_peptides(structure):
+        seqList.append(str(pp.get_sequence()))
+    return seqList
+
+# }}}
