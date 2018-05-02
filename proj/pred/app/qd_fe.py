@@ -79,7 +79,7 @@ basedir = os.path.realpath("%s/.."%(rundir)) # path of the application, i.e. pre
 path_log = "%s/static/log"%(basedir)
 path_stat = "%s/stat"%(path_log)
 path_result = "%s/static/result"%(basedir)
-path_cache = "%s/static/result/cache"%(basedir)
+path_profilecache = "%s/static/result/cache"%(basedir)
 
 # format of the computenodefile is 
 # each line is a record and contains two items
@@ -194,7 +194,7 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
     # generate two logfiles: 
     #   1. runjoblogfile 
     #   2. finishedjoblogfile
-    # when loop == 0, for unfinished jobs, re-generate finished_seqs.txt
+    # when loop == 0, for unfinished jobs, re-generate finished_models.txt
 
 
     hdl = myfunc.ReadLineByBlock(submitjoblogfile)
@@ -379,15 +379,15 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
                 method_quality = 'sscore'
 
             # if loop == 0 , for new_waitjob_list and new_runjob_list
-            # re-generate finished_seqs.txt
+            # re-generate finished_models.txt
             if loop == 0 and os.path.exists(outpath_result):#{{{
                 finished_model_file = "%s/finished_models.txt"%(outpath_result)
                 finished_idx_file = "%s/finished_seqindex.txt"%(rstdir)
                 finished_idx_set = set([])
 
                 finished_seqs_idlist = []
-                if os.path.exists(finished_seq_file):
-                    finished_seqs_idlist = myfunc.ReadIDList2(finished_seq_file, col=0, delim="\t")
+                if os.path.exists(finished_model_file):
+                    finished_seqs_idlist = myfunc.ReadIDList2(finished_model_file, col=0, delim="\t")
                 finished_seqs_idset = set(finished_seqs_idlist)
                 queryfile = "%s/query.fa"%(rstdir)
                 (seqidlist, seqannolist, seqlist) = myfunc.ReadFasta(queryfile)
@@ -402,7 +402,7 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
                             origIndex = int(dd.split("_")[1])
                             outpath_this_model = "%s/%s"%(outpath_result, dd)
                             timefile = "%s/time.txt"%(outpath_this_model)
-                            runtime = webserver_common.GetRunTimeFromTimeFile(timefile, keyword="")
+                            runtime = webserver_common.GetRunTimeFromTimeFile(timefile, keyword="model")
                             modelfile = "%s/query.pdb"%(outpath_this_model)
                             modelseqfile = "%s/query.pdb.fasta"%(outpath_this_model)
                             globalscorefile = "%s.proq3.%s.global"%(modelfile, method_quality)
@@ -527,12 +527,10 @@ def SubmitJob(jobid, cntSubmitJobDict, numModel_this_user, query_para):#{{{
     cnttry_idx_file = "%s/cntsubmittry_seqindex.txt"%(rstdir)#index file to keep log of tries
 
     errfile = "%s/%s"%(rstdir, "runjob.err")
-    finished_seq_file = "%s/finished_seqs.txt"%(outpath_result)
     tmpdir = "%s/tmpdir"%(rstdir)
     qdinittagfile = "%s/runjob.qdinit"%(rstdir)
     failedtagfile = "%s/%s"%(rstdir, "runjob.failed")
     starttagfile = "%s/%s"%(rstdir, "runjob.start")
-    fafile = "%s/query.fa"%(rstdir)
     split_seq_dir = "%s/splitaa"%(tmpdir)
     forceruntagfile = "%s/forcerun"%(rstdir)
 
@@ -704,16 +702,24 @@ def GetResult(jobid, query_para):#{{{
     torun_idx_file = "%s/torun_seqindex.txt"%(rstdir) # ordered seq index to run
     finished_idx_file = "%s/finished_seqindex.txt"%(rstdir)
     failed_idx_file = "%s/failed_seqindex.txt"%(rstdir)
+    seqfile = "%s/query.fa"%(rstdir)
+
+    isHasTargetSeq = False  #whether the target sequence is provided
+    if os.path.exists(seqfile):
+        isHasTargetSeq = True
+
 
     starttagfile = "%s/%s"%(rstdir, "runjob.start")
     cnttry_idx_file = "%s/cntsubmittry_seqindex.txt"%(rstdir)#index file to keep log of tries
     tmpdir = "%s/tmpdir"%(rstdir)
-    finished_seq_file = "%s/finished_seqs.txt"%(outpath_result)
+    finished_model_file = "%s/finished_models.txt"%(outpath_result)
+    numModelFile = "%s/query.numModel.txt"%(rstdir)
+    numModel = int(myfunc.ReadFile(numModelFile).strip())
+
 
     if not os.path.exists(tmpdir):
         os.mkdir(tmpdir)
 
-    finished_info_list = [] #[info for finished record]
     finished_idx_list = [] # [origIndex]
     failed_idx_list = []    # [origIndex]
     resubmit_idx_list = []  # [origIndex]
@@ -740,11 +746,9 @@ def GetResult(jobid, query_para):#{{{
         jobinfofile = "%s/jobinfo"%(rstdir)
         jobinfo = myfunc.ReadFile(jobinfofile).strip()
         jobinfolist = jobinfo.split("\t")
-        if len(jobinfolist) >= 8:
-            numseq = int(jobinfolist[3])
 
-        if len(completed_idx_set) < numseq:
-            all_idx_list = [str(x) for x in xrange(numseq)]
+        if len(completed_idx_set) < numModel:
+            all_idx_list = [str(x) for x in xrange(numModel)]
             torun_idx_str_list = list(set(all_idx_list)-completed_idx_set)
             for idx in torun_idx_str_list:
                 try:
@@ -755,7 +759,7 @@ def GetResult(jobid, query_para):#{{{
             myfunc.WriteFile("\n".join(torun_idx_str_list)+"\n", torun_idx_file, "w", True)
 
             if g_params['DEBUG']:
-                myfunc.WriteFile("recreate torun_idx_file: jobid = %s, numseq=%d, len(completed_idx_set)=%d, len(torun_idx_str_list)=%d\n"%(jobid, numseq, len(completed_idx_set), len(torun_idx_str_list)), gen_logfile, "a", True)
+                myfunc.WriteFile("recreate torun_idx_file: jobid = %s, numModel=%d, len(completed_idx_set)=%d, len(torun_idx_str_list)=%d\n"%(jobid, numModel, len(completed_idx_set), len(torun_idx_str_list)), gen_logfile, "a", True)
         else:
             myfunc.WriteFile("", torun_idx_file, "w", True)
 
@@ -793,7 +797,7 @@ def GetResult(jobid, query_para):#{{{
         line = lines[i]
 
         if g_params['DEBUG']:
-            myfunc.WriteFile("Process %s\n"%(line), gen_logfile, "a", True)
+            myfunc.WriteFile("Processing %s\n"%(line), gen_logfile, "a", True)
         if not line or line[0] == "#":
             continue
         strs = line.split("\t")
@@ -805,9 +809,11 @@ def GetResult(jobid, query_para):#{{{
         description = strs[3]
         seq = strs[4]
         submit_time_epoch = float(strs[5])
-        subfoldername_this_seq = "seq_%d"%(origIndex)
-        outpath_this_seq = "%s/%s"%(outpath_result, "seq_%d"%origIndex)
-
+        subfoldername_this_model = "model_%d"%(origIndex)
+        outpath_this_model = "%s/%s"%(outpath_result, "model_%d"%origIndex)
+        md5_key = hashlib.md5(seq).hexdigest()
+        md5_subfoldername = md5_key[:2]
+        zipfile_profilecache = "%s/%s/%s.zip"%(path_profilecache, md5_subfoldername, md5_key) 
         try:
             myclient = myclientDict[node]
         except KeyError:
@@ -847,109 +853,70 @@ def GetResult(jobid, query_para):#{{{
                             pass
                     if os.path.exists(outfile_zip) and isRetrieveSuccess:
                         cmd = ["unzip", outfile_zip, "-d", tmpdir]
-                        cmdline = " ".join(cmd)
-                        try:
-                            rmsg = subprocess.check_output(cmd)
-                        except subprocess.CalledProcessError, e:
-                            date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-                            myfunc.WriteFile("[Date: %s] cmdline=%s\nerrmsg=%s\n"%(
-                                    date_str, cmdline, str(e)), gen_errfile, "a", True)
-                            pass
-                        rst_this_seq = "%s/%s/seq_0"%(tmpdir, remote_jobid)
+                        webserver_common.RunCmd(cmd, gen_logfile, gen_errfile)
+                        profile_this_model = "%s/%s/profile_0"%(tmpdir, remote_jobid)
 
-                        if os.path.islink(outpath_this_seq):
-                            os.unlink(outpath_this_seq)
-                        elif os.path.exists(outpath_this_seq):
-                            shutil.rmtree(outpath_this_seq)
+                        if isHasTargetSeq:
+                            outpath_profile =  "%s/profile"%(outpath_result)
+                        else:
+                            outpath_profile =  "%s/profile_%d"%(outpath_result, origIndex)
 
-                        if os.path.exists(rst_this_seq) and not os.path.exists(outpath_this_seq):
-                            cmd = ["mv","-f", rst_this_seq, outpath_this_seq]
-                            cmdline = " ".join(cmd)
+                        if not os.path.exists(outpath_profile):
                             try:
-                                rmsg = subprocess.check_output(cmd)
-                            except subprocess.CalledProcessError, e:
+                                shutil.copytree(profile_this_model, outpath_profile)
+                            except Exception as e:
                                 date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-                                myfunc.WriteFile( "[Date: %s] cmdline=%s\nerrmsg=%s\n"%(
-                                        date_str, cmdline, str(e)), gen_errfile, "a", True)
+                                msg = "Failed to copy %s to %s. message = \"%s\""%(
+                                        profile_this_model, outpath_profile, str(e))
+                                myfunc.WriteFile("[%s] %s"%(date_str, msg), gen_errfile, "a", True)
+
+                        #update profilecache
+                        if  query_para['isForceRun'] or not os.path.exists(zipfile_profilecache):
+                            cwd = os.getcwd()
+                            os.chdir("%s/%s"(tmpdir, remote_jobid))
+                            os.rename("profile_0", md5_key)
+                            cmd = ["zip", "-rq", "%s.zip"%(md5_key), md5_key]
+                            webserver_common.RunCmd(cmd, gen_logfile, gen_errfile)
+                            shutil.copyfile("%s.zip"%(md5_key), zipfile_profilecache)
+                            os.chdir(cwd)
+
+                        # copy the model accessment result
+                        rst_this_model = "%s/%s/model_0"%(tmpdir, remote_jobid)
+                        if os.path.exists(outpath_this_model):
+                            shutil.rmtree(outpath_this_model)
+
+                        if os.path.exists(rst_this_model) and not os.path.exists(outpath_this_model):
+                            cmd = ["mv","-f", rst_this_model, outpath_this_model]
+                            webserver_common.RunCmd(cmd, gen_logfile, gen_errfile)
+                            isSuccess = True
+
+                            # delete the data on the remote server
+                            try:
+                                rtValue2 = myclient.service.deletejob(remote_jobid)
+                            except:
+                                date_str = time.strftime("%Y-%m-%d %H:%M:%S")
+                                myfunc.WriteFile( "[Date: %s] Failed to run myclient.service.deletejob(%s)\n"%(date_str, remote_jobid), gen_errfile, "a", True)
+                                rtValue2 = []
                                 pass
-                            checkfile = "%s/plot/query_0.png"%(outpath_this_seq)
-                            if os.path.exists(checkfile):
-                                isSuccess = True
 
-                            if isSuccess:
-                                # create or update the md5 cache
-                                md5_key = hashlib.md5(seq).hexdigest()
-                                subfoldername = md5_key[:2]
-                                md5_subfolder = "%s/%s"%(path_cache, subfoldername)
-                                cachedir = "%s/%s/%s"%(path_cache, subfoldername, md5_key)
-                                if os.path.exists(cachedir):
-                                    try:
-                                        shutil.rmtree(cachedir)
-                                    except Exception,e:
-                                        myfunc.WriteFile("\tFailed to shutil.rmtree(%s) with %s\n"%(cachedir, str(e)), gen_errfile, "a", True)
-                                        pass
+                            logmsg = ""
+                            if len(rtValue2) >= 1:
+                                ss2 = rtValue2[0]
+                                if len(ss2) >= 2:
+                                    status = ss2[0]
+                                    errmsg = ss2[1]
+                                    if status == "Succeeded":
+                                        logmsg = "Successfully deleted data on %s "\
+                                                "for %s"%(node, remote_jobid)
+                                    else:
+                                        logmsg = "Failed to delete data on %s for "\
+                                                "%s\nError message:\n%s\n"%(node, remote_jobid, errmsg)
+                            else:
+                                logmsg = "Failed to call deletejob %s via WSDL on %s\n"%(remote_jobid, node)
 
-                                if not os.path.exists(md5_subfolder):
-                                    try:
-                                        os.makedirs(md5_subfolder)
-                                    except:
-                                        pass
-
-                                if os.path.exists(md5_subfolder) and not os.path.exists(cachedir):
-
-                                    cmd = ["mv","-f", outpath_this_seq, cachedir]
-                                    cmdline = " ".join(cmd)
-                                    try:
-                                        subprocess.check_output(cmd)
-                                        if g_params['DEBUG_CACHE']:
-                                            myfunc.WriteFile("\tDEBUG_CACHE: %s\n"%(cmdline), gen_logfile, "a", True)
-                                    except CalledProcessError,e:
-                                        print e
-                                        if g_params['DEBUG_CACHE']:
-                                            myfunc.WriteFile("\tDEBUG_CACHE: %s\n"%(str(e)), gen_logfile, "a", True)
-                                        pass
-
-                                if not os.path.exists(outpath_this_seq) and os.path.exists(cachedir):
-                                    rela_path = os.path.relpath(cachedir, outpath_result) #relative path
-                                    try:
-                                        if g_params['DEBUG_CACHE']:#{{{
-                                            myfunc.WriteFile("\tDEBUG_CACHE: chdir(%s)\n"%(outpath_result), 
-                                                    gen_logfile, "a", True)
-                                            myfunc.WriteFile("\tDEBUG_CACHE: os.symlink(%s, %s)\n"%(rela_path, 
-                                                subfoldername_this_seq), gen_logfile, "a", True)#}}}
-                                        os.chdir(outpath_result)
-                                        os.symlink(rela_path,  subfoldername_this_seq)
-                                    except:
-                                        if g_params['DEBUG_CACHE']:#{{{
-                                            myfunc.WriteFile("\tDEBUG_CACHE: os.symlink(%s, %s) failed\n"%(rela_path, subfoldername_this_seq), gen_errfile, "a", True)#}}}
-                                        pass
-                                # delete the data on the remote server
-                                try:
-                                    rtValue2 = myclient.service.deletejob(remote_jobid)
-                                except:
-                                    date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-                                    myfunc.WriteFile( "[Date: %s] Failed to run myclient.service.deletejob(%s)\n"%(date_str, remote_jobid), gen_errfile, "a", True)
-                                    rtValue2 = []
-                                    pass
-
-                                logmsg = ""
-                                if len(rtValue2) >= 1:
-                                    ss2 = rtValue2[0]
-                                    if len(ss2) >= 2:
-                                        status = ss2[0]
-                                        errmsg = ss2[1]
-                                        if status == "Succeeded":
-                                            logmsg = "Successfully deleted data on %s "\
-                                                    "for %s"%(node, remote_jobid)
-                                        else:
-                                            logmsg = "Failed to delete data on %s for "\
-                                                    "%s\nError message:\n%s\n"%(node, remote_jobid, errmsg)
-                                else:
-                                    logmsg = "Failed to call deletejob %s via WSDL on %s\n"%(remote_jobid, node)
-
-                                # delete the zip file
-                                os.remove(outfile_zip)
-                                shutil.rmtree("%s/%s"%(tmpdir, remote_jobid))
+                            # delete the zip file
+                            os.remove(outfile_zip)
+                            shutil.rmtree("%s/%s"%(tmpdir, remote_jobid))
 
 
 #}}}
@@ -978,25 +945,21 @@ def GetResult(jobid, query_para):#{{{
             time_now = time.time()
             runtime = 5.0
             runtime1 = time_now - submit_time_epoch #in seconds
-            timefile = "%s/time.txt"%(outpath_this_seq)
-            if os.path.exists(timefile):
-                txt = myfunc.ReadFile(timefile).strip()
-                ss2 = txt.split(";")
-                try:
-                    runtime = float(ss2[1])
-                except:
-                    runtime = runtime1
-                    pass
-            else:
-                runtime = runtime1
+            timefile = "%s/time.txt"%(outpath_this_model)
+            runtime = webserver_common.GetRunTimeFromTimeFile(timefile, keyword="model")
+            modelfile = "%s/query.pdb"%(outpath_this_model)
+            modelseqfile = "%s/query.pdb.fasta"%(outpath_this_model)
+            globalscorefile = "%s.proq3.%s.global"%(modelfile, query_para['method_quality'])
+            modellength = myfunc.GetSingleFastaLength(modelseqfile)
 
-            finalpredfile = "%s/%s/query_0.subcons-final-pred.csv"%(
-                    outpath_this_seq, "final-prediction")
-            (loc_def, loc_def_score) = webserver_common.GetLocDef(finalpredfile)
-            info_finish = [ "seq_%d"%origIndex, str(len(seq)), 
-                    str(loc_def), str(loc_def_score),
-                    "newrun", str(runtime), description]
-            finished_info_list.append("\t".join(info_finish))
+            (globalscore, itemList) = webserver_common.ReadProQ3GlobalScore(globalscorefile)
+            modelinfo = ["model_%d"%(origIndex), str(modellength), str(runtime)]
+            if globalscore:
+                for i in xrange(len(itemList)):
+                    modelinfo.append(str(globalscore[itemList[i]]))
+
+            myfunc.WriteFile("\t".join(modelinfo)+"\n", finished_model_file, "a", True)
+
             finished_idx_list.append(str(origIndex))#}}}
 
         if not isFinish_remote:
@@ -1023,8 +986,6 @@ def GetResult(jobid, query_para):#{{{
     resubmit_idx_list = list(set(resubmit_idx_list))
 
 
-    if len(finished_info_list)>0:
-        myfunc.WriteFile("\n".join(finished_info_list)+"\n", finished_seq_file, "a", True)
     if len(finished_idx_list)>0:
         myfunc.WriteFile("\n".join(finished_idx_list)+"\n", finished_idx_file, "a", True)
     if len(failed_idx_list)>0:
@@ -1039,8 +1000,6 @@ def GetResult(jobid, query_para):#{{{
 
     with open(cnttry_idx_file, 'w') as fpout:
         json.dump(cntTryDict, fpout)
-
-
 
     return 0
 #}}}
@@ -1201,10 +1160,10 @@ def RunStatistics(path_result, path_log):#{{{
         runtimeloginfolist = []
         rstdir = "%s/%s"%(path_result, jobid)
         outpath_result = "%s/%s"%(rstdir, jobid)
-        finished_seq_file = "%s/finished_seqs.txt"%(outpath_result)
+        finished_model_file = "%s/finished_models.txt"%(outpath_result)
         lines = []
-        if os.path.exists(finished_seq_file):
-            lines = myfunc.ReadFile(finished_seq_file).split("\n")
+        if os.path.exists(finished_model_file):
+            lines = myfunc.ReadFile(finished_model_file).split("\n")
         for line in lines:
             strs = line.split("\t")
             if len(strs)>=7:
@@ -1861,8 +1820,8 @@ def main(g_params):#{{{
     runjoblogfile = "%s/runjob_log.log"%(path_log)
     finishedjoblogfile = "%s/finished_job.log"%(path_log)
 
-    if not os.path.exists(path_cache):
-        os.mkdir(path_cache)
+    if not os.path.exists(path_profilecache):
+        os.mkdir(path_profilecache)
 
     loop = 0
     while 1:

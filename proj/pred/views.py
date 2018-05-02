@@ -56,7 +56,7 @@ import webserver_common
 
 rundir = SITE_ROOT
 
-qd_fe_scriptfile = "%s/qd_boctopus2_fe.py"%(path_app)
+qd_fe_scriptfile = "%s/qd_fe.py"%(path_app)
 gen_errfile = "%s/static/log/%s.err"%(SITE_ROOT, progname)
 
 # Create your views here.
@@ -265,12 +265,6 @@ def submit_seq(request):#{{{
                 if webserver_common.IsFrontEndNode(base_www_url): #run the daemon only at the frontend
                     cmd = "nohup python %s &"%(qd_fe_scriptfile)
                     os.system(cmd)
-#                 try:
-#                     subprocess.check_output(cmd)
-#                 except subprocess.CalledProcessError, e:
-#                     datetime = time.strftime("%Y-%m-%d %H:%M:%S")
-#                     myfunc.WriteFile("[%s] %s\n"%(datetime, str(e)), gen_errfile, "a")
-
 
                 if query['nummodel'] < 0: #go to result page anyway
                     query['jobcounter'] = GetJobCounter(client_ip, isSuperUser,
@@ -758,9 +752,7 @@ def ValidateSeq(rawseq):#{{{
 #}}}
 def RunQuery(request, query):#{{{
     errmsg = []
-    tmpdir = tempfile.mkdtemp(prefix="%s/static/tmp/tmp_"%(SITE_ROOT))
     rstdir = tempfile.mkdtemp(prefix="%s/static/result/rst_"%(SITE_ROOT))
-    os.chmod(tmpdir, 0755)
     os.chmod(rstdir, 0755)
     jobid = os.path.basename(rstdir)
     query['jobid'] = jobid
@@ -768,12 +760,9 @@ def RunQuery(request, query):#{{{
 # write files for the query
     jobinfofile = "%s/jobinfo"%(rstdir)
     rawseqfile = "%s/query.raw.fa"%(rstdir)
-    seqfile_t = "%s/query.fa"%(tmpdir)
     seqfile_r = "%s/query.fa"%(rstdir)
-    modelfile_t = "%s/query.pdb"%(tmpdir)
     modelfile_r = "%s/query.pdb"%(rstdir)
     rawmodelfile = "%s/query.raw.pdb"%(rstdir)
-    warnfile = "%s/warn.txt"%(tmpdir)
     logfile = "%s/runjob.log"%(rstdir)
 
     query_para = {}
@@ -785,7 +774,6 @@ def RunQuery(request, query):#{{{
     query_para['isOutputPDB'] = True  #always output PDB file (with proq3 score written at the B-factor column)
     query_parafile = "%s/query.para.txt"%(rstdir)
 
-    myfunc.WriteFile("tmpdir = %s\n"%(tmpdir), logfile, "a")
 
     jobinfo_str = "%s\t%s\t%s\t%s\t%d\t%s\t%s\t%s\n"%(query['date'], jobid,
             query['client_ip'], query['nummodel'],
@@ -804,9 +792,9 @@ def RunQuery(request, query):#{{{
     base_www_url = "http://" + request.META['HTTP_HOST']
     query['base_www_url'] = base_www_url
 
-    if query['nummodel'] <= MAX_ALLOWD_NUMMODEL: # batch submission, max 5 seq
-        query['nummodel_this_user'] = query['nummodel']
-        SubmitQueryToLocalQueue(query, tmpdir, rstdir)
+#     if query['nummodel'] <= -1 : # do not submit any job to local queue
+#         query['nummodel_this_user'] = query['nummodel']
+#         SubmitQueryToLocalQueue(query, tmpdir, rstdir)
 
     forceruntagfile = "%s/forcerun"%(rstdir)
     if query['isForceRun']:

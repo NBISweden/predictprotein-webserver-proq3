@@ -12,3 +12,6 @@ tmp/
 log/
 md5/
 env/
+
+computenode.txt
+config.json
