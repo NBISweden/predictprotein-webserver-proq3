@@ -1060,21 +1060,25 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
         start_date_str = myfunc.ReadFile(starttagfile).strip()
         start_date_epoch = datetime.datetime.strptime(start_date_str, "%Y-%m-%d %H:%M:%S").strftime('%s')
         all_runtime_in_sec = float(date_str_epoch) - float(start_date_epoch)
+
+        msg = "Dump result to a single text file %s"%(resultfile_text)
+        myfunc.WriteFile("[%s] %s.\n" %(date_str, msg), gen_logfile, "a", True)
         webserver_common.WriteProQ3TextResultFile(resultfile_text, query_para, modelFileList,
                 all_runtime_in_sec, g_params['base_www_url'], proq3opt, statfile=statfile)
 
 
         # now making zip instead (for windows users)
         # note that zip rq will zip the real data for symbolic links
+        cwd = os.getcwd()
         zipfile = "%s.zip"%(jobid)
         zipfile_fullpath = "%s/%s"%(rstdir, zipfile)
+
+        msg = "Compress the result folder to zipfile %s"%(zipfile_fullpath)
+        myfunc.WriteFile("[%s] %s.\n" %(date_str, msg), gen_logfile, "a", True)
         os.chdir(rstdir)
         cmd = ["zip", "-rq", zipfile, jobid]
-        try:
-            subprocess.check_output(cmd)
-        except subprocess.CalledProcessError, e:
-            myfunc.WriteFile(str(e)+"\n", errfile, "a", True)
-            pass
+        webserver_common.RunCmd(cmd, gen_logfile, gen_errfile)
+        os.chdir(cwd)
 
         if len(failed_idx_list)>0:
             myfunc.WriteFile(date_str, failedtagfile, "w", True)

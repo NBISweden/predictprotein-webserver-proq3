@@ -2369,6 +2369,24 @@ def ReadPDBModel(infile):# {{{
         return []
 # }}}
 
+def IsDNASeq(seq):#{{{
+# check whether the sequence is a DNA sequence
+    seq = seq.upper()
+    alphabet = ["A","C","G","T","U"]
+    sumACGT = 0
+    sumA = seq.count('A')
+    sumC = seq.count('C')
+    sumG = seq.count('G')
+    sumT = seq.count('T')
+    sumU = seq.count('U')
+
+    sumACGT = sumA + sumC + sumG + sumT + sumU
+    if (FloatDivision(sumACGT, len(seq)) > 0.75 and sumA > 0 and sumC > 0 and
+            sumT > 0 and sumG > 0):
+        return True
+    else:
+        return False
+#}}}
 def PDB2Seq(pdbfile):# {{{
     """Return a list of sequences given the pdbfile
     """
@@ -2380,3 +2398,29 @@ def PDB2Seq(pdbfile):# {{{
     return seqList
 
 # }}}
+def week_beg_end(day):#{{{
+    """
+    Given a date return the date of the 
+    beginning_of_week (Monday) and end_of_week
+    """
+    day_of_week = day.weekday()
+    to_beginning_of_week = datetime.timedelta(days=day_of_week)
+    beginning_of_week = day - to_beginning_of_week
+    to_end_of_week = datetime.timedelta(days=6 - day_of_week)
+    end_of_week = day + to_end_of_week
+    return (beginning_of_week, end_of_week)
+#}}}
+def disk_usage(path):#{{{
+    """Return disk usage statistics about the given path.
+    (total, used, free) in bytes
+    """
+    try:
+        st = os.statvfs(path)
+        free = st.f_bavail * st.f_frsize
+        total = st.f_blocks * st.f_frsize
+        used = (st.f_blocks - st.f_bfree) * st.f_frsize
+        return (total, used, free)
+    except OSError:
+        print sys.stderr, "os.statvfs(%s) failed"%(path)
+        return (-1,-1,-1)
+#}}}
