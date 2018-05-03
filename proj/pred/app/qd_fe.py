@@ -833,6 +833,10 @@ def GetResult(jobid, query_para):#{{{
                 status = ss2[0]
                 result_url = ss2[1]
                 errinfo = ss2[2]
+                if g_params['DEBUG']:
+                    msg = "checkjob(%s), status=\"%s\", errinfo = \"%s\""%(remote_jobid, status, errinfo)
+                    date_str = time.strftime("%Y-%m-%d %H:%M:%S")
+                    myfunc.WriteFile("[%s] %s.\n" %(date_str, msg), gen_logfile, "a", True)
 
                 if errinfo and errinfo.find("does not exist")!=-1:
                     isFinish_remote = True
@@ -922,7 +926,6 @@ def GetResult(jobid, query_para):#{{{
                             # delete the zip file
                             os.remove(outfile_zip)
                             shutil.rmtree("%s/%s"%(tmpdir, remote_jobid))
-
 
 #}}}
                 elif status in ["Failed", "None"]:
@@ -1966,7 +1969,7 @@ def InitGlobalParameter():#{{{
     g_params = {}
     g_params['isQuiet'] = True
     g_params['blackiplist'] = []
-    g_params['DEBUG'] = False
+    g_params['DEBUG'] = True
     g_params['DEBUG_NO_SUBMIT'] = False
     g_params['DEBUG_CACHE'] = False
     g_params['SLEEP_INTERVAL'] = 5    # sleep interval in seconds

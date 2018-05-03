@@ -1840,10 +1840,10 @@ def get_results(request, jobid="1"):#{{{
     except KeyError:
         method_quality = 'sscore'
 
-    globalscorefile = "%s/%s/model_0/query_0.pdb.proq3.%s.global"%(rstdir, jobid, method_quality)
+    globalscorefile = "%s/%s/model_0/query.pdb.proq3.%s.global"%(rstdir, jobid, method_quality)
     if not os.path.exists(globalscorefile): # fall back for the old results,
                                             # before method_quality is used in filename
-        globalscorefile =  "%s/%s/model_0/query_0.pdb.proq3.global"%(rstdir, jobid)
+        globalscorefile =  "%s/%s/model_0/query.pdb.proq3.global"%(rstdir, jobid)
 
     dumped_resultfile = "%s/%s/%s"%(rstdir, jobid, "query.proq3.txt")
     statfile = "%s/%s/stat.txt"%(rstdir, jobid)
