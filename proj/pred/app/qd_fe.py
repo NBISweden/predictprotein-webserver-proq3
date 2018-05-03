@@ -79,7 +79,7 @@ basedir = os.path.realpath("%s/.."%(rundir)) # path of the application, i.e. pre
 path_log = "%s/static/log"%(basedir)
 path_stat = "%s/stat"%(path_log)
 path_result = "%s/static/result"%(basedir)
-path_profilecache = "%s/static/result/cache"%(basedir)
+path_profilecache = "%s/static/result/profilecache"%(basedir)
 
 # format of the computenodefile is 
 # each line is a record and contains two items
