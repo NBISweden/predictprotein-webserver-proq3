@@ -310,14 +310,12 @@ def RunCmd(cmd, runjob_logfile, runjob_errfile):# {{{
 
     cmdline = " ".join(cmd)
     date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-    msg = cmdline
+    msg = "cmdline: %s"%(cmdline)
     myfunc.WriteFile("[%s] %s\n"%(date_str, msg),  runjob_logfile, "a", True)
     rmsg = ""
     try:
-        rmsg = subprocess.check_output(cmd)
-        msg = "workflow: %s"%(rmsg)
-        myfunc.WriteFile("[%s] %s\n"%(date_str, msg),  runjob_logfile, "a", True)
-    except subprocess.CalledProcessError, e:
+        subprocess.check_output(cmd)
+    except Exception as e:
         msg = "cmdline: %s\nFailed with message \"%s\""%(cmdline, str(e))
         myfunc.WriteFile("[%s] %s\n"%(date_str, msg),  runjob_errfile, "a", True)
         pass
