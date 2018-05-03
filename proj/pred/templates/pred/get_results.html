@@ -129,6 +129,10 @@ function readfile() {
                 Dumped ProQ3 prediction file in text format
                 <a href="{{STATIC_URL}}result/{{jobid}}/{{jobid}}/query.proq3.txt">query.proq3.txt</a>
             </p>
+            <p>
+                The model(s) you submitted can be found in 
+                <a href="{{STATIC_URL}}result/{{jobid}}/{{raw_query_modelfile}}">{{raw_query_modelfile}}</a>
+            </p>
             {% if raw_query_seqfile %}
                 <p>
                     The target sequence you submitted can be found in 
