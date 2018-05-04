@@ -127,7 +127,7 @@ if (param())
 
     my %query_para = (
         'isDeepLearning' => JSON::true,
-        'isKeepFiles' => JSON::false,
+        'isKeepFiles' => JSON::true,
         'isRepack' => JSON::true,
         'isForceRun' => JSON::false,
         'name_software' => 'proq3', 
