@@ -568,6 +568,7 @@ def SubmitJob(jobid, cntSubmitJobDict, numModel_this_user, query_para):#{{{
 
     # Initialization
     if not os.path.exists(qdinittagfile):
+        date_str = time.strftime("%Y-%m-%d %H:%M:%S")
         msg = "Initialize job %s"%(jobid)
         myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
         InitJob(jobid)
