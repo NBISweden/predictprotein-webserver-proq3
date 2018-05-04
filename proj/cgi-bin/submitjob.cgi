@@ -7,7 +7,7 @@ use CGI qw(:upload);
 use CGI::Carp 'fatalsToBrowser';#debug nanjiang
 use POSIX qw(strftime);
 
-
+use Fcntl ':flock';
 use Cwd 'abs_path'; 
 use File::Basename;
 use File::Spec;
@@ -25,6 +25,7 @@ sub WriteFile{#{{{ content outfile Write File
 my $rundir = dirname(abs_path($0));
 my $basedir = abs_path("$rundir/../pred");
 my $path_result = "$basedir/static/result";
+my $submitjoblogfile = "$basedir/static/log/submitted_seq.log";
 
 my $hostname_of_the_computer = `hostname` ;
 my $date = localtime();
@@ -97,7 +98,7 @@ if (param())
     my $query_parafile = "$rstdir/query.para.txt";
 
     my $nummodel = 1;
-    my $length_rawseq = length(">$description\n$targetseq\n");
+    my $length_rawmodel = length($structure);
 
     my $isCAMEOtarget = 0;
     if ($email =~ /proteinmodelportal\.org/){
@@ -122,8 +123,16 @@ if (param())
         }
     }
     my $submit_date = strftime "%Y-%m-%d %H:%M:%S", localtime;
-    my $jobinfo = "$submit_date\t$jobid\t$client_ip\t$nummodel\t$length_rawseq\t$name\t$email\t$method_submission";
+    my $jobinfo = "$submit_date\t$jobid\t$client_ip\t$nummodel\t$length_rawmodel\t$name\t$email\t$method_submission";
     WriteFile($jobinfo, $jobinfofile);
+
+
+    my $loginfo = "$submit_date\t$jobid\t$client_ip\t$nummodel\t$length_rawmodel\t$name\t$email\t$method_submission";
+
+    open(OUT, ">>$submitjoblogfile") || die;
+    flock(OUT, 2) || die;
+    print OUT "$loginfo\n";
+    close(OUT);
 
     my %query_para = (
         'isDeepLearning' => JSON::true,

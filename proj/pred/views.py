@@ -240,20 +240,20 @@ def submit_seq(request):#{{{
                         len(query['rawmodel']),query['jobname'], query['email'],
                         query['method_submission'])
                 main_logfile_query = "%s/%s/%s"%(SITE_ROOT, "static/log", "submitted_seq.log")
-                myfunc.WriteFile(log_record, main_logfile_query, "a")
+                myfunc.WriteFile(log_record, main_logfile_query, "a", True)
 
                 divided_logfile_query =  "%s/%s/%s"%(SITE_ROOT,
                         "static/log/divided", "%s_submitted_seq.log"%(client_ip))
                 divided_logfile_finished_jobid =  "%s/%s/%s"%(SITE_ROOT,
                         "static/log/divided", "%s_finished_job.log"%(client_ip))
                 if client_ip != "":
-                    myfunc.WriteFile(log_record, divided_logfile_query, "a")
+                    myfunc.WriteFile(log_record, divided_logfile_query, "a", True)
 
 
                 file_seq_warning = "%s/%s/%s/%s"%(SITE_ROOT, "static/result", jobid, "query.warn.txt")
                 query['file_seq_warning'] = os.path.basename(file_seq_warning)
                 if query['warninfo'] != "":
-                    myfunc.WriteFile(query['warninfo'], file_seq_warning, "a")
+                    myfunc.WriteFile(query['warninfo'], file_seq_warning, "a", True)
 
                 query['jobid'] = jobid
                 query['raw_query_seqfile'] = "query.raw.fa"
