@@ -257,7 +257,7 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
             if not os.path.exists(numModelFile):
                 date_str = time.strftime("%Y-%m-%d %H:%M:%S")
                 msg = "Create numModelFile for job %s at CreateRunJoblog()"%(jobid)
-                myfunc.WriteFile("[%s] %s\n"%(date_str, msg),  runjob_logfile, "a", True)
+                myfunc.WriteFile("[%s] %s\n"%(date_str, msg),  gen_logfile, "a", True)
                 modelList = myfunc.ReadPDBModel(modelfile)
                 numModel_str = str(len(modelList))
                 myfunc.WriteFile(numModel_str, numModelFile, "w", True)
