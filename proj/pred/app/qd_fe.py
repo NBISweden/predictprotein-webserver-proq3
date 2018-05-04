@@ -254,7 +254,15 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
 
             status = get_job_status(jobid)
 
-            numModel_str = myfunc.ReadFile(numModelFile).strip()
+            if not os.path.exists(numModelFile):
+                date_str = time.strftime("%Y-%m-%d %H:%M:%S")
+                msg = "Create numModelFile for job %s at CreateRunJoblog()"%(jobid)
+                myfunc.WriteFile("[%s] %s\n"%(date_str, msg),  runjob_logfile, "a", True)
+                modelList = myfunc.ReadPDBModel(modelfile)
+                numModel_str = str(len(modelList))
+                myfunc.WriteFile(numModel_str, numModelFile, "w", True)
+            else:
+                numModel_str = myfunc.ReadFile(numModelFile).strip()
 
             starttagfile = "%s/%s"%(rstdir, "runjob.start")
             finishtagfile = "%s/%s"%(rstdir, "runjob.finish")
@@ -483,7 +491,8 @@ def InitJob(jobid):# {{{
     seqfile = "%s/query.fa"%(rstdir)
     numModelFile = "%s/query.numModel.txt"%(rstdir)
     numModel = len(modelList)
-    myfunc.WriteFile(str(numModel), numModelFile, "w")
+    if not os.path.exists(numModelFile) or os.stat(numModelFile).st_size < 1:
+        myfunc.WriteFile(str(numModel), numModelFile, "w", True)
     for ii in xrange(len(modelList)):
         model = modelList[ii]
         seqfile_this_model = "%s/query_%d.fa"%(tmpdir, ii)
@@ -558,6 +567,8 @@ def SubmitJob(jobid, cntSubmitJobDict, numModel_this_user, query_para):#{{{
 
     # Initialization
     if not os.path.exists(qdinittagfile):
+        msg = "Initialize job %s"%(jobid)
+        myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
         InitJob(jobid)
 
     # 2. try to submit the job 
