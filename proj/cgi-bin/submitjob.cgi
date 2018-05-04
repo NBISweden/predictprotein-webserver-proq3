@@ -68,10 +68,6 @@ if (param())
     $method_quality = param('method_quality');  # method_quality for PROQ3D
     $structure = param('structure');    # structure info in PDB format
 
-    my $isCAMEOtarget = 0;
-    if ($email =~ /proteinmodelportal\.org/){
-        $isCAMEOtarget = 1;
-    }
 
     if(length($structure)<1)
     {
@@ -101,6 +97,12 @@ if (param())
 
     my $nummodel = 1;
     my $length_rawseq = ">$description\n$targetseq\n";
+
+    my $isCAMEOtarget = 0;
+    if ($email =~ /proteinmodelportal\.org/){
+        $isCAMEOtarget = 1;
+        WriteFile("CAMEO", "$rstdir/submitter.txt");
+    }
 
     # write data of submitted query to rstdir
     if ($targetseq != ""){
