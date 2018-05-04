@@ -81,10 +81,11 @@ if (param())
 
     # create the job folder 
     my $rstdir = File::Temp::tempdir("$path_result/rst_XXXXXX", CLEANUP=>0);
+    `chmod 755 $rstdir`;
     my $jobid = basename($rstdir);
 
     my $description = "query";
-    if ($name != ""){
+    if ($name ne ""){
         $description = $name;
     }
 
@@ -96,7 +97,7 @@ if (param())
     my $query_parafile = "$rstdir/query.para.txt";
 
     my $nummodel = 1;
-    my $length_rawseq = ">$description\n$targetseq\n";
+    my $length_rawseq = length(">$description\n$targetseq\n");
 
     my $isCAMEOtarget = 0;
     if ($email =~ /proteinmodelportal\.org/){
@@ -105,18 +106,18 @@ if (param())
     }
 
     # write data of submitted query to rstdir
-    if ($targetseq != ""){
+    if ($targetseq ne ""){
         WriteFile(">$description\n$targetseq\n", $rawseqfile);
         WriteFile(">$description\n$targetseq\n", $seqfile);
     }
-    if ($structure != ""){
+    if ($structure ne ""){
         WriteFile($structure, $rawmodelfile);
         my $cnt = `cat $rawmodelfile | grep ENDMDL | wc -l`;
         if ($cnt > 0){
             $nummodel = $cnt;
             WriteFile($structure, $modelfile);
         }else{
-            my $n_structure = "MODEL 1\n$structure\n$ENDMDL\n";
+            my $n_structure = "MODEL 1\n$structure\nENDMDL\n";
             WriteFile($n_structure, $modelfile);
         }
     }
@@ -125,10 +126,10 @@ if (param())
     WriteFile($jobinfo, $jobinfofile);
 
     my %query_para = (
-        'isDeepLearning' => JSON::ture, 
-        'isKeepFiles' => JSON::false, 
-        'isRepack' => JSON::true, 
-        'isForceRun' => JSON::false, 
+        'isDeepLearning' => JSON::true,
+        'isKeepFiles' => JSON::false,
+        'isRepack' => JSON::true,
+        'isForceRun' => JSON::false,
         'name_software' => 'proq3', 
         'method_quality' => $method_quality,
         'isOutputPDB' => JSON::true
