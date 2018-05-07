@@ -1841,8 +1841,6 @@ def get_results(request, jobid="1"):#{{{
         method_quality = 'sscore'
 
     try:
-
-    try:
         isDeepLearning = query_para['isDeepLearning']
     except KeyError:
         isDeepLearning = True
