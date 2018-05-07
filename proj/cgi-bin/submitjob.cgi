@@ -40,11 +40,11 @@ print start_html(-title => "ProQ3 Submission",
 if(!param())
 {
     print "<pre>\n";
-    print "usage: curl submitjob.cgi -d structure=structure -d email -d targetseq=seq\n\n";
+    print "usage: curl submitjob.cgi -d structure=structure -d email -d targetseq=seq -d deep=yes_or_no\n\n";
     print "       or in the browser\n\n";
-    print "       submitjob.cgi?email=email&targetseq=seq&structure=structure\n\n";
+    print "       submitjob.cgi?email=email&targetseq=seq&structure=structure&deep=yes_or_no\n\n";
     print "Examples:\n";
-    print "       submitjob.cgi?email=someone\@domain.com&targetseq=AATT&structure=xxx\n";
+    print "       submitjob.cgi?email=someone\@domain.com&targetseq=AATT&structure=xxx&deep=yes\n";
     print "</pre>\n";
     print end_html();
 }
@@ -59,6 +59,8 @@ if (param())
     my $host = "";
     my $client_ip = $ENV{'REMOTE_ADDR'};
     my $method_submission = "cgi";
+    my $isDeepLearning = JSON::true;
+    my $yes_or_no_deeplearning = "yes";
 
     $targetseq = param('targetseq');
     $targetseq=~s/\n//g;
@@ -68,6 +70,7 @@ if (param())
     $host = param('host');      # IP address of the submitter
     $method_quality = param('method_quality');  # method_quality for PROQ3D
     $structure = param('structure');    # structure info in PDB format
+    $yes_or_no_deeplearning = param('deep');    # structure info in PDB format
 
 
     if(length($structure)<1)
@@ -76,8 +79,14 @@ if (param())
         exit;
     }
 
-    if ($method_quality == ""){
+    if ($method_quality eq ""){
         $method_quality = "sscore";
+    }
+
+    if ($yes_or_no_deeplearning  eq "yes" or $yes_or_no_deeplearning eq ""){
+        $isDeepLearning = JSON::true;
+    }else{
+        $isDeepLearning = JSON::false;
     }
 
     # create the job folder 
@@ -135,7 +144,7 @@ if (param())
     close(OUT);
 
     my %query_para = (
-        'isDeepLearning' => JSON::true,
+        'isDeepLearning' => $isDeepLearning,
         'isKeepFiles' => JSON::true,
         'isRepack' => JSON::true,
         'isForceRun' => JSON::false,
