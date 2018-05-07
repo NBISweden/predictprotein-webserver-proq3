@@ -772,8 +772,13 @@ def RunQuery(request, query):#{{{
         if item in query and query[item] != None:
             query_para[item] = query[item]
     query_para['isOutputPDB'] = True  #always output PDB file (with proq3 score written at the B-factor column)
+    query_para['jobname'] = query['jobname']
+    query_para['email'] = query['email']
+    query_para['nummodel'] = query['nummodel']
+    query_para['client_ip'] = query['client_ip']
+    query_para['submit_date'] = query['date']
+    query_para['method_submission'] = query['method_submission']
     query_parafile = "%s/query.para.txt"%(rstdir)
-
 
     jobinfo_str = "%s\t%s\t%s\t%s\t%d\t%s\t%s\t%s\n"%(query['date'], jobid,
             query['client_ip'], query['nummodel'],

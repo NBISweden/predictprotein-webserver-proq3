@@ -183,7 +183,13 @@ sub CreateJob{#{{{
         'isForceRun' => JSON::false,
         'name_software' => 'proq3', 
         'method_quality' => $method_quality,
-        'isOutputPDB' => JSON::true
+        'isOutputPDB' => JSON::true,
+        'jobname' => $name,
+        'email' => $email,
+        'nummodel' => $nummodel,
+        'client_ip' => $client_ip,
+        'method_submission' => $method_submission,
+        'submit_date' => $submit_date,
     );
     my $json_para_str = encode_json \%query_para;
 

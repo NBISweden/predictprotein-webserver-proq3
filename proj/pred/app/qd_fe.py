@@ -146,17 +146,21 @@ def GetNumSuqJob(node):#{{{
 def GetEmailSubject_CAMEO(query_para):# {{{
     try:
         subject = ""
+        try:
+            jobname = query_para['jobname']
+        except:
+            jobname = ""
         if not query_para['isDeepLearning']:
-            subject = "ProQ3"
+            subject = "ProQ3 for your job %s"%(jobname)
         else:
             if query_para['method_quality'] == "sscore":
-                subject = "ProQ3D"
+                subject = "ProQ3D for your job %s"%(jobname)
             elif query_para['method_quality'] == "lddt":
-                subject = "ProQ3D-LDDT"
+                subject = "ProQ3D-LDDT for your job %s"%(jobname)
             elif query_para['method_quality'] == "tmscore":
-                subject = "ProQ3D-TMSCORE"
+                subject = "ProQ3D-TMSCORE for your job %s"%(jobname)
             elif query_para['method_quality'] == "cad":
-                subject = "ProQ3D-CAD"
+                subject = "ProQ3D-CAD for your job %s"%(jobname)
         return subject
     except:
         raise
