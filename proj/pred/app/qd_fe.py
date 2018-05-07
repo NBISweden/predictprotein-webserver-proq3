@@ -1786,7 +1786,10 @@ def RunStatistics(path_result, path_log):#{{{
                 isValidSubmitDate = True
                 try:
                     submit_date = datetime.datetime.strptime(submit_date_str, "%Y-%m-%d %H:%M:%S")
-                except ValueError:
+                except Exception as e:
+                    date_str = time.strftime("%Y-%m-%d %H:%M:%S")
+                    msg= "strptime failed, submit_date_str='%s'"%(submit_date_str)
+                    myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_errfile, "a", True)
                     isValidSubmitDate = False
                 if isValidSubmitDate:#{{{
                     day_str = submit_date_str.split()[0]
