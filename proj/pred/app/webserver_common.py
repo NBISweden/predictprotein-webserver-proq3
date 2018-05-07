@@ -196,9 +196,11 @@ def WriteProQ3TextResultFile(outfile, query_para, modelFileList, #{{{
         print >> fpout, "\n# Local scores"
         for i  in xrange(numModel):
             modelfile = modelFileList[i]
-            localscorefile = "%s.proq3.%s.local"%(modelfile, method_quality)
+            localscorefile = "%s.%s.%s.local"%(modelfile, m_str, method_quality)
             if not os.path.exists(localscorefile):
-                localscorefile = "%s.proq3.local"%(modelfile)
+                localscorefile = "%s.proq3.%s.local"%(modelfile, method_quality)
+                if not os.path.exists(localscorefile):
+                    localscorefile = "%s.proq3.local"%(modelfile)
             print >> fpout, "\n# Model %d"%(i)
             content = myfunc.ReadFile(localscorefile)
             print >> fpout, content
