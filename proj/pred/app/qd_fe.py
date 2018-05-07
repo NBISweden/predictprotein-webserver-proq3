@@ -163,7 +163,7 @@ def GetEmailSubject_CAMEO(query_para):# {{{
 # }}}
 def GetEmailBody_CAMEO(jobid, query_para):# {{{
     rstdir = "%s/%s"%(path_result, jobid)
-    modelfile = "%s/%s/%s/%s"%(rstdir, "jobid", "model_%d"%(0), "query.pdb")
+    modelfile = "%s/%s/%s/%s"%(rstdir, jobid, "model_%d"%(0), "query.pdb")
     try:
         repacked_modelfile = ""
         if not query_para['isDeepLearning']:
