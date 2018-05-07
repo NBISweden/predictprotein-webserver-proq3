@@ -14,13 +14,6 @@ use File::Spec;
 use File::Temp;
 use JSON;
 
-sub WriteFile{#{{{ content outfile Write File
-    my $content = shift;
-    my $outfile = shift;
-    open(OUT,">$outfile");
-    print OUT $content;
-    close(OUT);
-}#}}}
 
 my $rundir = dirname(abs_path($0));
 my $basedir = abs_path("$rundir/../pred");
@@ -31,6 +24,7 @@ my $hostname_of_the_computer = `hostname` ;
 my $date = localtime();
 my $output_str = "";
 my $myemail="nanjiang.shu\@scilifelab.se";
+my $vip_emailfile = "$basedir/config/vip_email.txt";
 
 print header();
 print start_html(-title => "ProQ3 Submission",
@@ -57,8 +51,6 @@ if (param())
     my $structure = "";
     my $method_quality = "";
     my $host = "";
-    my $client_ip = $ENV{'REMOTE_ADDR'};
-    my $method_submission = "cgi";
     my $isDeepLearning = JSON::true;
     my $yes_or_no_deeplearning = "yes";
 
@@ -88,11 +80,50 @@ if (param())
     }else{
         $isDeepLearning = JSON::false;
     }
+    my $isCAMEOtarget = 0;
+    if ($email =~ /proteinmodelportal\.org/){
+        $isCAMEOtarget = 1;
+    }
 
+    my $isVIP = 0;
+    if ($email =~ /nanjiang\.shu\@scilifelab\.se/){
+        $isVIP = 1;
+    }
+
+    if ($isCAMEOtarget or $isVIP){
+        CreateJob(JSON::false, "sscore", $targetseq, $structure, $name, $email, $host, $isCAMEOtarget, $isVIP);
+        CreateJob(JSON::true, "sscore", $targetseq, $structure, $name, $email, $host, $isCAMEOtarget, $isVIP);
+        CreateJob(JSON::true, "lddt", $targetseq, $structure, $name, $email, $host, $isCAMEOtarget, $isVIP);
+    } else {
+        CreateJob($isDeepLearning, $method_quality, $targetseq, $structure, $name, $email, $host, $isCAMEOtarget, $isVIP);
+    }
+
+    print end_html();
+}
+
+sub WriteFile{#{{{ content outfile Write File
+    my $content = shift;
+    my $outfile = shift;
+    open(OUT,">$outfile");
+    print OUT $content;
+    close(OUT);
+}#}}}
+sub CreateJob{#{{{
+    my $isDeepLearning = shift;
+    my $method_quality = shift;
+    my $targetseq = shift;
+    my $structure = shift;
+    my $name = shift;
+    my $email = shift;
+    my $host = shift;
+    my $isCAMEOtarget = shift;
+    my $isVIP = shift;
     # create the job folder 
     my $rstdir = File::Temp::tempdir("$path_result/rst_XXXXXX", CLEANUP=>0);
     `chmod 755 $rstdir`;
     my $jobid = basename($rstdir);
+    my $client_ip = $ENV{'REMOTE_ADDR'};
+    my $method_submission = "cgi";
 
     my $description = "query";
     if ($name ne ""){
@@ -109,11 +140,13 @@ if (param())
     my $nummodel = 1;
     my $length_rawmodel = length($structure);
 
-    my $isCAMEOtarget = 0;
-    if ($email =~ /proteinmodelportal\.org/){
-        $isCAMEOtarget = 1;
+    if ($isCAMEOtarget){
         WriteFile("CAMEO", "$rstdir/submitter.txt");
     }
+    if ($isVIP){
+        WriteFile("VIP", "$rstdir/submitter.txt");
+    }
+
 
     # write data of submitted query to rstdir
     if ($targetseq ne ""){
@@ -156,7 +189,7 @@ if (param())
 
     WriteFile($json_para_str, $query_parafile);
 
-    print "Your query has been submitted successfully with jobid = $jobid";
+    print "Your query (isDeepLearning: $isDeepLearning, quality: $method_quality) has been submitted successfully with jobid = $jobid\n";
     WriteFile($submit_date, "$path_result/static/log/lastsubmission.txt");
-    print end_html();
 }
+#}}}
