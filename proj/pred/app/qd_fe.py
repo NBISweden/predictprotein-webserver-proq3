@@ -143,6 +143,45 @@ def GetNumSuqJob(node):#{{{
         return -1
 
 #}}}
+def GetEmailSubject_CAMEO(query_para):# {{{
+    try:
+        subject = ""
+        if not query_para['isDeepLearning']:
+            subject = "ProQ3"
+        else:
+            if query_para['method_quality'] == "sscore":
+                subject = "ProQ3D"
+            elif query_para['method_quality'] == "lddt":
+                subject = "ProQ3D-LDDT"
+            elif query_para['method_quality'] == "tmscore":
+                subject = "ProQ3D-TMSCORE"
+            elif query_para['method_quality'] == "cad":
+                subject = "ProQ3D-CAD"
+        return subject
+    except:
+        raise
+# }}}
+def GetEmailBody_CAMEO(jobid, query_para):# {{{
+    rstdir = "%s/%s"%(path_result, jobid)
+    modelfile = "%s/%s/%s/%s"%(rstdir, "jobid", "model_%d"%(0), "query.pdb")
+    try:
+        repacked_modelfile = ""
+        if not query_para['isDeepLearning']:
+            repacked_modelfile = "%s.repacked.sscore.proq3_bfactor.pdb"%(modelfile)
+        else:
+            if query_para['method_quality'] == "sscore":
+                repacked_modelfile = "%s.repacked.sscore.proq3d_bfactor.pdb"%(modelfile)
+            elif query_para['method_quality'] == "lddt":
+                repacked_modelfile = "%s.repacked.lddt.proq3d_bfactor.pdb"%(modelfile)
+            elif query_para['method_quality'] == "tmscore":
+                repacked_modelfile = "%s.repacked.tmscore.proq3d_bfactor.pdb"%(modelfile)
+            elif query_para['method_quality'] == "cad":
+                repacked_modelfile = "%s.repacked.cad.proq3d_bfactor.pdb"%(modelfile)
+        bodytext = myfunc.ReadFile(repacked_modelfile).strip()
+        return bodytext
+    except:
+        raise
+# }}}
 def IsHaveAvailNode(cntSubmitJobDict):#{{{
     for node in cntSubmitJobDict:
         [num_queue_job, max_allowed_job] = cntSubmitJobDict[node]
@@ -1142,6 +1181,27 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
             if rtValue != 0:
                 myfunc.WriteFile("Sendmail to {} failed with status {}".format(to_email,
                     rtValue), errfile, "a", True)
+
+            # send the repacked pdb models to CAMEO
+            submitter = ""
+            submitterfile = "%s/submitter.txt"%(rstdir)
+            if os.path.exists(submitterfile):
+                submitter = myfunc.ReadFile(submitterfile).strip()
+            if submitter in ["CAMEO", "VIP"]:
+                to_email_list = [email, "njshumessage@gmail.com"]
+                for to_email in to_email_list:
+                    subject = GetEmailSubject_CAMEO(query_para)
+                    bodytext = GetEmailBody_CAMEO(jobid, query_para)
+                    msg = "Sendmail %s -> %s, %s"%(from_email, to_email, subject)
+                    date_str = time.strftime("%Y-%m-%d %H:%M:%S")
+                    myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
+                    rtValue = myfunc.Sendmail(from_email, to_email, subject, bodytext)
+                    if rtValue != 0:
+                        msg = "Sendmail to {} failed with status {}".format(to_email, rtValue),
+                        myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_errfile, "a", True)
+
+
+
 
 #}}}
 #}}}
