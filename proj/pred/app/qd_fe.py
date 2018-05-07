@@ -1156,7 +1156,7 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
             if os.path.exists(errfile):
                 err_msg = myfunc.ReadFile(errfile)
 
-            from_email = "info@proq3.bioinfo.se"
+            from_email = "proq3@proq3.bioinfo.se"
             to_email = email
             subject = "Your result for ProQ3/ProQ3D JOBID=%s"%(jobid)
             if finish_status == "success":
