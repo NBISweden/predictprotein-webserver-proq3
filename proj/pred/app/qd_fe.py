@@ -1089,6 +1089,11 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
     failed_idx_file = "%s/failed_seqindex.txt"%(rstdir)
     seqfile = "%s/query.fa"%(rstdir)
 
+    submitter = ""
+    submitterfile = "%s/submitter.txt"%(rstdir)
+    if os.path.exists(submitterfile):
+        submitter = myfunc.ReadFile(submitterfile).strip()
+
     finished_idx_list = []
     failed_idx_list = []
     if os.path.exists(finished_idx_file):
@@ -1180,17 +1185,18 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
     %s
                 """%(jobid, contact_email, err_msg)
 
-            myfunc.WriteFile("Sendmail %s -> %s, %s"% (from_email, to_email, subject), logfile, "a", True)
-            rtValue = myfunc.Sendmail(from_email, to_email, subject, bodytext)
-            if rtValue != 0:
-                myfunc.WriteFile("Sendmail to {} failed with status {}".format(to_email,
-                    rtValue), errfile, "a", True)
+            # do not send job finishing notification to CAMEO, only the
+            # repacked models
+            if submitter != "CAMEO":
+                date_str = time.strftime("%Y-%m-%d %H:%M:%S")
+                msg = "Sendmail %s -> %s, %s"%(from_email, to_email, subject)
+                myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
+                rtValue = myfunc.Sendmail(from_email, to_email, subject, bodytext)
+                if rtValue != 0:
+                    msg = "Sendmail to {} failed with status {}".format(to_email, rtValue),
+                    myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_errfile, "a", True)
 
             # send the repacked pdb models to CAMEO
-            submitter = ""
-            submitterfile = "%s/submitter.txt"%(rstdir)
-            if os.path.exists(submitterfile):
-                submitter = myfunc.ReadFile(submitterfile).strip()
             if submitter in ["CAMEO", "VIP"]:
                 to_email_list = [email, "njshumessage@gmail.com"]
                 for to_email in to_email_list:
