@@ -1840,10 +1840,24 @@ def get_results(request, jobid="1"):#{{{
     except KeyError:
         method_quality = 'sscore'
 
-    globalscorefile = "%s/%s/model_0/query.pdb.proq3.%s.global"%(rstdir, jobid, method_quality)
-    if not os.path.exists(globalscorefile): # fall back for the old results,
-                                            # before method_quality is used in filename
-        globalscorefile =  "%s/%s/model_0/query.pdb.proq3.global"%(rstdir, jobid)
+    try:
+
+    try:
+        isDeepLearning = query_para['isDeepLearning']
+    except KeyError:
+        isDeepLearning = True
+
+    if isDeepLearning:
+        m_str = "proq3d"
+    else:
+        m_str = "proq3"
+
+    modelfile = "%s/%s/model_0/query.pdb"%(rstdir, jobid)
+    globalscorefile = "%s.%s.%s.global"%(modelfile, m_str, method_quality)
+    if not os.path.exists(globalscorefile):
+        globalscorefile = "%s.proq3.%s.global"%(modelfile, method_quality)
+        if not os.path.exists(globalscorefile):
+            globalscorefile = "%s.proq3.global"%(modelfile)
 
     dumped_resultfile = "%s/%s/%s"%(rstdir, jobid, "query.proq3.txt")
     statfile = "%s/%s/stat.txt"%(rstdir, jobid)

@@ -133,6 +133,17 @@ def WriteProQ3TextResultFile(outfile, query_para, modelFileList, #{{{
     try:
         fpout = open(outfile, "w")
 
+
+        try:
+            isDeepLearning = query_para['isDeepLearning']
+        except KeyError:
+            isDeepLearning = True
+
+        if isDeepLearning:
+            m_str = "proq3d"
+        else:
+            m_str = "proq3"
+
         try:
             method_quality = query_para['method_quality']
         except KeyError:
@@ -160,9 +171,11 @@ def WriteProQ3TextResultFile(outfile, query_para, modelFileList, #{{{
         cnt = 0
         for i  in xrange(numModel):
             modelfile = modelFileList[i]
-            globalscorefile = "%s.proq3.%s.global"%(modelfile, method_quality)
+            globalscorefile = "%s.%s.%s.global"%(modelfile, m_str, method_quality)
             if not os.path.exists(globalscorefile):
-                globalscorefile = "%s.proq3.global"%(modelfile)
+                globalscorefile = "%s.proq3.%s.global"%(modelfile, method_quality)
+                if not os.path.exists(globalscorefile):
+                    globalscorefile = "%s.proq3.global"%(modelfile)
             (globalscore, itemList) = ReadProQ3GlobalScore(globalscorefile)
             if i == 0:
                 for ss in itemList:
