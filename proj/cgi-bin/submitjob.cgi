@@ -92,17 +92,12 @@ if(!$cgi->param()) {
     }
 
     my $structure = "";
-    (my $tmpfh, my $tmpfile) = File::Temp::tempfile("$path_tmp/tmp_XXXXXX", SUFFIX=>".pdb");
-    `chmod 644 $tmpfile`;
     my $fh = $cgi->upload('structure');
-    binmode $tmpfh;
     while(<$fh>) {
-        print $tmpfh $_;
         $structure .= $_;
     }
 
     close($fh);
-    close($tmpfh);
 
     if ($isCAMEOtarget or $isVIP){
         CreateJob(JSON::false, "sscore", $targetseq, $structure, $name, $email, $host, $isCAMEOtarget, $isVIP);
