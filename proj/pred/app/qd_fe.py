@@ -430,6 +430,16 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
             except KeyError:
                 method_quality = 'sscore'
 
+            try:
+                isDeepLearning = query_para['isDeepLearning']
+            except KeyError:
+                isDeepLearning = True
+
+            if isDeepLearning:
+                m_str = "proq3d"
+            else:
+                m_str = "proq3"
+
             # if loop == 0 , for new_waitjob_list and new_runjob_list
             # re-generate finished_models.txt
             if loop == 0 and os.path.exists(outpath_result):#{{{
@@ -457,7 +467,7 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
                             runtime = webserver_common.GetRunTimeFromTimeFile(timefile, keyword="model")
                             modelfile = "%s/query.pdb"%(outpath_this_model)
                             modelseqfile = "%s/query.pdb.fasta"%(outpath_this_model)
-                            globalscorefile = "%s.proq3.%s.global"%(modelfile, method_quality)
+                            globalscorefile = "%s.%s.%s.global"%(modelfile, m_str, method_quality)
                             modellength = myfunc.GetSingleFastaLength(modelseqfile)
 
                             (globalscore, itemList) = webserver_common.ReadProQ3GlobalScore(globalscorefile)
@@ -765,6 +775,16 @@ def GetResult(jobid, query_para):#{{{
         isHasTargetSeq = True
 
 
+    try:
+        isDeepLearning = query_para['isDeepLearning']
+    except KeyError:
+        isDeepLearning = True
+
+    if isDeepLearning:
+        m_str = "proq3d"
+    else:
+        m_str = "proq3"
+
     starttagfile = "%s/%s"%(rstdir, "runjob.start")
     cnttry_idx_file = "%s/cntsubmittry_seqindex.txt"%(rstdir)#index file to keep log of tries
     tmpdir = "%s/tmpdir"%(rstdir)
@@ -1022,7 +1042,7 @@ def GetResult(jobid, query_para):#{{{
             runtime = webserver_common.GetRunTimeFromTimeFile(timefile, keyword="model")
             modelfile = "%s/query.pdb"%(outpath_this_model)
             modelseqfile = "%s/query.pdb.fasta"%(outpath_this_model)
-            globalscorefile = "%s.proq3.%s.global"%(modelfile, query_para['method_quality'])
+            globalscorefile = "%s.%s.%s.global"%(modelfile, m_str, query_para['method_quality'])
             modellength = myfunc.GetSingleFastaLength(modelseqfile)
 
             (globalscore, itemList) = webserver_common.ReadProQ3GlobalScore(globalscorefile)
