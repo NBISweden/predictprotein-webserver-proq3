@@ -15,9 +15,14 @@ use File::Temp;
 use JSON;
 
 
+my $cgi = new CGI;
+
+my $PROGNAME = basename($0);
+
 my $rundir = dirname(abs_path($0));
 my $basedir = abs_path("$rundir/../pred");
 my $path_result = "$basedir/static/result";
+my $path_tmp = "$basedir/static/tmp";
 my $submitjoblogfile = "$basedir/static/log/submitted_seq.log";
 
 my $hostname_of_the_computer = `hostname` ;
@@ -26,48 +31,44 @@ my $output_str = "";
 my $myemail="nanjiang.shu\@scilifelab.se";
 my $vip_emailfile = "$basedir/config/vip_email.txt";
 
-print header();
-print start_html(-title => "ProQ3 Submission",
+print $cgi->header();
+print $cgi->start_html(-title => "ProQ3 Submission",
     -author => "nanjiang.shu\@scilifelab.se",
     -meta   => {'keywords'=>''});
 
-if(!param())
-{
+if(!$cgi->param()) {
     print "<pre>\n";
-    print "usage: curl submitjob.cgi -d structure=structure -d email -d targetseq=seq -d deep=yes_or_no\n\n";
-    print "       or in the browser\n\n";
-    print "       submitjob.cgi?email=email&targetseq=seq&structure=structure&deep=yes_or_no\n\n";
+    print "usage: curl submitjob.cgi -F button=1 -F structure=filename -F email=email -F targetseq=seq -F deep=yes_or_no -F method_quality=method_quality\n\n";
     print "Examples:\n";
-    print "       submitjob.cgi?email=someone\@domain.com&targetseq=AATT&structure=xxx&deep=yes\n";
+    print "       curl submitjob.cgi -F button=1 -F structure=model.pdb -F email=someone\@domain.com -F targetseq=AATT -F deep=yes -F method_quality=lddt \n";
     print "</pre>\n";
-    print end_html();
-}
-
-if (param()) 
-{
+    print $cgi->end_html();
+    exit (1);
+} else {
     my $targetseq = "";
     my $name = "";
     my $email = "";
-    my $structure = "";
+    my $f_structure = "";
     my $method_quality = "";
     my $host = "";
     my $isDeepLearning = JSON::true;
     my $yes_or_no_deeplearning = "yes";
 
-    $targetseq = param('targetseq');
+    $targetseq = $cgi->param('targetseq');
     $targetseq=~s/\n//g;
     $targetseq=~s/\s+//g;
-    $name = param('name');      # Title for CAMEO
-    $email = param('email');    # email of the submitter
-    $host = param('host');      # IP address of the submitter
-    $method_quality = param('method_quality');  # method_quality for PROQ3D
-    $structure = param('structure');    # structure info in PDB format
-    $yes_or_no_deeplearning = param('deep');    # structure info in PDB format
+    $name = $cgi->param('name');      # Title for CAMEO
+    $email = $cgi->param('email');    # email of the submitter
+    $host = $cgi->param('host');      # IP address of the submitter
+    $method_quality = $cgi->param('method_quality');  # method_quality for PROQ3D
+    $f_structure = $cgi->param('structure');    # structure info in PDB format
+    $yes_or_no_deeplearning = $cgi->param('deep');    # structure info in PDB format
 
+    my $f_name = basename($f_structure);
 
-    if(length($structure)<1)
+    if(length($f_structure)<1)
     {
-        print 'Error: structure is not provided. Exit!';
+        print 'Error: f_structure is not provided. Exit!';
         exit;
     }
 
@@ -90,6 +91,19 @@ if (param())
         $isVIP = 1;
     }
 
+    my $structure = "";
+    (my $tmpfh, my $tmpfile) = File::Temp::tempfile("$path_tmp/tmp_XXXXXX", SUFFIX=>".pdb");
+    `chmod 644 $tmpfile`;
+    my $fh = $cgi->upload('structure');
+    binmode $tmpfh;
+    while(<$fh>) {
+        print $tmpfh $_;
+        $structure .= $_;
+    }
+
+    close($fh);
+    close($tmpfh);
+
     if ($isCAMEOtarget or $isVIP){
         CreateJob(JSON::false, "sscore", $targetseq, $structure, $name, $email, $host, $isCAMEOtarget, $isVIP);
         CreateJob(JSON::true, "sscore", $targetseq, $structure, $name, $email, $host, $isCAMEOtarget, $isVIP);
@@ -98,7 +112,7 @@ if (param())
         CreateJob($isDeepLearning, $method_quality, $targetseq, $structure, $name, $email, $host, $isCAMEOtarget, $isVIP);
     }
 
-    print end_html();
+    print $cgi->end_html();
 }
 
 sub WriteFile{#{{{ content outfile Write File
@@ -199,3 +213,19 @@ sub CreateJob{#{{{
     WriteFile($submit_date, "$path_result/static/log/lastsubmission.txt");
 }
 #}}}
+sub DisplayForm {#{{{
+    print <<"HTML";
+<html>
+<head>
+<title>Upload Form</title>
+<body>
+<h1>Upload Form</h1>
+<form method="post" action="$PROGNAME" enctype="multipart/form-data">
+<center>
+Enter a file to upload: <input type="file" name="structure"><br>
+<input type="submit" name="button" value="Upload">
+</center>
+</form>
+
+HTML
+}#}}}
