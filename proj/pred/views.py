@@ -2024,9 +2024,10 @@ def get_results(request, jobid="1"):#{{{
         indexmap_content = myfunc.ReadFile(finished_model_file).split("\n")
         cnt = 0
         set_seqidx = set([])
+        date_str = time.strftime("%Y-%m-%d %H:%M:%S")
         for line in indexmap_content:
             strs = line.split("\t")
-            if len(strs)>=4:
+            if len(strs)>=3:
                 subfolder = strs[0]
                 if not subfolder in set_seqidx:
                     length_str = strs[1]
@@ -2042,6 +2043,16 @@ def get_results(request, jobid="1"):#{{{
                         except:
                             score = ""
                         scoreList.append(score)
+
+                    if len(scoreList) == 0: #if the file finished_model_file is broken
+                                            # read the score from
+                                            # globalscorefile directly
+                        t_modelfile = "%s/%s/%s/query.pdb"%(rstdir, jobid, subfolder)
+                        t_globalscorefile = "%s.%s.%s.global"%(modelfile, m_str, method_quality)
+                        (t_dict_globalscore, t_itemList) = webserver_common.ReadProQ3GlobalScore(t_globalscorefile)
+                        for ii in xrange(len(t_itemList)):
+                            scoreList.append(t_dict_globalscore[t_itemList[ii]])
+
                     rank = "%d"%(cnt)
                     index_table_content_list.append([rank, length_str,
                         runtime_in_sec_str] + scoreList)
