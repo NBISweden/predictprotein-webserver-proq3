@@ -942,12 +942,12 @@ def GetResult(jobid, query_para):#{{{
                             if not os.path.exists(os.path.dirname(zipfile_profilecache)):
                                 os.makedirs(os.path.dirname(zipfile_profilecache))
 
+                            date_str = time.strftime("%Y-%m-%d %H:%M:%S")
                             try:
                                 shutil.copyfile("%s.zip"%(md5_key), zipfile_profilecache)
                                 msg = "copyfile %s.zip -> %s"%(md5_key, zipfile_profilecache)
                                 myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
                             except Exception as e:
-                                date_str = time.strftime("%Y-%m-%d %H:%M:%S")
                                 msg = "copyfile %s.zip -> %s failed with message %s"%(
                                         md5_key, zipfile_profilecache, str(e))
                                 myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_errfile, "a", True)
