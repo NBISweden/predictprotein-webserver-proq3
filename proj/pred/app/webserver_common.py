@@ -20,6 +20,7 @@ def ReadProQ3GlobalScore(infile):#{{{
     #itemList is the name of the items
     globalscore = {}
     keys = []
+    values = []
     try:
         fpin = open(infile, "r")
         lines = fpin.read().split("\n")
@@ -28,9 +29,9 @@ def ReadProQ3GlobalScore(infile):#{{{
             line = line.strip()
             if not line:
                 continue
-            if line[0] == "P":
-                keys = line.split()
-            elif line[0].isdigit():
+            if line.lower().find("proq") != -1:
+                keys = line.strip().split()
+            elif myfunc.isnumeric(line.strip().split()[0]):
                 values = line.split()
                 try:
                     values = [float(x) for x in values]
