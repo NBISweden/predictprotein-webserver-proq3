@@ -706,6 +706,10 @@ def SubmitJob(jobid, cntSubmitJobDict, numModel_this_user, query_para):#{{{
                     pass
 
                 cnttry += 1
+                if g_params['DEBUG']:
+                    date_str = time.strftime("%Y-%m-%d %H:%M:%S")
+                    msg = "rtvalue of submitjob_remote=%s\n"%(str(rtValue[0])
+                    myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
                 if len(rtValue) >= 1:
                     strs = rtValue[0]
                     if len(strs) >=5:
