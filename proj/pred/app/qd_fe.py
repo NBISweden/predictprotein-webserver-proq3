@@ -706,10 +706,6 @@ def SubmitJob(jobid, cntSubmitJobDict, numModel_this_user, query_para):#{{{
                     pass
 
                 cnttry += 1
-                if g_params['DEBUG']:
-                    date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-                    msg = "rtvalue of submitjob_remote=%s\n"%(str(rtValue))
-                    myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
                 if len(rtValue) >= 1:
                     strs = rtValue[0]
                     if len(strs) >=5:
@@ -735,6 +731,10 @@ def SubmitJob(jobid, cntSubmitJobDict, numModel_this_user, query_para):#{{{
                     myfunc.WriteFile(" succeeded\n", gen_logfile, "a", True)
                 else:
                     myfunc.WriteFile(" failed\n", gen_logfile, "a", True)
+                    if g_params['DEBUG']:
+                        date_str = time.strftime("%Y-%m-%d %H:%M:%S")
+                        msg = "rtvalue of submitjob_remote=%s\n, myclient=%s"%(str(rtValue), str(myclient))
+                        myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
 
                 if isSubmitSuccess or cnttry >= g_params['MAX_SUBMIT_TRY']:
                     iToRun += 1
