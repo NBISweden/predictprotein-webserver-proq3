@@ -1126,6 +1126,7 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
     finishtagfile = "%s/%s"%(rstdir, "runjob.finish")
     failedtagfile = "%s/%s"%(rstdir, "runjob.failed")
     starttagfile = "%s/%s"%(rstdir, "runjob.start")
+    sendmaillogfile = "%s/%s"%(rstdir, "sendmail.log")
 
     num_processed = len(finished_idx_list)+len(failed_idx_list)
     finish_status = "" #["success", "failed", "partly_failed"]
@@ -1215,6 +1216,8 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
                 if rtValue != 0:
                     msg = "Sendmail to {} failed with status {}".format(to_email, rtValue),
                     myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_errfile, "a", True)
+                msg = "Send notification to %s"%(to_email)
+                myfunc.WriteFile("[%s] %s\n"%(date_str, msg), sendmaillogfile, "a", True)
 
             # send the repacked pdb models to CAMEO
             if submitter in ["CAMEO", "VIP"]:
@@ -1229,6 +1232,8 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
                     if rtValue != 0:
                         msg = "Sendmail to {} failed with status {}".format(to_email, rtValue),
                         myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_errfile, "a", True)
+                    msg = "Send CAMEO_result to %s"%(to_email)
+                    myfunc.WriteFile("[%s] %s\n"%(date_str, msg), sendmaillogfile, "a", True)
 
 
 
