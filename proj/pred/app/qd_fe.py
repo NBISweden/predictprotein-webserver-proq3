@@ -688,6 +688,7 @@ def SubmitJob(jobid, cntSubmitJobDict, numModel_this_user, query_para):#{{{
                     query_para['url_profile'] = "http://proq3.bioinfo.se/static/result/profilecache/%s/%s.zip"%(subfoldername,  md5_key) 
 
                 query_para['pdb_model'] = model
+                query_para['targetseq'] = seq
                 para_str = json.dumps(query_para, sort_keys=True)
                 jobname = ""
                 if not email in vip_user_list:
