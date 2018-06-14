@@ -892,9 +892,6 @@ def GetResult(jobid, query_para):#{{{
         submit_time_epoch = float(strs[5])
         subfoldername_this_model = "model_%d"%(origIndex)
         outpath_this_model = "%s/%s"%(outpath_result, "model_%d"%origIndex)
-        md5_key = hashlib.md5(seq).hexdigest()
-        md5_subfoldername = md5_key[:2]
-        zipfile_profilecache = "%s/%s/%s.zip"%(path_profilecache, md5_subfoldername, md5_key) 
         try:
             myclient = myclientDict[node]
         except KeyError:
@@ -954,6 +951,12 @@ def GetResult(jobid, query_para):#{{{
                                 msg = "Failed to copy %s to %s. message = \"%s\""%(
                                         profile_this_model, outpath_profile, str(e))
                                 myfunc.WriteFile("[%s] %s"%(date_str, msg), gen_errfile, "a", True)
+
+                        seqfile_of_profile = "%s/query.fasta"%(profile_this_model)
+                        (t_seqid, t_seqanno, t_seq) = myfunc.ReadSingleFasta(seqfile_of_profile)
+                        md5_key = hashlib.md5(t_seq).hexdigest()
+                        md5_subfoldername = md5_key[:2]
+                        zipfile_profilecache = "%s/%s/%s.zip"%(path_profilecache, md5_subfoldername, md5_key) 
 
                         #update profilecache
                         if  query_para['isForceRun'] or not os.path.exists(zipfile_profilecache):
