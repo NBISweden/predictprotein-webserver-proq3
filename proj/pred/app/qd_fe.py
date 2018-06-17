@@ -543,8 +543,11 @@ def InitJob(jobid):# {{{
     modelfile = "%s/query.pdb"%(rstdir)
     modelList = myfunc.ReadPDBModel(modelfile)
     seqfile = "%s/query.fa"%(rstdir)
+    failed_idx_file = "%s/failed_seqindex.txt"%(rstdir)
     numModelFile = "%s/query.numModel.txt"%(rstdir)
     numModel = len(modelList)
+    torun_idx_str_list = []
+
     if not os.path.exists(numModelFile) or os.stat(numModelFile).st_size < 1:
         myfunc.WriteFile(str(numModel), numModelFile, "w", True)
     for ii in xrange(len(modelList)):
@@ -552,14 +555,23 @@ def InitJob(jobid):# {{{
         seqfile_this_model = "%s/query_%d.fa"%(tmpdir, ii)
         modelfile_this_model = "%s/query_%d.pdb"%(tmpdir, ii)
         myfunc.WriteFile(model+"\n", modelfile_this_model)
+        isFailed = False
         if os.path.exists(seqfile):
             shutil.copyfile(seqfile, seqfile_this_model)
         else:
-            seq = myfunc.PDB2Seq(modelfile_this_model)[0]
-            myfunc.WriteFile(">query_0\n%s\n"%(seq), seqfile_this_model, "w")
+            try:
+                seq = myfunc.PDB2Seq(modelfile_this_model)[0]
+                myfunc.WriteFile(">query_0\n%s\n"%(seq), seqfile_this_model, "w")
+            except Exception as e:
+                date_str = time.strftime("%Y-%m-%d %H:%M:%S")
+                msg = "Failed to run PDB2Seq, wrong PDB format for the model structure. errmsg=%s"%(str(e))
+                myfunc.WriteFile("[%s] %s"%(date_str, msg), runjob_errfile, "a", True)
+                myfunc.WriteFile("%d\n"%(ii), failed_idx_file, "a", True)
+                isFailed = True
+        if not isFailed:
+            torun_idx_str_list.append(str(ii))
 
     torun_idx_file = "%s/torun_seqindex.txt"%(rstdir) # model index to be run
-    torun_idx_str_list = [str(x) for x in xrange(numModel)]
     myfunc.WriteFile("\n".join(torun_idx_str_list)+"\n", torun_idx_file, "w", True)
 
     webserver_common.WriteDateTimeTagFile(qdinittagfile, runjob_logfile, runjob_errfile)
