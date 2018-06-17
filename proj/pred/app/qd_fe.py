@@ -538,6 +538,7 @@ def InitJob(jobid):# {{{
     rstdir = "%s/%s"%(path_result, jobid)
     tmpdir = "%s/tmpdir"%(rstdir)
     qdinittagfile = "%s/runjob.qdinit"%(rstdir)
+    starttagfile = "%s/%s"%(rstdir, "runjob.start")
     runjob_logfile = "%s/runjob.log"%(rstdir)
     runjob_errfile = "%s/runjob.err"%(rstdir)
     modelfile = "%s/query.pdb"%(rstdir)
@@ -567,6 +568,7 @@ def InitJob(jobid):# {{{
                 msg = "Failed to run PDB2Seq, wrong PDB format for the model structure. errmsg=%s"%(str(e))
                 myfunc.WriteFile("[%s] %s"%(date_str, msg), runjob_errfile, "a", True)
                 myfunc.WriteFile("%d\n"%(ii), failed_idx_file, "a", True)
+                webserver_common.WriteDateTimeTagFile(starttagfile, runjob_logfile, runjob_errfile)
                 isFailed = True
         if not isFailed:
             torun_idx_str_list.append(str(ii))
