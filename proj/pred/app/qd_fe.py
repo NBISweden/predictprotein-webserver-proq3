@@ -611,6 +611,12 @@ def SubmitJob(jobid, cntSubmitJobDict, numModel_this_user, query_para):#{{{
     split_seq_dir = "%s/splitaa"%(tmpdir)
     forceruntagfile = "%s/forcerun"%(rstdir)
 
+
+    submitter = ""
+    submitterfile = "%s/submitter.txt"%(rstdir)
+    if os.path.exists(submitterfile):
+        submitter = myfunc.ReadFile(submitterfile).strip()
+
     finished_idx_list = []
     failed_idx_list = []    # [origIndex]
     if os.path.exists(finished_idx_file):
@@ -703,6 +709,7 @@ def SubmitJob(jobid, cntSubmitJobDict, numModel_this_user, query_para):#{{{
 
                 query_para['pdb_model'] = model
                 query_para['targetseq'] = seq
+                query_para['submitter'] = submitter
                 para_str = json.dumps(query_para, sort_keys=True)
                 jobname = ""
                 if not email in vip_user_list:
