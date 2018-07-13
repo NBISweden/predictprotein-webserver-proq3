@@ -6,13 +6,45 @@
     {% endif %}
   <h2>Download</h2>
   <br><br>
-  <table cellspacing=0 cellpadding=0 border=0>
+  <table cellspacing=0 cellpadding=10 border=0>
     <tr>
         <td>
             <h3>The software for ProQ3 can be found at</h3>
             <p style="margin-left:15px;">
             <a href="https://bitbucket.org/ElofssonLab/proq3">https://bitbucket.org/ElofssonLab/proq3</a>
+            </p>
 
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <p style="margin-left:15px;">
+            <h3>Dataset for ProQ3D</h3>
+            <ul>
+
+                <li>
+                    <a href="{{STATIC_URL}}download/proq3d_train_and_test_data/proq3d_test_set_cameo.txt.tar.gz ">proq3d_test_set_cameo.txt.tar.gz (5.4GB)</a>
+                </li>
+                <li>
+                    <a href="{{STATIC_URL}}download/proq3d_train_and_test_data/proq3d_test_set_casp11.txt.tar.gz">proq3d_test_set_casp11.txt.tar.gz (3.8GB)</a>
+                </li>
+                <li>
+                    <a href="{{STATIC_URL}}download/proq3d_train_and_test_data/proq3d_train_set_casp9_and_casp10.txt.tar.gz">proq3d_train_set_casp9_and_casp10.txt.tar.gz (13GB)</a>
+                </li>
+            </ul>
+            <div id="description" style="background-color:#e6ffff;margin-left:25px; ">
+                <h4>Description of the dataset:</h4>
+                The first four columns are:
+                <ol type=1>
+                    <li> CAD_AS </li>
+                    <li> TM-score</li>
+                    <li>lDDT </li>
+                    <li>S-score</li>
+                </ol>
+                The rest 336 columns are ProQ3D training features.
+            </div>
+
+            </p>
         </td>
     </tr>
   </table>
