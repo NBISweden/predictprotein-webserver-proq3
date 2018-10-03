@@ -213,7 +213,7 @@ def submit_seq(request):#{{{
                 modelfile = request.FILES['modelfile']
             except KeyError, MultiValueDictKeyError:
                 modelfile = ""
-            date = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+            date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
             query = {}
             query['rawseq'] = rawseq
             query['rawmodel'] = rawmodel
@@ -223,7 +223,7 @@ def submit_seq(request):#{{{
             query['email'] = email
             query['jobname'] = jobname
             query['method_quality'] = method_quality
-            query['date'] = date
+            query['date'] = date_str
             query['client_ip'] = client_ip
             query['errinfo'] = ""
             query['method_submission'] = "web"

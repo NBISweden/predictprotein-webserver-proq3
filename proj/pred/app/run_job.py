@@ -314,8 +314,7 @@ def RunJob(modelfile, seqfile, outpath, tmpdir, email, jobid, g_params):#{{{
             pass
 #first getting result from caches
 # cache profiles for sequences, but do not cache predictions for models
-        datetime = time.strftime("%Y-%m-%d %H:%M:%S")
-        rt_msg = myfunc.WriteFile(datetime, starttagfile)
+        webserver_common.WriteDateTimeTagFile(starttagfile, runjob_logfile, runjob_errfile)
 # ==================================
         numModel = 0
         modelFileList = []
@@ -386,11 +385,7 @@ def RunJob(modelfile, seqfile, outpath, tmpdir, email, jobid, g_params):#{{{
             if rt_msg:
                 g_params['runjob_err'].append(rt_msg)
 
-        datetime = time.strftime("%Y-%m-%d %H:%M:%S")
-        rt_msg = myfunc.WriteFile(datetime, finishtagfile)
-        if rt_msg:
-            g_params['runjob_err'].append(rt_msg)
-
+        webserver_common.WriteDateTimeTagFile(finishtagfile, runjob_logfile, runjob_errfile)
 # now write the text output to a single file
         #statfile = "%s/%s"%(outpath_result, "stat.txt")
         statfile = ""
@@ -425,11 +420,8 @@ def RunJob(modelfile, seqfile, outpath, tmpdir, email, jobid, g_params):#{{{
         shutil.rmtree(tmpdir) #DEBUG, keep tmpdir
     else:
         isSuccess = False
-        failtagfile = "%s/runjob.failed"%(outpath)
-        datetime = time.strftime("%Y-%m-%d %H:%M:%S")
-        rt_msg = myfunc.WriteFile(datetime, failtagfile)
-        if rt_msg:
-            g_params['runjob_err'].append(rt_msg)
+        failedtagfile = "%s/runjob.failed"%(outpath)
+        webserver_common.WriteDateTimeTagFile(failedtagfile, runjob_logfile, runjob_errfile)
 
 # send the result to email
 # do not sendmail at the cloud VM

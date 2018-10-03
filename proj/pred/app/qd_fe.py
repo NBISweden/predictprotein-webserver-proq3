@@ -137,7 +137,7 @@ def GetNumSuqJob(node):#{{{
         else:
             return -1
     except:
-        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+        date_str = time.strftime(g_params['FORMAT_DATETIME'])
         myfunc.WriteFile("[%s] requests.get(%s) failed\n"%(date_str,
             url), gen_errfile, "a", True)
         return -1
@@ -298,7 +298,7 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
             status = get_job_status(jobid)
 
             if not os.path.exists(numModelFile):
-                date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                date_str = time.strftime(g_params['FORMAT_DATETIME'])
                 msg = "Create numModelFile for job %s at CreateRunJoblog()"%(jobid)
                 myfunc.WriteFile("[%s] %s\n"%(date_str, msg),  gen_logfile, "a", True)
                 modelfile = "%s/query.pdb"%(rstdir)
@@ -478,7 +478,7 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
 
                             myfunc.WriteFile("\t".join(modelinfo)+"\n", finished_model_file, "a", True)
                 except Exception as e:
-                    date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                    date_str = time.strftime(g_params['FORMAT_DATETIME'])
                     msg = "Init scanning resut folder for jobid %s failed with message \"%s\""%(jobid, str(e))
                     myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_errfile, "a", True)
                     raise
@@ -564,7 +564,7 @@ def InitJob(jobid):# {{{
                 seq = myfunc.PDB2Seq(modelfile_this_model)[0]
                 myfunc.WriteFile(">query_0\n%s\n"%(seq), seqfile_this_model, "w")
             except Exception as e:
-                date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                date_str = time.strftime(g_params['FORMAT_DATETIME'])
                 msg = "Failed to run PDB2Seq, wrong PDB format for the model structure. errmsg=%s"%(str(e))
                 myfunc.WriteFile("[%s] %s"%(date_str, msg), runjob_errfile, "a", True)
                 myfunc.WriteFile("%d\n"%(ii), failed_idx_file, "a", True)
@@ -643,7 +643,7 @@ def SubmitJob(jobid, cntSubmitJobDict, numModel_this_user, query_para):#{{{
 
     # Initialization
     if not os.path.exists(qdinittagfile):
-        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+        date_str = time.strftime(g_params['FORMAT_DATETIME'])
         msg = "Initialize job %s"%(jobid)
         myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
         InitJob(jobid)
@@ -671,7 +671,7 @@ def SubmitJob(jobid, cntSubmitJobDict, numModel_this_user, query_para):#{{{
             try:
                 myclient = Client(wsdl_url, cache=None, timeout=30)
             except:
-                date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                date_str = time.strftime(g_params['FORMAT_DATETIME'])
                 myfunc.WriteFile("[Date: %s] Failed to access %s\n"%(date_str,
                     wsdl_url), gen_errfile, "a", True)
                 break
@@ -723,7 +723,7 @@ def SubmitJob(jobid, cntSubmitJobDict, numModel_this_user, query_para):#{{{
                     rtValue = myclient.service.submitjob_remote(fastaseq, para_str,
                             jobname, useemail, str(numModel_this_user), isforcerun)
                 except Exception as e:
-                    date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                    date_str = time.strftime(g_params['FORMAT_DATETIME'])
                     msg = "Failed to run myclient.service.submitjob_remote with message \"%s\""%(str(e))
                     myfunc.WriteFile("[%s] %s"%(date_str, msg), gen_errfile, "a", True)
                     rtValue = []
@@ -748,7 +748,7 @@ def SubmitJob(jobid, cntSubmitJobDict, numModel_this_user, query_para):#{{{
                             myfunc.WriteFile(txt+"\n", remotequeue_idx_file, "a", True)
                             cnttry = 0  #reset cnttry to zero
                     else:
-                        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                        date_str = time.strftime(g_params['FORMAT_DATETIME'])
                         myfunc.WriteFile("[Date: %s] bad wsdl return value\n"%(date_str), gen_errfile, "a", True)
                 if isSubmitSuccess:
                     cnt += 1
@@ -756,7 +756,7 @@ def SubmitJob(jobid, cntSubmitJobDict, numModel_this_user, query_para):#{{{
                 else:
                     myfunc.WriteFile(" failed\n", gen_logfile, "a", True)
                     if g_params['DEBUG']:
-                        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                        date_str = time.strftime(g_params['FORMAT_DATETIME'])
                         msg = "rtvalue of submitjob_remote=%s\n"%(str(rtValue))
                         myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
 
@@ -894,7 +894,7 @@ def GetResult(jobid, query_para):#{{{
             myclient = Client(wsdl_url, cache=None, timeout=30)
             myclientDict[node] = myclient
         except:
-            date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+            date_str = time.strftime(g_params['FORMAT_DATETIME'])
             myfunc.WriteFile("[Date: %s] Failed to access %s\n"%(date_str, wsdl_url), gen_errfile, "a", True)
             pass
 
@@ -924,7 +924,7 @@ def GetResult(jobid, query_para):#{{{
         try:
             rtValue = myclient.service.checkjob(remote_jobid)
         except:
-            date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+            date_str = time.strftime(g_params['FORMAT_DATETIME'])
             myfunc.WriteFile("[Date: %s] Failed to run myclient.service.checkjob(%s)\n"%(date_str, remote_jobid), gen_errfile, "a", True)
             rtValue = []
             pass
@@ -938,7 +938,7 @@ def GetResult(jobid, query_para):#{{{
                 errinfo = ss2[2]
                 if g_params['DEBUG']:
                     msg = "checkjob(%s), status=\"%s\", errinfo = \"%s\""%(remote_jobid, status, errinfo)
-                    date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                    date_str = time.strftime(g_params['FORMAT_DATETIME'])
                     myfunc.WriteFile("[%s] %s.\n" %(date_str, msg), gen_logfile, "a", True)
 
                 if errinfo and errinfo.find("does not exist")!=-1:
@@ -972,7 +972,7 @@ def GetResult(jobid, query_para):#{{{
                             try:
                                 shutil.copytree(profile_this_model, outpath_profile)
                             except Exception as e:
-                                date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                                date_str = time.strftime(g_params['FORMAT_DATETIME'])
                                 msg = "Failed to copy %s to %s. message = \"%s\""%(
                                         profile_this_model, outpath_profile, str(e))
                                 myfunc.WriteFile("[%s] %s"%(date_str, msg), gen_errfile, "a", True)
@@ -995,7 +995,7 @@ def GetResult(jobid, query_para):#{{{
                             if not os.path.exists(os.path.dirname(zipfile_profilecache)):
                                 os.makedirs(os.path.dirname(zipfile_profilecache))
 
-                            date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                            date_str = time.strftime(g_params['FORMAT_DATETIME'])
                             try:
                                 shutil.copyfile("%s.zip"%(md5_key), zipfile_profilecache)
                                 msg = "copyfile %s.zip -> %s"%(md5_key, zipfile_profilecache)
@@ -1021,7 +1021,7 @@ def GetResult(jobid, query_para):#{{{
                             try:
                                 rtValue2 = myclient.service.deletejob(remote_jobid)
                             except:
-                                date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                                date_str = time.strftime(g_params['FORMAT_DATETIME'])
                                 myfunc.WriteFile( "[Date: %s] Failed to run myclient.service.deletejob(%s)\n"%(date_str, remote_jobid), gen_errfile, "a", True)
                                 rtValue2 = []
                                 pass
@@ -1098,7 +1098,7 @@ def GetResult(jobid, query_para):#{{{
                 try:
                     rtValue2 = myclient.service.deletejob(remote_jobid)
                 except Exception as e:
-                    date_str = time.strftime("%Y-%m-%d %H:%M:%S")
+                    date_str = time.strftime(g_params['FORMAT_DATETIME'])
                     myfunc.WriteFile( "[%s] Failed to run myclient.service.deletejob(%s) on node %s with msg %s\n"%(date_str, remote_jobid, node, str(e)), gen_logfile, "a", True)
                     rtValue2 = []
                     pass
@@ -1178,7 +1178,7 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
         if numModel == 0: #handling wired cases:
             # bad input
             msg = "Number of input model is zero"
-            date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+            date_str = time.strftime(g_params['FORMAT_DATETIME'])
             myfunc.WriteFile("[%s] %s\n"%(date_str, msg), runjob_errfile, "a", True)
             finish_status = "failed"
 
@@ -1201,7 +1201,7 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
             all_runtime_in_sec = float(date_str_epoch) - float(start_date_epoch)
 
             msg = "Dump result to a single text file %s"%(resultfile_text)
-            date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+            date_str = time.strftime(g_params['FORMAT_DATETIME'])
             myfunc.WriteFile("[%s] %s.\n" %(date_str, msg), gen_logfile, "a", True)
             webserver_common.WriteProQ3TextResultFile(resultfile_text, query_para, modelFileList,
                     all_runtime_in_sec, g_params['base_www_url'], proq3opt, statfile=statfile)
@@ -1255,7 +1255,7 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
             # do not send job finishing notification to CAMEO, only the
             # repacked models
             if submitter != "CAMEO":
-                date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                date_str = time.strftime(g_params['FORMAT_DATETIME'])
                 msg = "Sendmail %s -> %s, %s"%(from_email, to_email, subject)
                 myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
                 rtValue = myfunc.Sendmail(from_email, to_email, subject, bodytext)
@@ -1272,7 +1272,7 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
                     subject = GetEmailSubject_CAMEO(query_para)
                     bodytext = GetEmailBody_CAMEO(jobid, query_para)
                     msg = "Sendmail %s -> %s, %s"%(from_email, to_email, subject)
-                    date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                    date_str = time.strftime(g_params['FORMAT_DATETIME'])
                     myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
                     rtValue = myfunc.Sendmail(from_email, to_email, subject, bodytext)
                     if rtValue != 0:
@@ -1308,7 +1308,7 @@ def DeleteOldResult(path_result, path_log):#{{{
                 timeDiff = current_time - finish_date
                 if timeDiff.days > g_params['MAX_KEEP_DAYS']:
                     rstdir = "%s/%s"%(path_result, jobid)
-                    date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                    date_str = time.strftime(g_params['FORMAT_DATETIME'])
                     msg = "\tjobid = %s finished %d days ago (>%d days), delete."%(jobid, timeDiff.days, g_params['MAX_KEEP_DAYS'])
                     myfunc.WriteFile("[Date: %s] "%(date_str)+ msg + "\n", gen_logfile, "a", True)
                     shutil.rmtree(rstdir)
@@ -1952,7 +1952,7 @@ def main(g_params):#{{{
         if os.path.exists(black_iplist_file):
             g_params['blackiplist'] = myfunc.ReadIDList(black_iplist_file)
 
-        date_str = time.strftime("%Y-%m-%d %H:%M:%S")
+        date_str = time.strftime(g_params['FORMAT_DATETIME'])
         avail_computenode_list = myfunc.ReadIDList2(computenodefile, col=0)
         num_avail_node = len(avail_computenode_list)
         if loop == 0:
@@ -2075,12 +2075,13 @@ def InitGlobalParameter():#{{{
     g_params['MAX_SUBMIT_TRY'] = 3
     g_params['MAX_TIME_IN_REMOTE_QUEUE'] = 3600*24 # one day in seconds
     g_params['base_www_url'] = "http://proq3.bioinfo.se"
+    g_params['FORMAT_DATETIME'] = "%Y-%m-%d %H:%M:%S %Z"
     return g_params
 #}}}
 if __name__ == '__main__' :
     g_params = InitGlobalParameter()
 
-    date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+    date_str = time.strftime(g_params['FORMAT_DATETIME'])
     print >> sys.stderr, "\n\n[Date: %s]\n"%(date_str)
     status = main(g_params)
 

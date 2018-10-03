@@ -80,10 +80,10 @@ def WriteSubconsTextResultFile(outfile, outpath_result, maplist,#{{{
         if statfile != "":
             fpstat = open(statfile, "w")
 
-        date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
         print >> fpout, "##############################################################################"
         print >> fpout, "Subcons result file"
-        print >> fpout, "Generated from %s at %s"%(base_www_url, date)
+        print >> fpout, "Generated from %s at %s"%(base_www_url, date_str)
         print >> fpout, "Total request time: %.1f seconds."%(runtime_in_sec)
         print >> fpout, "##############################################################################"
         cnt = 0
@@ -158,10 +158,10 @@ def WriteProQ3TextResultFile(outfile, query_para, modelFileList, #{{{
             fpstat = open(statfile, "w")
         numModel = len(modelFileList)
 
-        date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
         print >> fpout, "##############################################################################"
         print >> fpout, "# ProQ3 result file"
-        print >> fpout, "# Generated from %s at %s"%(base_www_url, date)
+        print >> fpout, "# Generated from %s at %s"%(base_www_url, date_str)
         print >> fpout, "# Options for Proq3: %s"%(str(proq3opt))
         print >> fpout, "# Total request time: %.1f seconds."%(runtime_in_sec)
         print >> fpout, "# Number of finished models: %d"%(numModel)
@@ -310,7 +310,7 @@ def GetRunTimeFromTimeFile(timefile, keyword=""):# {{{
 # }}}
 def WriteDateTimeTagFile(outfile, runjob_logfile, runjob_errfile):# {{{
     if not os.path.exists(outfile):
-        date_str = time.strftime("%Y-%m-%d %H:%M:%S")
+        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
         try:
             myfunc.WriteFile(date_str, outfile)
             msg = "Write tag file %s succeeded"%(outfile)
