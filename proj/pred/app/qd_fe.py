@@ -1164,6 +1164,9 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
 
     num_processed = len(finished_idx_list)+len(failed_idx_list)
     finish_status = "" #["success", "failed", "partly_failed"]
+
+
+
     if num_processed >= numModel:# finished
         if len(failed_idx_list) == 0:
             finish_status = "success"
@@ -1172,47 +1175,56 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
         else:
             finish_status = "partly_failed"
 
+        if numModel == 0: #handling wired cases:
+            # bad input
+            msg = "Number of input model is zero"
+            date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+            myfunc.WriteFile("[%s] %s\n"%(date_str, msg), runjob_errfile, "a", True)
+            finish_status = "failed"
 
         date_str_epoch = time.time()
         webserver_common.WriteDateTimeTagFile(finishtagfile, runjob_logfile, runjob_errfile)
 
-        # Now write the text output to a single file
-        statfile = "%s/%s"%(outpath_result, "stat.txt")
-        resultfile_text = "%s/%s"%(outpath_result, "query.proq3.txt")
-        proq3opt = webserver_common.GetProQ3Option(query_para)
-        (seqIDList, seqAnnoList, seqList) = myfunc.ReadFasta(seqfile)
-        modelFileList = []
-        for ii in xrange(numModel):
-            modelFileList.append("%s/%s/%s"%(outpath_result, "model_%d"%(ii), "query.pdb"))
-        start_date_str = myfunc.ReadFile(starttagfile).strip()
-        start_date_epoch = webserver_common.datetime_str_to_epoch(start_date_str)
-        all_runtime_in_sec = float(date_str_epoch) - float(start_date_epoch)
+        if finish_status == "failed":
+            webserver_common.WriteDateTimeTagFile(failedtagfile, runjob_logfile, runjob_errfile)
+        else:
+            # Now write the text output to a single file
+            statfile = "%s/%s"%(outpath_result, "stat.txt")
+            resultfile_text = "%s/%s"%(outpath_result, "query.proq3.txt")
+            proq3opt = webserver_common.GetProQ3Option(query_para)
+            (seqIDList, seqAnnoList, seqList) = myfunc.ReadFasta(seqfile)
+            modelFileList = []
+            for ii in xrange(numModel):
+                modelFileList.append("%s/%s/%s"%(outpath_result, "model_%d"%(ii), "query.pdb"))
+            start_date_str = myfunc.ReadFile(starttagfile).strip()
+            start_date_epoch = webserver_common.datetime_str_to_epoch(start_date_str)
+            all_runtime_in_sec = float(date_str_epoch) - float(start_date_epoch)
 
-        msg = "Dump result to a single text file %s"%(resultfile_text)
-        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
-        myfunc.WriteFile("[%s] %s.\n" %(date_str, msg), gen_logfile, "a", True)
-        webserver_common.WriteProQ3TextResultFile(resultfile_text, query_para, modelFileList,
-                all_runtime_in_sec, g_params['base_www_url'], proq3opt, statfile=statfile)
+            msg = "Dump result to a single text file %s"%(resultfile_text)
+            date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+            myfunc.WriteFile("[%s] %s.\n" %(date_str, msg), gen_logfile, "a", True)
+            webserver_common.WriteProQ3TextResultFile(resultfile_text, query_para, modelFileList,
+                    all_runtime_in_sec, g_params['base_www_url'], proq3opt, statfile=statfile)
 
 
-        # now making zip instead (for windows users)
-        # note that zip rq will zip the real data for symbolic links
-        cwd = os.getcwd()
-        zipfile = "%s.zip"%(jobid)
-        zipfile_fullpath = "%s/%s"%(rstdir, zipfile)
+            # now making zip instead (for windows users)
+            # note that zip rq will zip the real data for symbolic links
+            cwd = os.getcwd()
+            zipfile = "%s.zip"%(jobid)
+            zipfile_fullpath = "%s/%s"%(rstdir, zipfile)
 
-        msg = "Compress the result folder to zipfile %s"%(zipfile_fullpath)
-        myfunc.WriteFile("[%s] %s.\n" %(date_str, msg), gen_logfile, "a", True)
-        os.chdir(rstdir)
-        cmd = ["zip", "-rq", zipfile, jobid]
-        webserver_common.RunCmd(cmd, gen_logfile, gen_errfile)
-        os.chdir(cwd)
+            msg = "Compress the result folder to zipfile %s"%(zipfile_fullpath)
+            myfunc.WriteFile("[%s] %s.\n" %(date_str, msg), gen_logfile, "a", True)
+            os.chdir(rstdir)
+            cmd = ["zip", "-rq", zipfile, jobid]
+            webserver_common.RunCmd(cmd, gen_logfile, gen_errfile)
+            os.chdir(cwd)
 
-        if len(failed_idx_list)>0:
-            myfunc.WriteFile(date_str, failedtagfile, "w", True)
+            if len(failed_idx_list)>0:
+                myfunc.WriteFile(date_str, failedtagfile, "w", True)
 
-        if finish_status == "success":
-            shutil.rmtree(tmpdir)
+            if finish_status == "success":
+                shutil.rmtree(tmpdir)
 
         # send the result to email
         if myfunc.IsValidEmailAddress(email):#{{{
@@ -1268,9 +1280,6 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
                         myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_errfile, "a", True)
                     msg = "Send CAMEO_result to %s"%(to_email)
                     myfunc.WriteFile("[%s] %s\n"%(date_str, msg), sendmaillogfile, "a", True)
-
-
-
 
 #}}}
 #}}}
