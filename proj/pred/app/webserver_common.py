@@ -308,6 +308,53 @@ def GetRunTimeFromTimeFile(timefile, keyword=""):# {{{
                     pass
     return runtime
 # }}}
+def RunCmd(cmd, runjob_logfile, runjob_errfile, verbose=False):# {{{
+    """Input cmd in list
+       Run the command and also output message to logs
+    """
+    begin_time = time.time()
+
+    isCmdSuccess = False
+    cmdline = " ".join(cmd)
+    date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+    rmsg = ""
+    try:
+        rmsg = subprocess.check_output(cmd)
+        if verbose:
+            msg = "workflow: %s"%(cmdline)
+            myfunc.WriteFile("[%s] %s\n"%(date_str, msg),  runjob_logfile, "a", True)
+        isCmdSuccess = True
+    except subprocess.CalledProcessError, e:
+        msg = "cmdline: %s\nFailed with message \"%s\""%(cmdline, str(e))
+        myfunc.WriteFile("[%s] %s\n"%(date_str, msg),  runjob_errfile, "a", True)
+        isCmdSuccess = False
+        pass
+
+    end_time = time.time()
+    runtime_in_sec = end_time - begin_time
+
+    return (isCmdSuccess, runtime_in_sec)
+# }}}
+def datetime_str_to_epoch(date_str):# {{{
+    """convert the datetime in string to epoch
+    The string of datetime may with or without the zone info
+    """
+    strs = date_str.split()
+    if len(strs) == 2:
+        return datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S").strftime('%s')
+    else:
+        return datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S %Z").strftime('%s')
+# }}}
+def datetime_str_to_time(date_str):# {{{
+    """convert the datetime in string to datetime type
+    The string of datetime may with or without the zone info
+    """
+    strs = date_str.split()
+    if len(strs) == 2:
+        return datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
+    else:
+        return datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S %Z")
+# }}}
 def WriteDateTimeTagFile(outfile, runjob_logfile, runjob_errfile):# {{{
     if not os.path.exists(outfile):
         date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
@@ -490,50 +537,3 @@ def ValidateSeq(rawseq, seqinfo, g_params):#{{{
     seqinfo['errinfo'] = seqinfo['errinfo_br'] + seqinfo['errinfo_content']
     return filtered_seq
 #}}}
-def RunCmd(cmd, runjob_logfile, runjob_errfile, verbose=False):# {{{
-    """Input cmd in list
-       Run the command and also output message to logs
-    """
-    begin_time = time.time()
-
-    isCmdSuccess = False
-    cmdline = " ".join(cmd)
-    date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
-    rmsg = ""
-    try:
-        rmsg = subprocess.check_output(cmd)
-        if verbose:
-            msg = "workflow: %s"%(cmdline)
-            myfunc.WriteFile("[%s] %s\n"%(date_str, msg),  runjob_logfile, "a", True)
-        isCmdSuccess = True
-    except subprocess.CalledProcessError, e:
-        msg = "cmdline: %s\nFailed with message \"%s\""%(cmdline, str(e))
-        myfunc.WriteFile("[%s] %s\n"%(date_str, msg),  runjob_errfile, "a", True)
-        isCmdSuccess = False
-        pass
-
-    end_time = time.time()
-    runtime_in_sec = end_time - begin_time
-
-    return (isCmdSuccess, runtime_in_sec)
-# }}}
-def datetime_str_to_epoch(date_str):# {{{
-    """convert the datetime in string to epoch
-    The string of datetime may with or without the zone info
-    """
-    strs = date_str.split()
-    if len(strs) == 2:
-        return datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S").strftime('%s')
-    else:
-        return datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S %Z").strftime('%s')
-# }}}
-def datetime_str_to_time(date_str):# {{{
-    """convert the datetime in string to datetime type
-    The string of datetime may with or without the zone info
-    """
-    strs = date_str.split()
-    if len(strs) == 2:
-        return datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
-    else:
-        return datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S %Z")
-# }}}
