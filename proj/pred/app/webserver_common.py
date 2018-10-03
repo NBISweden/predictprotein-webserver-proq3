@@ -498,18 +498,17 @@ def RunCmd(cmd, runjob_logfile, runjob_errfile, verbose=False):# {{{
 
     isCmdSuccess = False
     cmdline = " ".join(cmd)
-    datetime = time.strftime("%Y-%m-%d %H:%M:%S %Z")
-    myfunc.WriteFile("[%s] %s\n"%(datetime, cmdline),  runjob_logfile, "a", True)
+    date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
     rmsg = ""
     try:
         rmsg = subprocess.check_output(cmd)
         if verbose:
             msg = "workflow: %s"%(cmdline)
-            myfunc.WriteFile("[%s] %s\n"%(datetime, msg),  runjob_logfile, "a", True)
+            myfunc.WriteFile("[%s] %s\n"%(date_str, msg),  runjob_logfile, "a", True)
         isCmdSuccess = True
     except subprocess.CalledProcessError, e:
         msg = "cmdline: %s\nFailed with message \"%s\""%(cmdline, str(e))
-        myfunc.WriteFile("[%s] %s\n"%(datetime, msg),  runjob_errfile, "a", True)
+        myfunc.WriteFile("[%s] %s\n"%(date_str, msg),  runjob_errfile, "a", True)
         isCmdSuccess = False
         pass
 
