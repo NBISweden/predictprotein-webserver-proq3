@@ -1941,7 +1941,7 @@ def get_results(request, jobid="1"):#{{{
         start_date_str = myfunc.ReadFile(starttagfile).strip()
         isValidStartDate = False
         try:
-            start_date_epoch = datetime.strptime(start_date_str, "%Y-%m-%d %H:%M:%S").strftime('%s')
+            start_date_epoch = webserver_common.datetime_str_to_epoch(start_date_str)
             isValidStartDate = True
         except:
             pass

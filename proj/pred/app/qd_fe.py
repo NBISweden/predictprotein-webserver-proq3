@@ -1168,7 +1168,7 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
             finish_status = "partly_failed"
 
 
-        date_str = time.strftime("%Y-%m-%d %H:%M:%S")
+        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
         date_str_epoch = time.time()
         myfunc.WriteFile(date_str, finishtagfile, "w", True)
 
@@ -1181,7 +1181,7 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
         for ii in xrange(numModel):
             modelFileList.append("%s/%s/%s"%(outpath_result, "model_%d"%(ii), "query.pdb"))
         start_date_str = myfunc.ReadFile(starttagfile).strip()
-        start_date_epoch = datetime.datetime.strptime(start_date_str, "%Y-%m-%d %H:%M:%S").strftime('%s')
+        start_date_epoch = webserver_common.datetime_str_to_epoch(start_date_str)
         all_runtime_in_sec = float(date_str_epoch) - float(start_date_epoch)
 
         msg = "Dump result to a single text file %s"%(resultfile_text)
@@ -1238,7 +1238,7 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
             # do not send job finishing notification to CAMEO, only the
             # repacked models
             if submitter != "CAMEO":
-                date_str = time.strftime("%Y-%m-%d %H:%M:%S")
+                date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
                 msg = "Sendmail %s -> %s, %s"%(from_email, to_email, subject)
                 myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
                 rtValue = myfunc.Sendmail(from_email, to_email, subject, bodytext)
@@ -1255,7 +1255,7 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
                     subject = GetEmailSubject_CAMEO(query_para)
                     bodytext = GetEmailBody_CAMEO(jobid, query_para)
                     msg = "Sendmail %s -> %s, %s"%(from_email, to_email, subject)
-                    date_str = time.strftime("%Y-%m-%d %H:%M:%S")
+                    date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
                     myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
                     rtValue = myfunc.Sendmail(from_email, to_email, subject, bodytext)
                     if rtValue != 0:
@@ -1294,7 +1294,7 @@ def DeleteOldResult(path_result, path_log):#{{{
                 timeDiff = current_time - finish_date
                 if timeDiff.days > g_params['MAX_KEEP_DAYS']:
                     rstdir = "%s/%s"%(path_result, jobid)
-                    date_str = time.strftime("%Y-%m-%d %H:%M:%S")
+                    date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
                     msg = "\tjobid = %s finished %d days ago (>%d days), delete."%(jobid, timeDiff.days, g_params['MAX_KEEP_DAYS'])
                     myfunc.WriteFile("[Date: %s] "%(date_str)+ msg + "\n", gen_logfile, "a", True)
                     shutil.rmtree(rstdir)
@@ -1512,7 +1512,7 @@ def RunStatistics(path_result, path_log):#{{{
     try:
         rmsg = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError, e:
-        date_str = time.strftime("%Y-%m-%d %H:%M:%S")
+        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
         myfunc.WriteFile("[Date: %s]"%(date_str)+str(e)+"\n", gen_errfile, "a", True)
         myfunc.WriteFile("[Date: %s] cmdline = %s\n"%(date_str,
             cmdline), gen_errfile, "a", True)
@@ -1606,7 +1606,7 @@ def RunStatistics(path_result, path_log):#{{{
             try:
                 rmsg = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
             except subprocess.CalledProcessError, e:
-                date_str = time.strftime("%Y-%m-%d %H:%M:%S")
+                date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
                 myfunc.WriteFile("[Date: %s]"%(date_str)+str(e)+"\n", gen_errfile, "a", True)
                 myfunc.WriteFile("[Date: %s] cmdline = %s\n"%(date_str,
                     cmdline), gen_errfile, "a", True)
@@ -1620,7 +1620,7 @@ def RunStatistics(path_result, path_log):#{{{
             try:
                 rmsg = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
             except subprocess.CalledProcessError, e:
-                date_str = time.strftime("%Y-%m-%d %H:%M:%S")
+                date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
                 myfunc.WriteFile("[Date: %s]"%(date_str)+str(e)+"\n", gen_errfile, "a", True)
                 myfunc.WriteFile("[Date: %s] cmdline = %s\n"%(date_str,
                     cmdline), gen_errfile, "a", True)
@@ -1792,7 +1792,7 @@ def RunStatistics(path_result, path_log):#{{{
         try:
             rmsg = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError, e:
-            date_str = time.strftime("%Y-%m-%d %H:%M:%S")
+            date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
             myfunc.WriteFile("[Date: %s]"%(date_str)+str(e)+"\n", gen_errfile, "a", True)
             myfunc.WriteFile("[Date: %s] cmdline = %s\n"%(date_str,
                 cmdline), gen_errfile, "a", True)
@@ -1807,7 +1807,7 @@ def RunStatistics(path_result, path_log):#{{{
             try:
                 rmsg = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
             except subprocess.CalledProcessError, e:
-                date_str = time.strftime("%Y-%m-%d %H:%M:%S")
+                date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
                 myfunc.WriteFile("[Date: %s]"%(date_str)+str(e)+"\n", gen_errfile, "a", True)
                 myfunc.WriteFile("[Date: %s] cmdline = %s\n"%(date_str,
                     cmdline), gen_errfile, "a", True)
@@ -1849,7 +1849,7 @@ def RunStatistics(path_result, path_log):#{{{
                 method_submission = strs[7]
                 isValidSubmitDate = True
                 try:
-                    submit_date = datetime.datetime.strptime(submit_date_str, "%Y-%m-%d %H:%M:%S")
+                    submit_date = webserver_common.datetime_str_to_time(submit_date_str)
                 except Exception as e:
                     date_str = time.strftime("%Y-%m-%d %H:%M:%S")
                     msg= "strptime failed, submit_date_str='%s'"%(submit_date_str)
