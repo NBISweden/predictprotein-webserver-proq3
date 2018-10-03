@@ -319,29 +319,6 @@ def WriteDateTimeTagFile(outfile, runjob_logfile, runjob_errfile):# {{{
             msg = "Failed to write to file %s with message: \"%s\""%(outfile, str(e))
             myfunc.WriteFile("[%s] %s\n"%(date_str, msg),  runjob_errfile, "a", True)
 # }}}
-def RunCmd(cmd, runjob_logfile, runjob_errfile):# {{{
-    """Input cmd in list
-       Run the command and also output message to logs
-    """
-    begin_time = time.time()
-
-    cmdline = " ".join(cmd)
-    date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-    msg = "cmdline: %s"%(cmdline)
-    myfunc.WriteFile("[%s] %s\n"%(date_str, msg),  runjob_logfile, "a", True)
-    rmsg = ""
-    try:
-        subprocess.check_output(cmd)
-    except Exception as e:
-        msg = "cmdline: %s\nFailed with message \"%s\""%(cmdline, str(e))
-        myfunc.WriteFile("[%s] %s\n"%(date_str, msg),  runjob_errfile, "a", True)
-        pass
-
-    end_time = time.time()
-    runtime_in_sec = end_time - begin_time
-
-    return runtime_in_sec
-# }}}
 def ValidateSeq(rawseq, seqinfo, g_params):#{{{
 # seq is the chunk of fasta file
 # seqinfo is a dictionary
@@ -404,6 +381,14 @@ def ValidateSeq(rawseq, seqinfo, g_params):#{{{
             seqinfo['errinfo_content'] += "Please input your sequence in FASTA format.\n"
 
         seqinfo['isValidSeq'] = False
+    elif numseq > g_params['MAX_NUMSEQ_PER_JOB']:
+        seqinfo['errinfo_br'] += "Number of input sequences exceeds the maximum (%d)!\n"%(
+                g_params['MAX_NUMSEQ_PER_JOB'])
+        seqinfo['errinfo_content'] += "Your query has %d sequences. "%(numseq)
+        seqinfo['errinfo_content'] += "However, the maximal allowed sequences per job is %d. "%(
+                g_params['MAX_NUMSEQ_PER_JOB'])
+        seqinfo['errinfo_content'] += "Please split your query into smaller files and submit again.\n"
+        seqinfo['isValidSeq'] = False
     else:
         li_badseq_info = []
         if 'isForceRun' in seqinfo and seqinfo['isForceRun'] and numseq > g_params['MAX_NUMSEQ_FOR_FORCE_RUN']:
@@ -412,6 +397,11 @@ def ValidateSeq(rawseq, seqinfo, g_params):#{{{
                     "The maximum allowable number of sequences of a job is %d. "\
                     "However, your input has %d sequences."%(g_params['MAX_NUMSEQ_FOR_FORCE_RUN'], numseq)
             seqinfo['isValidSeq'] = False
+
+
+# checking for bad sequences in the query
+
+    if seqinfo['isValidSeq']:
         for i in xrange(numseq):
             seq = seqRecordList[i][2].strip()
             anno = seqRecordList[i][1].strip().replace('\t', ' ')
@@ -431,11 +421,13 @@ def ValidateSeq(rawseq, seqinfo, g_params):#{{{
             seqinfo['errinfo_content'] = "\n".join(li_badseq_info) + "\n"
             seqinfo['isValidSeq'] = False
 
-# out of these 26 letters in the alphabet, 
-# B, Z -> X
-# U -> C
-# *, - will be deleted
-# 
+# convert some non-classical letters to the standard amino acid symbols
+# Scheme:
+#    out of these 26 letters in the alphabet, 
+#    B, Z -> X
+#    U -> C
+#    *, - will be deleted
+    if seqinfo['isValidSeq']:
         li_newseq = []
         for i in xrange(numseq):
             seq = seqRecordList[i][2].strip()
@@ -498,6 +490,34 @@ def ValidateSeq(rawseq, seqinfo, g_params):#{{{
     seqinfo['errinfo'] = seqinfo['errinfo_br'] + seqinfo['errinfo_content']
     return filtered_seq
 #}}}
+def RunCmd(cmd, runjob_logfile, runjob_errfile, verbose=False):# {{{
+    """Input cmd in list
+       Run the command and also output message to logs
+    """
+    begin_time = time.time()
+
+    isCmdSuccess = False
+    cmdline = " ".join(cmd)
+    datetime = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+    myfunc.WriteFile("[%s] %s\n"%(datetime, cmdline),  runjob_logfile, "a", True)
+    rmsg = ""
+    try:
+        rmsg = subprocess.check_output(cmd)
+        if verbose:
+            msg = "workflow: %s"%(cmdline)
+            myfunc.WriteFile("[%s] %s\n"%(datetime, msg),  runjob_logfile, "a", True)
+        isCmdSuccess = True
+    except subprocess.CalledProcessError, e:
+        msg = "cmdline: %s\nFailed with message \"%s\""%(cmdline, str(e))
+        myfunc.WriteFile("[%s] %s\n"%(datetime, msg),  runjob_errfile, "a", True)
+        isCmdSuccess = False
+        pass
+
+    end_time = time.time()
+    runtime_in_sec = end_time - begin_time
+
+    return (isCmdSuccess, runtime_in_sec)
+# }}}
 def datetime_str_to_epoch(date_str):# {{{
     """convert the datetime in string to epoch
     The string of datetime may with or without the zone info

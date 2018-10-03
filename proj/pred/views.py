@@ -36,6 +36,7 @@ g_params['MAX_NUMSEQ_FOR_FORCE_RUN'] = 100
 g_params['MAX_ALLOWD_NUMMODEL'] = 5
 g_params['MIN_LEN_SEQ'] = 1
 g_params['MAX_LEN_SEQ'] = 1000000
+g_params['MAX_NUMSEQ_PER_JOB'] = 50000
 
 SITE_ROOT = os.path.dirname(os.path.realpath(__file__))
 progname =  os.path.basename(__file__)
@@ -212,7 +213,7 @@ def submit_seq(request):#{{{
                 modelfile = request.FILES['modelfile']
             except KeyError, MultiValueDictKeyError:
                 modelfile = ""
-            date = time.strftime("%Y-%m-%d %H:%M:%S")
+            date = time.strftime("%Y-%m-%d %H:%M:%S %Z")
             query = {}
             query['rawseq'] = rawseq
             query['rawmodel'] = rawmodel
@@ -422,8 +423,7 @@ def GetJobCounter(client_ip, isSuperUser, logfile_query, #{{{
                 submit_date_str = strs[0]
                 isValidSubmitDate = True
                 try:
-                    submit_date = datetime.strptime(submit_date_str, 
-                            "%Y-%m-%d %H:%M:%S")
+                    submit_date = webserver_common.datetime_str_to_time(submit_date_str)
                 except ValueError:
                     isValidSubmitDate = False
 
@@ -464,27 +464,6 @@ def GetJobCounter(client_ip, isSuperUser, logfile_query, #{{{
             lines = hdl.readlines()
         hdl.close()
     return jobcounter
-#}}}
-def GetNumSameUserInQueue(rstdir, host_ip, email):#{{{
-    nummodel_this_user = 1
-    logfile = "%s/runjob.log"%(rstdir)
-    cmd = [suq_exec, "-b", suq_basedir, "ls"]
-    cmdline = " ".join(cmd)
-    myfunc.WriteFile("cmdline: " + cmdline +"\n", logfile, "a")
-    try:
-        suq_ls_content =  myfunc.check_output(cmd, stderr=subprocess.STDOUT)
-    except subprocess.CalledProcessError, e:
-        myfunc.WriteFile(str(e) +"\n", logfile, "a")
-        return nummodel_this_user
-
-    if email != "" or host_ip != "":
-        lines = suq_ls_content.split("\n")
-        for line in lines:
-            if ((email != "" and line.find(email) != -1) or
-                (host_ip != "" and line.find(host_ip) != -1)):
-                nummodel_this_user += 1
-
-    return nummodel_this_user
 #}}}
 
 def ValidateQuery(request, query):#{{{
@@ -730,9 +709,10 @@ def RunQuery_wsdl_local(rawseq, filtered_seq, seqinfo):#{{{
 def SubmitQueryToLocalQueue(query, tmpdir, rstdir):#{{{
     scriptfile = "%s/app/submit_job_to_queue.py"%(SITE_ROOT)
     rstdir = "%s/%s"%(path_result, query['jobid'])
-    errfile = "%s/runjob.err"%(rstdir)
+    runjob_errfile = "%s/runjob.err"%(rstdir)
     debugfile = "%s/debug.log"%(rstdir) #this log only for debugging
-    logfile = "%s/runjob.log"%(rstdir)
+    runjob_logfile = "%s/runjob.log"%(rstdir)
+    failedtagfile = "%s/%s"%(rstdir, "runjob.failed")
     rmsg = ""
 
     cmd = [python_exec, scriptfile, "-nmodel", "%d"%query['nummodel'], "-nmodel-this-user",
@@ -746,23 +726,13 @@ def SubmitQueryToLocalQueue(query, tmpdir, rstdir):#{{{
     if query['isForceRun']:
         cmd += ["-force"]
 
-    cmdline = " ".join(cmd)
-    try:
-        myfunc.WriteFile("cmdline: " + cmdline +"\n", debugfile, "a")
-        rmsg = myfunc.check_output(cmd, stderr=subprocess.STDOUT)
-    except subprocess.CalledProcessError, e:
-        failtagfile = "%s/%s"%(rstdir, "runjob.failed")
-        if not os.path.exists(failtagfile):
-            date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            myfunc.WriteFile(date, failtagfile)
-        myfunc.WriteFile(str(e)+"\n", errfile, "a")
-        myfunc.WriteFile("cmdline: " + cmdline +"\n", debugfile, "a")
-        myfunc.WriteFile(rmsg+"\n", errfile, "a")
+    (isSuccess, t_runtime) = webserver_common.RunCmd(cmd, runjob_logfile, runjob_errfile)
 
+    if not isSuccess:
+        webserver_common.WriteDateTimeTagFile(failedtagfile, runjob_logfile, runjob_errfile)
         return 1
-
-    return 0
-
+    else:
+        return 0
 #}}}
 
 def thanks(request):#{{{
@@ -867,7 +837,7 @@ def get_queue(request):#{{{
             runtime = ""
             isValidSubmitDate = True
             try:
-                submit_date = datetime.strptime(submit_date_str, "%Y-%m-%d %H:%M:%S")
+                submit_date = webserver_common.datetime_str_to_time(submit_date_str)
             except ValueError:
                 isValidSubmitDate = False
 
@@ -987,13 +957,13 @@ def get_running(request):#{{{
             isValidSubmitDate = True
             isValidStartDate = True
             try:
-                submit_date = datetime.strptime(submit_date_str, "%Y-%m-%d %H:%M:%S")
+                submit_date = webserver_common.datetime_str_to_time(submit_date_str)
             except ValueError:
                 isValidSubmitDate = False
             if os.path.exists(starttagfile):
                 start_date_str = myfunc.ReadFile(starttagfile).strip()
             try:
-                start_date = datetime.strptime(start_date_str, "%Y-%m-%d %H:%M:%S")
+                start_date =  webserver_common.datetime_str_to_time(start_date_str)
             except ValueError:
                 isValidStartDate = False
             if isValidStartDate:
@@ -1082,8 +1052,7 @@ def get_finished_job(request):#{{{
                 submit_date_str = strs[0]
                 isValidSubmitDate = True
                 try:
-                    submit_date = datetime.strptime(submit_date_str,
-                            "%Y-%m-%d %H:%M:%S")
+                    submit_date = webserver_common.datetime_str_to_time(submit_date_str)
                 except ValueError:
                     isValidSubmitDate = False
                 if not isValidSubmitDate:
@@ -1149,17 +1118,17 @@ def get_finished_job(request):#{{{
             isValidStartDate = True
             isValidFinishDate = True
             try:
-                submit_date = datetime.strptime(submit_date_str, "%Y-%m-%d %H:%M:%S")
+                submit_date = webserver_common.datetime_str_to_time(submit_date_str)
             except ValueError:
                 isValidSubmitDate = False
             start_date_str = myfunc.ReadFile(starttagfile).strip()
             try:
-                start_date = datetime.strptime(start_date_str, "%Y-%m-%d %H:%M:%S")
+                start_date = webserver_common.datetime_str_to_time(start_date_str)
             except ValueError:
                 isValidStartDate = False
             finish_date_str = myfunc.ReadFile(finishtagfile).strip()
             try:
-                finish_date = datetime.strptime(finish_date_str, "%Y-%m-%d %H:%M:%S")
+                finish_date = webserver_common.datetime_str_to_time(finish_date_str)
             except ValueError:
                 isValidFinishDate = False
 
@@ -1244,7 +1213,7 @@ def get_failed_job(request):#{{{
                     continue
 
                 submit_date_str = strs[0]
-                submit_date = datetime.strptime(submit_date_str, "%Y-%m-%d %H:%M:%S")
+                submit_date = webserver_common.datetime_str_to_time(submit_date_str)
                 diff_date = current_time - submit_date
                 if diff_date.days > maxdaystoshow:
                     continue
@@ -1306,18 +1275,18 @@ def get_failed_job(request):#{{{
             isValidSubmitDate = True
 
             try:
-                submit_date = datetime.strptime(submit_date_str, "%Y-%m-%d %H:%M:%S")
+                submit_date = webserver_common.datetime_str_to_time(submit_date_str)
             except ValueError:
                 isValidSubmitDate = False
 
             start_date_str = myfunc.ReadFile(starttagfile).strip()
             try:
-                start_date = datetime.strptime(start_date_str, "%Y-%m-%d %H:%M:%S")
+                start_date = webserver_common.datetime_str_to_time(start_date_str)
             except ValueError:
                 isValidStartDate = False
             failed_date_str = myfunc.ReadFile(failtagfile).strip()
             try:
-                failed_date = datetime.strptime(failed_date_str, "%Y-%m-%d %H:%M:%S")
+                failed_date = webserver_common.datetime_str_to_time(failed_date_str)
             except ValueError:
                 isValidFailedDate = False
 
@@ -1496,8 +1465,8 @@ def get_serverstatus(request):#{{{
                 cntjob += 1
         num_seq_in_local_queue = cntjob
     except subprocess.CalledProcessError, e:
-        datetime = time.strftime("%Y-%m-%d %H:%M:%S")
-        myfunc.WriteFile("[%s] %s\n"%(datetime, str(e)), gen_errfile, "a")
+        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+        myfunc.WriteFile("[%s] %s\n"%(date_str, str(e)), gen_errfile, "a")
 
 # get number of finished seqs
     finishedjoblogfile = "%s/finished_job.log"%(path_log)
@@ -1744,7 +1713,7 @@ def get_results(request, jobid="1"):#{{{
 
     isValidSubmitDate = True
     try:
-        submit_date = datetime.strptime(submit_date_str, "%Y-%m-%d %H:%M:%S")
+        submit_date = webserver_common.datetime_str_to_time(submit_date_str)
     except ValueError:
         isValidSubmitDate = False
     current_time = datetime.now()
@@ -1769,12 +1738,12 @@ def get_results(request, jobid="1"):#{{{
         isValidStartDate = True
         isValidFailedDate = True
         try:
-            start_date = datetime.strptime(start_date_str, "%Y-%m-%d %H:%M:%S")
+            start_date = webserver_common.datetime_str_to_time(start_date_str)
         except ValueError:
             isValidStartDate = False
         failed_date_str = myfunc.ReadFile(failtagfile).strip()
         try:
-            failed_date = datetime.strptime(failed_date_str, "%Y-%m-%d %H:%M:%S")
+            failed_date = webserver_common.datetime_str_to_time(failed_date_str)
         except ValueError:
             isValidFailedDate = False
         if isValidSubmitDate and isValidStartDate:
@@ -1791,12 +1760,12 @@ def get_results(request, jobid="1"):#{{{
             isValidFinishDate = True
             start_date_str = myfunc.ReadFile(starttagfile).strip()
             try:
-                start_date = datetime.strptime(start_date_str, "%Y-%m-%d %H:%M:%S")
+                start_date = webserver_common.datetime_str_to_time(start_date_str)
             except ValueError:
                 isValidStartDate = False
             finish_date_str = myfunc.ReadFile(finishtagfile).strip()
             try:
-                finish_date = datetime.strptime(finish_date_str, "%Y-%m-%d %H:%M:%S")
+                finish_date = webserver_common.datetime_str_to_time(finish_date_str)
             except ValueError:
                 isValidFinishDate = False
             if isValidSubmitDate and isValidStartDate:
@@ -1809,7 +1778,7 @@ def get_results(request, jobid="1"):#{{{
                 isValidStartDate = True
                 start_date_str = myfunc.ReadFile(starttagfile).strip()
                 try:
-                    start_date = datetime.strptime(start_date_str, "%Y-%m-%d %H:%M:%S")
+                    start_date = webserver_common.datetime_str_to_time(start_date_str)
                 except ValueError:
                     isValidStartDate = False
                 resultdict['isStarted'] = True
@@ -1884,7 +1853,7 @@ def get_results(request, jobid="1"):#{{{
         indexmap_content = myfunc.ReadFile(finished_model_file).split("\n")
         cnt = 0
         set_seqidx = set([])
-        date_str = time.strftime("%Y-%m-%d %H:%M:%S")
+        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
         for line in indexmap_content:
             strs = line.split("\t")
             if len(strs)>=3:
