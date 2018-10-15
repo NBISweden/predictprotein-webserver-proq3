@@ -1865,8 +1865,13 @@ def get_results(request, jobid="1"):#{{{
                     length_str = strs[1]
                     try:
                         runtime_in_sec_str = "%.1f"%(float(strs[2]))
+                        # For single model jobs, the start time will be the
+                        # same as finish time, so reset the runtime
+                        if nummodel <= 1:
+                            resultdict['runtime'] = myfunc.second_to_human(float(strs[2]))
                     except:
                         runtime_in_sec_str = ""
+
 
                     scoreList = []
                     for jj in range(3, len(strs)):
