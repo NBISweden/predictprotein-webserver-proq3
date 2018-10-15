@@ -39,6 +39,7 @@ g_params['MAX_ALLOWD_NUMMODEL'] = 5
 g_params['MIN_LEN_SEQ'] = 1
 g_params['MAX_LEN_SEQ'] = 1000000
 g_params['MAX_NUMSEQ_PER_JOB'] = 50000
+g_params['FORMAT_DATETIME'] = "%Y-%m-%d %H:%M:%S %Z"
 
 SITE_ROOT = os.path.dirname(os.path.realpath(__file__))
 progname =  os.path.basename(__file__)
@@ -215,7 +216,7 @@ def submit_seq(request):#{{{
                 modelfile = request.FILES['modelfile']
             except KeyError, MultiValueDictKeyError:
                 modelfile = ""
-            date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+            date_str = time.strftime(g_params['FORMAT_DATETIME'])
             query = {}
             query['rawseq'] = rawseq
             query['rawmodel'] = rawmodel
@@ -1467,7 +1468,7 @@ def get_serverstatus(request):#{{{
                 cntjob += 1
         num_seq_in_local_queue = cntjob
     except subprocess.CalledProcessError, e:
-        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+        date_str = time.strftime(g_params['FORMAT_DATETIME'])
         myfunc.WriteFile("[%s] %s\n"%(date_str, str(e)), gen_errfile, "a")
 
 # get number of finished seqs
@@ -1855,7 +1856,7 @@ def get_results(request, jobid="1"):#{{{
         indexmap_content = myfunc.ReadFile(finished_model_file).split("\n")
         cnt = 0
         set_seqidx = set([])
-        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+        date_str = time.strftime(g_params['FORMAT_DATETIME'])
         for line in indexmap_content:
             strs = line.split("\t")
             if len(strs)>=3:
