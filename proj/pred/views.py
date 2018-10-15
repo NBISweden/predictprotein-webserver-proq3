@@ -521,7 +521,7 @@ def ValidateQuery(request, query):#{{{
             fp = request.FILES['modelfile']
             fp.seek(0,2)
             filesize = fp.tell()
-            if filesize > MAXSIZE_UPLOAD_MODELFILE_IN_BYTE:
+            if filesize > g_params['MAXSIZE_UPLOAD_MODELFILE_IN_BYTE']:
                 query['errinfo_br'] += "Size of the uploaded model file exceeds the limit!"
                 query['errinfo_content'] += "The file you uploaded exceeds "\
                         "the upper limit %g Mb. Please split your file and "\
