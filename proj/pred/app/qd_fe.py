@@ -20,6 +20,7 @@ import myfunc
 import webserver_common
 import time
 import datetime
+from pytz import timezone
 import requests
 import json
 import urllib
@@ -32,7 +33,8 @@ import numpy
 from geoip import geolite2
 import pycountry
 
-os.environ['TZ'] = 'Europe/Stockholm'
+TZ = 'Europe/Stockholm'
+os.environ['TZ'] = TZ
 time.tzset()
 
 vip_user_list = [
@@ -331,7 +333,7 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
                 isValidSubmitDate = False
 
             if isValidSubmitDate:
-                current_time = datetime.datetime.now()
+                current_time = datetime.datetime.now(timezone(TZ))
                 timeDiff = current_time - submit_date
                 queuetime_in_sec = timeDiff.seconds
             else:
@@ -1304,7 +1306,7 @@ def DeleteOldResult(path_result, path_log):#{{{
                 isValidFinishDate = False
 
             if isValidFinishDate:
-                current_time = datetime.datetime.now()
+                current_time = datetime.datetime.now(timezone(TZ))
                 timeDiff = current_time - finish_date
                 if timeDiff.days > g_params['MAX_KEEP_DAYS']:
                     rstdir = "%s/%s"%(path_result, jobid)
