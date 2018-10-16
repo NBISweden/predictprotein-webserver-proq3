@@ -1285,44 +1285,6 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
 
 #}}}
 #}}}
-def DeleteOldResult(path_result, path_log):#{{{
-    """
-    Delete jobdirs that are finished > MAX_KEEP_DAYS
-    """
-    finishedjoblogfile = "%s/finished_job.log"%(path_log)
-    finished_job_dict = myfunc.ReadFinishedJobLog(finishedjoblogfile)
-    for jobid in finished_job_dict:
-        li = finished_job_dict[jobid]
-        try:
-            finish_date_str = li[8]
-        except IndexError:
-            finish_date_str = ""
-            pass
-        if finish_date_str != "":
-            isValidFinishDate = True
-            try:
-                finish_date = webserver_common.datetime_str_to_time(finish_date_str)
-            except ValueError:
-                isValidFinishDate = False
-
-            if isValidFinishDate:
-                current_time = datetime.datetime.now(timezone(TZ))
-                timeDiff = current_time - finish_date
-                if timeDiff.days > g_params['MAX_KEEP_DAYS']:
-                    rstdir = "%s/%s"%(path_result, jobid)
-                    date_str = time.strftime(g_params['FORMAT_DATETIME'])
-                    msg = "\tjobid = %s finished %d days ago (>%d days), delete."%(jobid, timeDiff.days, g_params['MAX_KEEP_DAYS'])
-                    myfunc.WriteFile("[Date: %s] "%(date_str)+ msg + "\n", gen_logfile, "a", True)
-                    shutil.rmtree(rstdir)
-#}}}
-def CleanServerFile():#{{{
-    """Clean old files on the server"""
-# clean tmp files
-    msg = "CleanServerFile..."
-    myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
-    cmd = ["bash", "%s/clean_server_file.sh"%(rundir)]
-    webserver_common.RunCmd(cmd, gen_logfile, gen_errfile)
-#}}}
 def RunStatistics(path_result, path_log):#{{{
 # 1. calculate average running time, only for those sequences with time.txt
 # show also runtime of type and runtime -vs- seqlength
@@ -1997,9 +1959,10 @@ def main(g_params):#{{{
                             remotequeueDict[node].append(remotejobid)
 
 
-        if loop % 200 == 11:
+        if loop % 500 == 50:
             RunStatistics(path_result, path_log)
-            DeleteOldResult(path_result, path_log)
+            webserver_common.DeleteOldResult(path_result, path_log, gen_logfile, MAX_KEEP_DAYS=g_params['MAX_KEEP_DAYS'])
+            webserver_common.CleanServerFile(gen_logfile, gen_errfile)
 
         if os.path.exists(gen_logfile):
             myfunc.ArchiveFile(gen_logfile, threshold_logfilesize)

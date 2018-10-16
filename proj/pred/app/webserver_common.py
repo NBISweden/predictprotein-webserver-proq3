@@ -18,6 +18,7 @@ import tabulate
 import logging
 import subprocess
 import re
+FORMAT_DATETIME = "%Y-%m-%d %H:%M:%S %Z"
 def ReadProQ3GlobalScore(infile):#{{{
     #return globalscore and itemList
     #itemList is the name of the items
@@ -82,7 +83,7 @@ def WriteSubconsTextResultFile(outfile, outpath_result, maplist,#{{{
         if statfile != "":
             fpstat = open(statfile, "w")
 
-        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+        date_str = time.strftime(FORMAT_DATETIME)
         print >> fpout, "##############################################################################"
         print >> fpout, "Subcons result file"
         print >> fpout, "Generated from %s at %s"%(base_www_url, date_str)
@@ -160,7 +161,7 @@ def WriteProQ3TextResultFile(outfile, query_para, modelFileList, #{{{
             fpstat = open(statfile, "w")
         numModel = len(modelFileList)
 
-        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+        date_str = time.strftime(FORMAT_DATETIME)
         print >> fpout, "##############################################################################"
         print >> fpout, "# ProQ3 result file"
         print >> fpout, "# Generated from %s at %s"%(base_www_url, date_str)
@@ -318,7 +319,7 @@ def RunCmd(cmd, runjob_logfile, runjob_errfile, verbose=False):# {{{
 
     isCmdSuccess = False
     cmdline = " ".join(cmd)
-    date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+    date_str = time.strftime(FORMAT_DATETIME)
     rmsg = ""
     try:
         rmsg = subprocess.check_output(cmd)
@@ -355,7 +356,7 @@ def datetime_str_to_time(date_str):# {{{
 # }}}
 def WriteDateTimeTagFile(outfile, runjob_logfile, runjob_errfile):# {{{
     if not os.path.exists(outfile):
-        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+        date_str = time.strftime(FORMAT_DATETIME)
         try:
             myfunc.WriteFile(date_str, outfile)
             msg = "Write tag file %s succeeded"%(outfile)
@@ -534,4 +535,42 @@ def ValidateSeq(rawseq, seqinfo, g_params):#{{{
 
     seqinfo['errinfo'] = seqinfo['errinfo_br'] + seqinfo['errinfo_content']
     return filtered_seq
+#}}}
+def DeleteOldResult(path_result, path_log, logfile, MAX_KEEP_DAYS=180):#{{{
+    """Delete jobdirs that are finished > MAX_KEEP_DAYS
+    """
+    finishedjoblogfile = "%s/finished_job.log"%(path_log)
+    finished_job_dict = myfunc.ReadFinishedJobLog(finishedjoblogfile)
+    for jobid in finished_job_dict:
+        li = finished_job_dict[jobid]
+        try:
+            finish_date_str = li[8]
+        except IndexError:
+            finish_date_str = ""
+            pass
+        if finish_date_str != "":
+            isValidFinishDate = True
+            try:
+                finish_date = datetime_str_to_time(finish_date_str)
+            except ValueError:
+                isValidFinishDate = False
+
+            if isValidFinishDate:
+                current_time = datetime.now(timezone(TZ))
+                timeDiff = current_time - finish_date
+                if timeDiff.days > MAX_KEEP_DAYS:
+                    rstdir = "%s/%s"%(path_result, jobid)
+                    date_str = time.strftime(FORMAT_DATETIME)
+                    msg = "\tjobid = %s finished %d days ago (>%d days), delete."%(jobid, timeDiff.days, MAX_KEEP_DAYS)
+                    myfunc.WriteFile("[Date: %s] "%(date_str)+ msg + "\n", logfile, "a", True)
+                    shutil.rmtree(rstdir)
+#}}}
+def CleanServerFile(logfile, errfile):#{{{
+    """Clean old files on the server"""
+# clean tmp files
+    msg = "CleanServerFile..."
+    date_str = time.strftime(FORMAT_DATETIME)
+    myfunc.WriteFile("[%s] %s\n"%(date_str, msg), logfile, "a", True)
+    cmd = ["bash", "%s/clean_server_file.sh"%(rundir)]
+    webserver_common.RunCmd(cmd, logfile, errfile)
 #}}}
