@@ -19,7 +19,6 @@ import hashlib
 import shutil
 import json
 import webserver_common
-import datetime
 os.environ["PATH"] += os.pathsep + "/usr/local/bin" # this solved the problem for CentOS6.4
 progname =  os.path.basename(sys.argv[0])
 wspace = ''.join([" "]*len(progname))

@@ -10,7 +10,7 @@
 import os
 import sys
 import myfunc
-import datetime
+from datetime import datetime
 from dateutil import parser as dtparser
 from pytz import timezone
 import time

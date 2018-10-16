@@ -19,7 +19,7 @@ sys.path.append("/usr/local/lib/python2.7/dist-packages")
 import myfunc
 import webserver_common
 import time
-import datetime
+from datetime import datetime
 from pytz import timezone
 import requests
 import json
@@ -333,7 +333,7 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
                 isValidSubmitDate = False
 
             if isValidSubmitDate:
-                current_time = datetime.datetime.now(timezone(TZ))
+                current_time = datetime.now(timezone(TZ))
                 timeDiff = current_time - submit_date
                 queuetime_in_sec = timeDiff.seconds
             else:
