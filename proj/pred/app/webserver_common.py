@@ -20,6 +20,7 @@ import logging
 import subprocess
 import re
 FORMAT_DATETIME = "%Y-%m-%d %H:%M:%S %Z"
+TZ = 'Europe/Stockholm'
 def ReadProQ3GlobalScore(infile):#{{{
     #return globalscore and itemList
     #itemList is the name of the items
