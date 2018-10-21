@@ -19,6 +19,7 @@ import tabulate
 import logging
 import subprocess
 import re
+import shutil
 FORMAT_DATETIME = "%Y-%m-%d %H:%M:%S %Z"
 TZ = 'Europe/Stockholm'
 def ReadProQ3GlobalScore(infile):#{{{
