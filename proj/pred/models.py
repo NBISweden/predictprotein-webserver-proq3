@@ -2,6 +2,7 @@ from django.db import models
 from django import forms
 
 from django.core.validators import MinLengthValidator, MaxLengthValidator 
+from django.utils.safestring import mark_safe
 
 # Create your models here.
 
@@ -30,7 +31,7 @@ class SubmissionForm(forms.Form):
             widget=forms.Textarea(attrs={'cols': 70, 'rows': 10, 'wrap': 'off'}),
             required=False)
     modelfile = forms.FileField(label="Or, upload the model file (up to 10 MB)", required=False)
-    rawseq = forms.CharField(label='Paste the amino acid sequence of your model in FASTA format (recommended, up to 10 KB)\n', max_length=100000,
+    rawseq = forms.CharField(label=mark_safe('Paste the amino acid sequence of your model in FASTA format (recommended, up to 10 KB). <br /><font color=red>Note that only one sequence is allowed<font/>'), max_length=100000,
         widget=forms.Textarea(attrs={'cols': 70, 'rows': 4}),
             required=False)
     seqfile = forms.FileField(label="Or, upload your sequence file (up to 10 KB)", required=False)
