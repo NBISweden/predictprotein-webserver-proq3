@@ -433,10 +433,10 @@ def ValidateSeq(rawseq, seqinfo, g_params):#{{{
     elif numseq > g_params['MAX_NUMSEQ_PER_JOB']:
         seqinfo['errinfo_br'] += "Number of input sequences exceeds the maximum (%d)!\n"%(
                 g_params['MAX_NUMSEQ_PER_JOB'])
-        seqinfo['errinfo_content'] += "Your query has %d sequences. "%(numseq)
-        seqinfo['errinfo_content'] += "However, the maximal allowed sequences per job is %d. "%(
+        seqinfo['errinfo_content'] += "Your target sequence field has %d sequences. "%(numseq)
+        seqinfo['errinfo_content'] += "However, the maximal allowed sequences for this field is %d. "%(
                 g_params['MAX_NUMSEQ_PER_JOB'])
-        seqinfo['errinfo_content'] += "Please split your query into smaller files and submit again.\n"
+        #seqinfo['errinfo_content'] += "Please split your query into smaller files and submit again.\n"
         seqinfo['isValidSeq'] = False
     else:
         li_badseq_info = []

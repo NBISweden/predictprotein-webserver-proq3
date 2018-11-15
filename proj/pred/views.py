@@ -43,6 +43,7 @@ g_params['FORMAT_DATETIME'] = "%Y-%m-%d %H:%M:%S %Z"
 
 SITE_ROOT = os.path.dirname(os.path.realpath(__file__))
 progname =  os.path.basename(__file__)
+rootname_progname = os.path.splitext(progname)[0]
 path_app = "%s/app"%(SITE_ROOT)
 sys.path.append(path_app)
 path_log = "%s/static/log"%(SITE_ROOT)
@@ -93,6 +94,19 @@ def index(request):#{{{
     if not os.path.exists(base_www_url_file):
         base_www_url = "http://" + request.META['HTTP_HOST']
         myfunc.WriteFile(base_www_url, base_www_url_file, "w", True)
+
+    # read the local config file if exists
+    configfile = "%s/config/config.json"%(SITE_ROOT)
+    config = {}
+    if os.path.exists(configfile):
+        text = myfunc.ReadFile(configfile)
+        config = json.loads(text)
+
+    if rootname_progname in config:
+        g_params.update(config[rootname_progname])
+        g_params['MAXSIZE_UPLOAD_SEQFILE_IN_BYTE'] = g_params['MAXSIZE_UPLOAD_SEQFILE_IN_MB'] * 1024*1024
+        g_params['MAXSIZE_UPLOAD_MODELFILE_IN_BYTE'] = g_params['MAXSIZE_UPLOAD_MODELFILE_IN_MB'] * 1024*1024
+
     return submit_seq(request)
 #}}}
 def SetColorStatus(status):#{{{
