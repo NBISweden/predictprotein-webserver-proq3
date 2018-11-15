@@ -38,7 +38,7 @@ g_params['MAX_NUMSEQ_FOR_FORCE_RUN'] = 100
 g_params['MAX_ALLOWD_NUMMODEL'] = 5
 g_params['MIN_LEN_SEQ'] = 1
 g_params['MAX_LEN_SEQ'] = 1000000
-g_params['MAX_NUMSEQ_PER_JOB'] = 50000
+g_params['MAX_NUMSEQ_PER_JOB'] = 1 #the target sequence can have only one sequence
 g_params['FORMAT_DATETIME'] = "%Y-%m-%d %H:%M:%S %Z"
 
 SITE_ROOT = os.path.dirname(os.path.realpath(__file__))
