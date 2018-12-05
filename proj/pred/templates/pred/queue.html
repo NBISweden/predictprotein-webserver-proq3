@@ -2,7 +2,8 @@
 
 
 {%block content_right_panel %}
-    <script src="{{STATIC_URL}}js/sorttable.js"></script>
+{% load static %}
+    <script src="{% static "js/sorttable.js" %}"></script>
     {% if username %}
       {% include "pred/user_header.html" %}
     {% endif %}

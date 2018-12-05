@@ -1,13 +1,14 @@
 {% extends "pred/base_layout.html" %}
 
 {%block content_right_panel %}
+{% load static %}
     {% if username %}
       {% include "pred/user_header.html" %}
     {% endif %}
 {% if warninfo %}
 <p>
 <font color="red">Warning! some letters in your query have been modified by system.</font>
-click <a href="{{STATIC_URL}}result/{{jobid}}/{{file_seq_warning}}" target="_blank"  >this link</a> to see details
+click <a href="{% static "result/{{jobid}}/{{file_seq_warning}}" %}" target="_blank"  >this link</a> to see details
 </p>
 {% endif %}
 
@@ -28,7 +29,7 @@ click <a href="{{STATIC_URL}}result/{{jobid}}/{{file_seq_warning}}" target="_bla
 <p>Number of submitted sequences: {{numseq}}</p>
 <p>
     The sequence(s) you submitted can be found in 
-    <a href="{{STATIC_URL}}result/{{jobid}}/{{raw_query_seqfile}}">{{raw_query_seqfile}}</a>
+    <a href="{% static "result/{{jobid}}/{{raw_query_seqfile}}" %}">{{raw_query_seqfile}}</a>
 </p>
 <p>Your result will be available at <a href="{{BASEURL}}result/{{jobid}}" >this link</a> </p>
 <p>

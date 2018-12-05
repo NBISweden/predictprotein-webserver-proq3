@@ -1,6 +1,7 @@
 {% extends "pred/base_layout.html" %}
 
 {%block content_right_panel %}
+{% load static %}
     {% if username %}
       {% include "pred/user_header.html" %}
     {% endif %}
@@ -24,7 +25,7 @@
    </p>
    <p>
    A snapshot of a running job:
-   <a href="{{STATIC_URL}}images/example_snapshot.png"><img src="{{STATIC_URL}}images/example_snapshot.thumb.png" alt="snapshot of example" style="border: none; height: 50;"></a>
+   <a href="{% static "images/example_snapshot.png" %}"><img src="{% static "images/example_snapshot.thumb.png" %}" alt="snapshot of example" style="border: none; height: 50;"></a>
    </p>
 
 {% endblock %}

@@ -1,3 +1,5 @@
+
+    {% load static %}
                 <table class="sortable" align="left" id="jobtable" cellpadding="2">
                  {% if nummodel >= 20 %}
                   <thead>
@@ -15,9 +17,9 @@
                             {% for field in record %}
 
                                 {% if forloop.counter0 == 0 %}
-                                    <td align="center"><a href="{{STATIC_URL}}result/{{jobid}}/{{jobid}}/model_{{record.0}}/query.pdb.proq3.{{method_quality}}.local">Model {{record.0}}</a></td>
+                                    <td align="center"><a href="{% static "result/{{jobid}}/{{jobid}}/model_{{record.0}}/query.pdb.proq3.{{method_quality}}.local" %}">Model {{record.0}}</a></td>
                                     {% if not isHasTargetseq %}
-                                        <td align="center"><a href="{{STATIC_URL}}result/{{jobid}}/{{jobid}}/model_{{record.0}}/query.pdb.fasta">Sequence</a></td>
+                                        <td align="center"><a href="{% static "result/{{jobid}}/{{jobid}}/model_{{record.0}}/query.pdb.fasta" %}">Sequence</a></td>
                                     {%endif%}
                                 {%else%}
                                     <td align="center">{{field}}</td>

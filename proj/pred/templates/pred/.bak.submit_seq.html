@@ -4,12 +4,12 @@
   <meta name="description" content="TOPCONS" />
   <meta name="keywords" content="membrane protein, bioinformatics, prediction, topology" />
   <meta name="robots" content="index, follow" />
-  <link rel="stylesheet" href="{{STATIC_URL}}template_css.css" type="text/css" />
+  <link rel="stylesheet" href="{% static "template_css.css" %}" type="text/css" />
 <script language="javascript">
 <!--
     if (document.images) {
-    arrow = new Image(); arrow.src = "{{STATIC_URL}}images/arrow.png";
-    arrow90 = new Image(); arrow90.src = "{{STATIC_URL}}images/arrow90.png";
+    arrow = new Image(); arrow.src = "{% static "images/arrow.png" %}";
+    arrow90 = new Image(); arrow90.src = "{% static "images/arrow90.png" %}";
     }
 
     function print_todays_date( ) {
@@ -51,7 +51,7 @@
     </tr>
 
     <tr>
-      <td width="800" height="124" colspan="7" align="right" valign="bottom" background="{{STATIC_URL}}images/header2.png">
+      <td width="800" height="124" colspan="7" align="right" valign="bottom" background="{% static "images/header2.png" %}">
         <table width="800" height="100" border="0" cellspacing="0" cellpadding="0" align="right" valign="bottom">
           <tr valign="bottom">
             <td align="right">
@@ -71,7 +71,7 @@
 
   <table width="800" height="199" border="0" align="center" cellpadding="5" cellspacing="0" bgcolor="#FFFFFF">
     <tr>
-      <td width="160" valign="top" style="background-repeat: repeat-y; background-position: top left;" background="{{STATIC_URL}}images/cbr_graymeny160_shadow.png">
+      <td width="160" valign="top" style="background-repeat: repeat-y; background-position: top left;" background="{% static "images/cbr_graymeny160_shadow.png" %}">
         <table cellpadding="0" cellspacing="0" class="moduletable">
           <tr>
             <th valign="top">Main Menu</th>
@@ -94,7 +94,7 @@
         </table>
       </td>
 
-      <td width="650" valign="top" style="background-repeat: repeat-y; background-position: top right;" background="{{STATIC_URL}}images/cbr_right_shadow.png">
+      <td width="650" valign="top" style="background-repeat: repeat-y; background-position: top right;" background="{% static "images/cbr_right_shadow.png" %}">
         <table class="blog" cellpadding="0" cellspacing="0">
           <tr>
             <td valign="top">
@@ -106,14 +106,14 @@
                       <form name="seq_form" action="/pred1/" enctype="multipart/form-data" method="post">
                           {% csrf_token %}
                           {{form.as_p}}
-                        <a href="#" onClick="javascript:hideShow('options');return false;" style="text-decoration:none; color:#333333"><b>Restrainment options</b><img id="arrow" src='{{STATIC_URL}}images/arrow90.png' border=0>
+                        <a href="#" onClick="javascript:hideShow('options');return false;" style="text-decoration:none; color:#333333"><b>Restrainment options</b><img id="arrow" src="{% static "images/arrow90.png" %}" border=0>
                         </a>
 
                         <br>
                         <table cellspacing=0 cellpadding=0 border=0 id="options">
-                          <tr><td colspan=2><img src='{{STATIC_URL}}images/0.gif' width=1 height=10></td></tr>
+                          <tr><td colspan=2><img src="{% static "images/0.gif" %}" width=1 height=10></td></tr>
                           <tr><td colspan=2>Restrain parts of the sequence to a known Inside/Outside/Membrane location</td></tr>
-                          <tr><td colspan=2><img src='{{STATIC_URL}}images/0.gif' width=1 height=5></td></tr>
+                          <tr><td colspan=2><img src="{% static "images/0.gif" %}" width=1 height=5></td></tr>
                           <tr><td>N-term&nbsp;</td><td>
                               <select name="Nfix">
                                 <option value=""></option>
@@ -122,7 +122,7 @@
                               </select> (optional)
                           </td></tr>
 
-                          <tr><td colspan=2><img src='{{STATIC_URL}}images/0.gif' width=1 height=5></td></tr>
+                          <tr><td colspan=2><img src="{% static "images/0.gif" %}" width=1 height=5></td></tr>
                           <tr><td>C-term&nbsp;</td><td>
                               <select name="Cfix">
                                 <option value=""></option>
@@ -130,7 +130,7 @@
                                 <option value="o">Outside (non-cytoplasmic)</OPTION>
                               </select> (Optional)
                           </td></tr>
-                          <tr><td colspan=2><img src='{{STATIC_URL}}images/0.gif' width=1 height=5></td></tr>
+                          <tr><td colspan=2><img src="{% static "images/0.gif" %}" width=1 height=5></td></tr>
                           <tr><td>Other&nbsp;</td><td><input type="text" name="fix_str" size=41 maxlength=2048 title="fix_str"></input> (Optional)</td></tr>
                           <tr><td>&nbsp;</td><td><small>String of one or more entries with format [first]-[last]-[label]; where [first] is first residue and [last] is last residue in restrained range, and [label] is i (Inside), o (Outside) or M (Membrane). Example: 1-1-o;20-25-M;
                             </td></tr>
@@ -162,14 +162,14 @@ document.getElementById('options').style.display = 'none';
   
   <table width="800" height="30" border="0" align="center" cellpadding="0" cellspacing="0">
     <tr>
-      <td width="23"><img src="{{STATIC_URL}}images/cbr_lower_left_gray.png" alt="" width="23" height="30" border="0" /></td>
+      <td width="23"><img src="{% static "images/cbr_lower_left_gray.png" %}" alt="" width="23" height="30" border="0" /></td>
 
-      <td height="30" align="center" bgcolor="#FFFFFF" style="background-repeat: repeat-y; background-position: top left;" background="{{STATIC_URL}}images/cbr_graymenu_bg137.png">
+      <td height="30" align="center" bgcolor="#FFFFFF" style="background-repeat: repeat-y; background-position: top left;" background="{% static "images/cbr_graymenu_bg137.png" %}">
         <div align="center"> &#169; 2015 Science for Life Laboratory, Stockholm </div>
         <div align="center"> <br /> </div>
       </td>
 
-      <td width="23"><img src="{{STATIC_URL}}images/cbr_lower_right.png" alt="" width="23" height="30" border="0" /></td>
+      <td width="23"><img src="{% static "images/cbr_lower_right.png" %}" alt="" width="23" height="30" border="0" /></td>
     </tr>
   </table>
 </body>

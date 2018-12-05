@@ -32,6 +32,7 @@ function readfile() {
 {#    }, 200)                                                         #}
 
 {%block content_right_panel %}
+    {% load static %}
     {% if username %}
       {% include "pred/user_header.html" %}
     {% endif %}
@@ -44,7 +45,7 @@ function readfile() {
                 <font color="red">Warning! some letters in your query have been
                     modified by system.</font>
                 click <a
-                    href="{{STATIC_URL}}result/{{jobid}}/{{file_seq_warning}}"
+                    href="{% static "result/{{jobid}}/{{file_seq_warning}}" %}"
                 target="_blank"  >this link</a> to see details
             </p>
         {% endif %}
@@ -76,12 +77,12 @@ function readfile() {
             <p><font color="red">Your job with jobid {{jobid}} is unfortunately failed</font></p>
             <p>
                 The model(s) you submitted can be found in 
-                <a href="{{STATIC_URL}}result/{{jobid}}/{{raw_query_modelfile}}">{{raw_query_modelfile}}</a>
+                <a href="{% static "result/{{jobid}}/{{raw_query_modelfile}}" %}">{{raw_query_modelfile}}</a>
             </p>
             {% if raw_query_seqfile %}
                 <p>
                     The target sequence you submitted can be found in 
-                    <a href="{{STATIC_URL}}result/{{jobid}}/{{raw_query_seqfile}}">{{raw_query_seqfile}}</a>
+                    <a href="{% static "result/{{jobid}}/{{raw_query_seqfile}}" %}">{{raw_query_seqfile}}</a>
                 </p>
             {% endif %}
             <p>
@@ -123,20 +124,20 @@ function readfile() {
             {% endif %}
             <p>
                 Zipped folder of your result can be found in 
-                <a href="{{STATIC_URL}}result/{{jobid}}/{{zipfile}}">{{zipfile}}</a>
+                <a href="{% static "result/{{jobid}}/{{zipfile}}" %}">{{zipfile}}</a>
             </p>
             <p>
                 Dumped ProQ3 prediction file in text format
-                <a href="{{STATIC_URL}}result/{{jobid}}/{{jobid}}/query.proq3.txt">query.proq3.txt</a>
+                <a href="{% static "result/{{jobid}}/{{jobid}}/query.proq3.txt" %}">query.proq3.txt</a>
             </p>
             <p>
                 The model(s) you submitted can be found in 
-                <a href="{{STATIC_URL}}result/{{jobid}}/{{raw_query_modelfile}}">{{raw_query_modelfile}}</a>
+                <a href="{% static "result/{{jobid}}/{{raw_query_modelfile}}" %}">{{raw_query_modelfile}}</a>
             </p>
             {% if raw_query_seqfile %}
                 <p>
                     The target sequence you submitted can be found in 
-                    <a href="{{STATIC_URL}}result/{{jobid}}/{{raw_query_seqfile}}">{{raw_query_seqfile}}</a>
+                    <a href="{% static "result/{{jobid}}/{{raw_query_seqfile}}" %}">{{raw_query_seqfile}}</a>
                 </p>
             {% endif %}
             <hr>
@@ -184,12 +185,12 @@ function readfile() {
             <p>Number of submitted models: {{nummodel}}</p>
             <p>
                 The model(s) you submitted can be found in 
-                <a href="{{STATIC_URL}}result/{{jobid}}/{{raw_query_modelfile}}">{{raw_query_modelfile}}</a>
+                <a href="{% static "result/{{jobid}}/{{raw_query_modelfile}}" %}">{{raw_query_modelfile}}</a>
             </p>
             {% if raw_query_seqfile %}
                 <p>
                     The target sequence you submitted can be found in 
-                    <a href="{{STATIC_URL}}result/{{jobid}}/{{raw_query_seqfile}}">{{raw_query_seqfile}}</a>
+                    <a href="{% static "result/{{jobid}}/{{raw_query_seqfile}}" %}">{{raw_query_seqfile}}</a>
                 </p>
             {% endif %}
             Results of your prediction with jobid: <b>{{jobid}}</b>

@@ -32,6 +32,7 @@ function readfile() {
 {#    }, 200)                                                         #}
 
 {%block content_right_panel %}
+{% load static %}
     {% if username %}
       {% include "pred/user_header.html" %}
     {% endif %}
@@ -44,7 +45,7 @@ function readfile() {
                 <font color="red">Warning! some letters in your query have been
                     modified by system.</font>
                 click <a
-                    href="{{STATIC_URL}}result/{{jobid}}/{{file_seq_warning}}"
+                    href="{% static "result/{{jobid}}/{{file_seq_warning}}" %}"
                 target="_blank"  >this link</a> to see details
             </p>
         {% endif %}
@@ -66,7 +67,7 @@ function readfile() {
             <p><font color="red">Your job with jobid {{jobid}} is unfortunately failed</font></p>
             <p>
                 The sequence(s) you submitted can be found in 
-                <a href="{{STATIC_URL}}result/{{jobid}}/{{raw_query_seqfile}}">{{raw_query_seqfile}}</a>
+                <a href="{% static "result/{{jobid}}/{{raw_query_seqfile}}" %}">{{raw_query_seqfile}}</a>
             </p>
             <h4>Error message of the job</h4>
             <pre>
@@ -132,15 +133,15 @@ function readfile() {
             {% endif %}
             <p>
                 Zipped folder of your result can be found in 
-                <a href="{{STATIC_URL}}result/{{jobid}}/{{zipfile}}">{{zipfile}}</a>
+                <a href="{% static "result/{{jobid}}/{{zipfile}}" %}">{{zipfile}}</a>
             </p>
             <p>
                 Predicted topology in FASTA format
-                <a href="{{STATIC_URL}}result/{{jobid}}/{{jobid}}/query.top">query.top</a>
+                <a href="{% static "result/{{jobid}}/{{jobid}}/query.top" %}">query.top</a>
             </p>
             <p>
                 The sequence(s) you submitted can be found in 
-                <a href="{{STATIC_URL}}result/{{jobid}}/{{raw_query_seqfile}}">{{raw_query_seqfile}}</a>
+                <a href="{% static "result/{{jobid}}/{{raw_query_seqfile}}" %}">{{raw_query_seqfile}}</a>
             </p>
             <hr>
             {% if numseq > 1 %}
@@ -220,7 +221,7 @@ function readfile() {
             <p>Number of submitted sequences: {{numseq}}</p>
             <p>
                 The sequence(s) you submitted can be found in 
-                <a href="{{STATIC_URL}}result/{{jobid}}/{{raw_query_seqfile}}">{{raw_query_seqfile}}</a>
+                <a href="{% static "result/{{jobid}}/{{raw_query_seqfile}}" %}" %}">{{raw_query_seqfile}}</a>
             </p>
             Results of your prediction with jobid: <b>{{jobid}}</b>
             {% if jobname %}
