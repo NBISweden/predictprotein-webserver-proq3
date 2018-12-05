@@ -15,7 +15,7 @@
                             {% for field in record %}
 
                                 {% if forloop.counter0 == 0 %}
-                                    <td align="center"><a href="{{STATIC_URL}}result/{{jobid}}/{{jobid}}/model_{{record.0}}/query.pdb.proq3.{{method_quality}}.local">Model {{record.0}}</a></td>
+                                <td align="center"><a href="{{STATIC_URL}}result/{{jobid}}/{{jobid}}/model_{{record.0}}/query.pdb.{{m_str}}.{{method_quality}}.local">Model {{record.0}}</a></td>
                                     {% if not isHasTargetseq %}
                                         <td align="center"><a href="{{STATIC_URL}}result/{{jobid}}/{{jobid}}/model_{{record.0}}/query.pdb.fasta">Sequence</a></td>
                                     {%endif%}
