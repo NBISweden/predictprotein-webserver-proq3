@@ -1,7 +1,6 @@
 {% extends "pred/base_layout.html" %}
 
 {%block content_right_panel %}
-{% load static %}
     {% if username %}
       {% include "pred/user_header.html" %}
     {% endif %}
@@ -24,13 +23,13 @@
             <ul>
 
                 <li>
-                    <a href="{% static "download/proq3d_train_and_test_data/proq3d_test_set_cameo.txt.tar.gz" %}">proq3d_test_set_cameo.txt.tar.gz (5.4GB)</a>
+                    <a href="{{STATIC_URL}}download/proq3d_train_and_test_data/proq3d_test_set_cameo.txt.tar.gz ">proq3d_test_set_cameo.txt.tar.gz (5.4GB)</a>
                 </li>
                 <li>
-                    <a href="{% static "download/proq3d_train_and_test_data/proq3d_test_set_casp11.txt.tar.gz" %}">proq3d_test_set_casp11.txt.tar.gz (3.8GB)</a>
+                    <a href="{{STATIC_URL}}download/proq3d_train_and_test_data/proq3d_test_set_casp11.txt.tar.gz">proq3d_test_set_casp11.txt.tar.gz (3.8GB)</a>
                 </li>
                 <li>
-                    <a href="{% static "download/proq3d_train_and_test_data/proq3d_train_set_casp9_and_casp10.txt.tar.gz" %}">proq3d_train_set_casp9_and_casp10.txt.tar.gz (13GB)</a>
+                    <a href="{{STATIC_URL}}download/proq3d_train_and_test_data/proq3d_train_set_casp9_and_casp10.txt.tar.gz">proq3d_train_set_casp9_and_casp10.txt.tar.gz (13GB)</a>
                 </li>
             </ul>
             <div id="description" style="background-color:#e6ffff;margin-left:25px; ">

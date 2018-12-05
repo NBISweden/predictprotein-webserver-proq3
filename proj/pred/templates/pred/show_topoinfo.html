@@ -1,15 +1,14 @@
-{% load static %}
 <p>
     <br>
     Predicted topologies and SVM scores
 </p>
 <table cellpadding="2">
     <tr><td>
-            <img src="{% static "result/{{jobid}}/{{jobid}}/{{subdirname}}/query.predict.png" %}" alt="Topology" style="width:580px">
+            <img src="{{STATIC_URL}}result/{{jobid}}/{{jobid}}/{{subdirname}}/query.predict.png" alt="Topology" style="width:580px">
     </td><tr>
     <tr><td align="right">
             <a
-                href="{% static "result/{{jobid}}/{{jobid}}/{{subdirname}}/query.predict.png" %}"
+                href="{{STATIC_URL}}result/{{jobid}}/{{jobid}}/{{subdirname}}/query.predict.png"
                 >High-resolution image </a>
     </td></tr>
 </table>

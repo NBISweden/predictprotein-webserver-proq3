@@ -63,6 +63,8 @@ python_exec = os.path.realpath("%s/../../env/bin/python"%(SITE_ROOT))
 import myfunc
 import webserver_common
 
+STATIC_URL = settings.STATIC_URL
+
 rundir = SITE_ROOT
 
 qd_fe_scriptfile = "%s/qd_fe.py"%(path_app)
@@ -249,6 +251,7 @@ def submit_seq(request):#{{{
             query['isKeepFiles'] = isKeepFiles
             query['isRepack'] = isRepack
             query['isDeepLearning'] = isDeepLearning
+            query['STATIC_URL'] = STATIC_URL
 
             is_valid = ValidateQuery(request, query)
 
@@ -322,6 +325,7 @@ def submit_seq(request):#{{{
     info['form'] = form
     info['jobcounter'] = jobcounter
     info['MAX_ALLOWD_NUMMODEL'] = g_params['MAX_ALLOWD_NUMMODEL']
+    info['STATIC_URL'] = STATIC_URL
     return render(request, 'pred/submit_seq.html', info)
 #}}}
 def get_job_status(jobid):#{{{
@@ -383,6 +387,7 @@ def login(request):#{{{
     info['client_ip'] = client_ip
 
     info['jobcounter'] = GetJobCounter(client_ip, isSuperUser, divided_logfile_query, divided_logfile_finished_jobid)
+    info['STATIC_URL'] = STATIC_URL
     return render(request, 'pred/login.html', info)
 #}}}
 def GetJobCounter(client_ip, isSuperUser, logfile_query, #{{{
@@ -878,6 +883,7 @@ def get_queue(request):#{{{
 
     info['jobcounter'] = GetJobCounter(client_ip, isSuperUser,
             divided_logfile_query, divided_logfile_finished_jobid)
+    info['STATIC_URL'] = STATIC_URL
     return render(request, 'pred/queue.html', info)
 #}}}
 def get_running(request):#{{{
@@ -1010,6 +1016,7 @@ def get_running(request):#{{{
         info['DATATABLE_THRESHOLD'] = 20
 
     info['jobcounter'] = GetJobCounter(client_ip, isSuperUser, divided_logfile_query, divided_logfile_finished_jobid)
+    info['STATIC_URL'] = STATIC_URL
     return render(request, 'pred/running.html', info)
 #}}}
 def get_finished_job(request):#{{{
@@ -1172,6 +1179,7 @@ def get_finished_job(request):#{{{
 
     info['jobcounter'] = GetJobCounter(client_ip, isSuperUser,
             divided_logfile_query, divided_logfile_finished_jobid)
+    info['STATIC_URL'] = STATIC_URL
     return render(request, 'pred/finished_job.html', info)
 #}}}
 def get_failed_job(request):#{{{
@@ -1331,18 +1339,10 @@ def get_failed_job(request):#{{{
 
     info['jobcounter'] = GetJobCounter(client_ip, isSuperUser,
             divided_logfile_query, divided_logfile_finished_jobid)
+    info['STATIC_URL'] = STATIC_URL
     return render(request, 'pred/failed_job.html', info)
 #}}}
 
-def search(request):#{{{
-    if 'q' in request.GET and request.GET['q']:
-        q = request.GET['q']
-        seq = Query.objects.filter(seqname=q)
-        return render(request, 'search_results.html',
-            {'seq': seq, 'query': q})
-    else:
-        return HttpResponse('Please submit a search term.')
-#}}}
 def get_help(request):#{{{
     info = {}
 
@@ -1368,6 +1368,7 @@ def get_help(request):#{{{
     info['jobcounter'] = GetJobCounter(client_ip, isSuperUser,
             divided_logfile_query, divided_logfile_finished_jobid)
 
+    info['STATIC_URL'] = STATIC_URL
     return render(request, 'pred/help.html', info)
 #}}}
 def get_news(request):#{{{
@@ -1402,6 +1403,7 @@ def get_news(request):#{{{
     info['jobcounter'] = GetJobCounter(client_ip, isSuperUser,
             divided_logfile_query, divided_logfile_finished_jobid)
 
+    info['STATIC_URL'] = STATIC_URL
     return render(request, 'pred/news.html', info)
 #}}}
 def get_reference(request):#{{{
@@ -1429,6 +1431,7 @@ def get_reference(request):#{{{
     info['jobcounter'] = GetJobCounter(client_ip, isSuperUser,
             divided_logfile_query, divided_logfile_finished_jobid)
 
+    info['STATIC_URL'] = STATIC_URL
     return render(request, 'pred/reference.html', info)
 #}}}
 
@@ -1519,6 +1522,7 @@ def get_serverstatus(request):#{{{
     info['jobcounter'] = GetJobCounter(client_ip, isSuperUser,
             divided_logfile_query, divided_logfile_finished_jobid)
 
+    info['STATIC_URL'] = STATIC_URL
     return render(request, 'pred/serverstatus.html', info)
 #}}}
 def get_example(request):#{{{
@@ -1546,6 +1550,7 @@ def get_example(request):#{{{
     info['jobcounter'] = GetJobCounter(client_ip, isSuperUser,
             divided_logfile_query, divided_logfile_finished_jobid)
 
+    info['STATIC_URL'] = STATIC_URL
     return render(request, 'pred/example.html', info)
 #}}}
 def proq2(request):#{{{
@@ -1599,6 +1604,7 @@ def help_wsdl_api(request):#{{{
     info['jobcounter'] = GetJobCounter(client_ip, isSuperUser,
             divided_logfile_query, divided_logfile_finished_jobid)
 
+    info['STATIC_URL'] = STATIC_URL
     return render(request, 'pred/help_wsdl_api.html', info)
 #}}}
 def download(request):#{{{
@@ -1635,6 +1641,7 @@ def download(request):#{{{
     info['jobcounter'] = GetJobCounter(client_ip, isSuperUser,
             divided_logfile_query, divided_logfile_finished_jobid)
 
+    info['STATIC_URL'] = STATIC_URL
     return render(request, 'pred/download.html', info)
 #}}}
 
@@ -1976,6 +1983,7 @@ def get_results(request, jobid="1"):#{{{
 #}}}
     resultdict['jobcounter'] = GetJobCounter(client_ip, isSuperUser,
             divided_logfile_query, divided_logfile_finished_jobid)
+    resultdict['STATIC_URL'] = STATIC_URL
     return render(request, 'pred/get_results.html', resultdict)
 #}}}
 def get_results_eachseq(request, jobid="1", seqindex="1"):#{{{
@@ -2100,19 +2108,7 @@ def get_results_eachseq(request, jobid="1", seqindex="1"):#{{{
 
     resultdict['jobcounter'] = GetJobCounter(client_ip, isSuperUser,
             divided_logfile_query, divided_logfile_finished_jobid)
+    resultdict['STATIC_URL'] = STATIC_URL
     return render(request, 'pred/get_results_eachseq.html', resultdict)
-#}}}
-
-
-def my_view(request):#{{{
-    # loop through keys
-    for key in request.POST:
-        value = request.POST[key]
-    # loop through keys and values
-    for key, value in request.POST.iteritems():
-        print key, value
-#}}}
-def search_form(request):#{{{
-    return render(request, 'pred/search_form.html')
 #}}}
 

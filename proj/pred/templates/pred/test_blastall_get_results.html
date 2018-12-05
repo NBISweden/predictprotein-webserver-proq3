@@ -30,7 +30,6 @@ setInterval(function(){$("#content_right_panel").load("{{url_result}}")},1000);
 {#    }, 200)                                                         #}
 
 {%block content_right_panel %}
-{% load static %}
 {#    <p> <script language="JavaScript"> print_todays_date(); </script> </p>#}
 
     {% if not isResultFolderExist %}
@@ -41,7 +40,7 @@ setInterval(function(){$("#content_right_panel").load("{{url_result}}")},1000);
                 <font color="red">Warning! some letters in your query have been
                     modified by system.</font>
                 click <a
-                    href="{% static "result/{{jobid}}/{{file_seq_warning}}" %}"
+                    href="{{STATIC_URL}}result/{{jobid}}/{{file_seq_warning}}"
                 target="_blank"  >this link</a> to see details
             </p>
         {% endif %}
@@ -78,13 +77,14 @@ setInterval(function(){$("#content_right_panel").load("{{url_result}}")},1000);
             </font>
             results of your prediction for jobid: {{jobid}}
             <p>Result file:  <a
-                href="{% static "result/{{jobid}}/{{outpathname}}/{{result_file}}" %}">{{result_file}}</a>
+                href="{{STATIC_URL}}result/{{jobid}}/{{outpathname}}/{{result_file}}">{{result_file}}</a>
             </p>
             <p>Part of the content of the result file</p>
             <pre>
     {{result_content}}
             </pre>
             <p>
+            {# <img src="{{STATIC_URL}}result/{{jobid}}/PconsC2.s400.jpg" alt="Mountain View" style="width:600px;height:200"> #}
             </p>
         {% else %}
             Result for {{ jobid }} is not ready yet

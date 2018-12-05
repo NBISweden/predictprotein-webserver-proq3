@@ -1,18 +1,17 @@
 {% extends "pred/base_layout.html" %}
 
 {%block content_right_panel %}
-{% load static %}
     {% if username %}
       {% include "pred/user_header.html" %}
     {% endif %}
   <h2>Help</h2>
   <table cellspacing=0 cellpadding=0 border=0>
     <tr>
-      <td class="Greylink"><a href="#1">1.&nbsp;Summary<img src="{% static "/images/0.gif" %}" height=1 width=5 border=0><img src="{% static "/images/arrow.png" %}" border=0><img src="{% static "/images/0.gif" %}" height=1 width=40 border=0></a><td>
-      <td class="Greylink"><a href="#2">2.&nbsp;Usage<img src="{% static "/images/0.gif" %}" height=1 width=5 border=0><img src="{% static "/images/arrow.png" %}" border=0><img src="{% static "/images/0.gif" %}" height=1 width=40 border=0></a><td>
-      <td class="Greylink"><a href="#3">3.&nbsp;Output<img src="{% static "/images/0.gif" %}" height=1 width=5 border=0><img src="{% static "/images/arrow.png" %}" border=0><img src="{% static "/images/0.gif" %}" height=1 width=40 border=0></a><td>
-      <td class="Greylink"><a href="#4">4.&nbsp;References<img src="{% static "/images/0.gif" %}" height=1 width=5 border=0><img src="{% static "/images/arrow.png" %}" border=0><img src="{% static "/images/0.gif" %}" height=1 width=40 border=0></a><td>
-      <td class="Greylink"><a href="#5">5.&nbsp;Contact<img src="{% static "/images/0.gif" %}" height=1 width=5 border=0><img src="{% static "/images/arrow.png" %}" border=0><img src="{% static "/images/0.gif" %}" height=1 width=40 border=0></a><td>
+      <td class="Greylink"><a href="#1">1.&nbsp;Summary<img src="{{STATIC_URL}}/images/0.gif" height=1 width=5 border=0><img src="{{STATIC_URL}}/images/arrow.png" border=0><img src="{{STATIC_URL}}/images/0.gif" height=1 width=40 border=0></a><td>
+      <td class="Greylink"><a href="#2">2.&nbsp;Usage<img src="{{STATIC_URL}}/images/0.gif" height=1 width=5 border=0><img src="{{STATIC_URL}}/images/arrow.png" border=0><img src="{{STATIC_URL}}/images/0.gif" height=1 width=40 border=0></a><td>
+      <td class="Greylink"><a href="#3">3.&nbsp;Output<img src="{{STATIC_URL}}/images/0.gif" height=1 width=5 border=0><img src="{{STATIC_URL}}/images/arrow.png" border=0><img src="{{STATIC_URL}}/images/0.gif" height=1 width=40 border=0></a><td>
+      <td class="Greylink"><a href="#4">4.&nbsp;References<img src="{{STATIC_URL}}/images/0.gif" height=1 width=5 border=0><img src="{{STATIC_URL}}/images/arrow.png" border=0><img src="{{STATIC_URL}}/images/0.gif" height=1 width=40 border=0></a><td>
+      <td class="Greylink"><a href="#5">5.&nbsp;Contact<img src="{{STATIC_URL}}/images/0.gif" height=1 width=5 border=0><img src="{{STATIC_URL}}/images/arrow.png" border=0><img src="{{STATIC_URL}}/images/0.gif" height=1 width=40 border=0></a><td>
       </tr>
   </table>
 
@@ -24,8 +23,8 @@
       <h3>1. Summary</h3><br>
       <table cellspacing=0 cellpadding=0 border=0>
         <tr>
-          <td><img src="{% static "/images/0.gif" %}" border=0 height=1 width=400></td>
-          <td><img src="{% static "/images/0.gif" %}" border=0 height=1 width=50></td>
+          <td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=400></td>
+          <td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=50></td>
         </tr>
         <tr><td>
                 <p>
@@ -73,8 +72,8 @@
       <h3>2. Usage</h3><br>
       <table cellspacing=0 cellpadding=0 border=0>
         <tr>
-          <td><img src="{% static "/images/0.gif" %}" border=0 height=1 width=400></td>
-          <td><img src="{% static "/images/0.gif" %}" border=0 height=1 width=50></td>
+          <td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=400></td>
+          <td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=50></td>
         </tr>
         <tr><td>
             <p>
@@ -120,8 +119,8 @@
       <h3>3. Output</h3><br>
       <table cellspacing=0 cellpadding=0 border=0>
         <tr>
-          <td><img src="{% static "/images/0.gif" %}" border=0 height=1 width=400></td>
-          <td><img src="{% static "/images/0.gif" %}" border=0 height=1 width=50></td></tr>
+          <td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=400></td>
+          <td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=50></td></tr>
         <tr><td>
                 <p>
                 The server outputs both the global and local scores of the
@@ -153,8 +152,8 @@
 
     <h3>4. References</h3><br>
     <table cellspacing=0 cellpadding=5 border=0>
-      <tr><td><img src="{% static "/images/0.gif" %}" border=0 height=1 width=400></td>
-        <td><img src="{% static "/images/0.gif" %}" border=0 height=1 width=50></td>
+      <tr><td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=400></td>
+        <td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=50></td>
         <tr><td>
             {% include "pred/refs.html" %}
         </td></tr>
@@ -166,8 +165,8 @@
   <h3>5. Contact</h3><br>
     <table cellspacing=0 cellpadding=0 border=0>
       <tr>
-        <td><img src="{% static "/images/0.gif" %}" border=0 height=1 width=400></td>
-        <td><img src="{% static "/images/0.gif" %}" border=0 height=1 width=50></td>
+        <td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=400></td>
+        <td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=50></td>
       </tr>
       <tr><td>
           <b>Arne Elofsson group</b><br><br>

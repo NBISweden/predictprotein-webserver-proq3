@@ -1,8 +1,7 @@
 {% extends "pred/base_layout.html" %}
 
 {%block content_right_panel %}
-{% load static %}
-    <script src="{% static "js/sorttable.js" %}"></script>
+    <script src="{{STATIC_URL}}js/sorttable.js"></script>
     {% if username %}
       {% include "pred/user_header.html" %}
     {% endif %}
