@@ -4,7 +4,7 @@
 spyne==2.12.14
 requests==2.20.1
 mod-wsgi==4.6.5
-Django==1.11
+Django==1.11.15
 
 pysqlite==2.8.3
 lxml==3.6.0
