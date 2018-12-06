@@ -44,7 +44,6 @@ WSGI_APPLICATION = 'proj.wsgi.application'
 LOGIN_REDIRECT_URL = '/pred'
 LOGOUT_REDIRECT_URL = '/pred/login'
 
-
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
@@ -94,7 +93,7 @@ LOGGING = {
         },
     },
 }
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/

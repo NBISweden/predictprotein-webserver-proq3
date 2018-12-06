@@ -1,17 +1,12 @@
-#misc/spyne.github.tar.gz
-#misc/requests-2.12.3.tar.gz
-
-spyne==2.12.14
+spyne==2.13.2-alpha
 requests==2.20.1
 mod-wsgi==4.6.5
 Django==1.11.15
 
 pysqlite==2.8.3
-lxml==3.6.0
+lxml==4.2.5
 suds==0.4
 biopython==1.72
-django-eztables==0.3.2
-
 
 
 matplotlib==2.2.3
