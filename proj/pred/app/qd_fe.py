@@ -568,7 +568,7 @@ def InitJob(jobid):# {{{
             except Exception as e:
                 date_str = time.strftime(g_params['FORMAT_DATETIME'])
                 msg = "Failed to run PDB2Seq, wrong PDB format for the model structure. errmsg=%s"%(str(e))
-                myfunc.WriteFile("[%s] %s"%(date_str, msg), runjob_errfile, "a", True)
+                myfunc.WriteFile("[%s] %s\n"%(date_str, msg), runjob_errfile, "a", True)
                 myfunc.WriteFile("%d\n"%(ii), failed_idx_file, "a", True)
                 webserver_common.WriteDateTimeTagFile(starttagfile, runjob_logfile, runjob_errfile)
                 isFailed = True
@@ -727,7 +727,7 @@ def SubmitJob(jobid, cntSubmitJobDict, numModel_this_user, query_para):#{{{
                 except Exception as e:
                     date_str = time.strftime(g_params['FORMAT_DATETIME'])
                     msg = "Failed to run myclient.service.submitjob_remote with message \"%s\""%(str(e))
-                    myfunc.WriteFile("[%s] %s"%(date_str, msg), gen_errfile, "a", True)
+                    myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_errfile, "a", True)
                     rtValue = []
                     pass
 
@@ -977,7 +977,7 @@ def GetResult(jobid, query_para):#{{{
                                 date_str = time.strftime(g_params['FORMAT_DATETIME'])
                                 msg = "Failed to copy %s to %s. message = \"%s\""%(
                                         profile_this_model, outpath_profile, str(e))
-                                myfunc.WriteFile("[%s] %s"%(date_str, msg), gen_errfile, "a", True)
+                                myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_errfile, "a", True)
 
                         seqfile_of_profile = "%s/query.fasta"%(profile_this_model)
                         (t_seqid, t_seqanno, t_seq) = myfunc.ReadSingleFasta(seqfile_of_profile)
