@@ -587,6 +587,8 @@ def ValidateQuery(request, query):#{{{
     # parsing the raw model file by the MODEL, ENDMDL tag
     query['rawmodel'] = re.sub(r'[^\x00-\x7f]',r' ',query['rawmodel']) # remove non-ASCII characters
     query['rawmodel'] = re.sub(r'[\x0b]',r' ',query['rawmodel']) # filter invalid characters for XML
+    query['rawmodel'] = re.sub(r'ATOM.*HT.*\n',r'',query['rawmodel']) # filter lines with HT residues
+
     modelList = myfunc.ReadPDBModelFromBuff(query['rawmodel'])
 
     nummodel = len(modelList)
