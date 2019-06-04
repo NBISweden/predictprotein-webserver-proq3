@@ -94,7 +94,9 @@ if(!$cgi->param()) {
     my $structure = "";
     my $fh = $cgi->upload('structure');
     while(<$fh>) {
-        $structure .= $_;
+        if ($_ !~ m/^ATOM.*HT/){ #Filter HT residues in the modelfile
+            $structure .= $_;
+        }
     }
 
     close($fh);
