@@ -15,3 +15,15 @@ env/
 
 computenode.txt
 config.json
+
+*.bak
+
+
+.Rhistory
+env.bak/
+misc/
+proj/cgi-bin/check_qd_topcons2_fe.cgi
+proj/cgi-bin/restart_qd_topcons2_fe.cgi
+proj/pred/static/download/proq3d_train_and_test_data
+proj/pred/static/images/example_snapshot.thumb.png
+proj/settings.py
