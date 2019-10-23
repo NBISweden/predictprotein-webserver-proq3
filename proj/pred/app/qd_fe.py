@@ -85,6 +85,7 @@ path_profilecache = "%s/static/result/profilecache"%(basedir)
 # hostname MAX_ALLOWED_PARALLEL_JOBS
 computenodefile = "%s/config/computenode.txt"%(basedir)
 vip_email_file = "%s/config/vip_email.txt"%(basedir) 
+forward_email_file = "%s/config/forward_email.txt"%(basedir) 
 
 gen_errfile = "%s/static/log/%s.err"%(basedir, progname)
 gen_logfile = "%s/static/log/%s.log"%(basedir, progname)
@@ -1267,7 +1268,7 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
 
             # send the repacked pdb models to CAMEO
             if submitter in ["CAMEO", "VIP"]:
-                to_email_list = [email, "njshumessage@gmail.com"]
+                to_email_list = [email] + g_params['forward_email_list']
                 for to_email in to_email_list:
                     subject = GetEmailSubject_CAMEO(query_para)
                     bodytext = GetEmailBody_CAMEO(jobid, query_para)
@@ -1925,6 +1926,7 @@ def main(g_params):#{{{
         date_str = time.strftime(g_params['FORMAT_DATETIME'])
         avail_computenode_list = myfunc.ReadIDList2(computenodefile, col=0)
         g_params['vip_user_list'] = myfunc.ReadIDList2(vip_email_file, col=0)
+        g_params['forward_email_list'] = myfunc.ReadIDList2(forward_email_file, col=0)
         num_avail_node = len(avail_computenode_list)
         if loop == 0:
             myfunc.WriteFile("[Date: %s] start %s. loop %d\n"%(date_str, progname, loop), gen_logfile, "a", True)
@@ -2036,6 +2038,7 @@ def InitGlobalParameter():#{{{
     g_params['isQuiet'] = True
     g_params['blackiplist'] = []
     g_params['vip_user_list'] = []
+    g_params['forward_email_list'] = []
     g_params['DEBUG'] = True
     g_params['DEBUG_NO_SUBMIT'] = False
     g_params['DEBUG_CACHE'] = False
