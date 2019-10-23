@@ -37,9 +37,6 @@ path_md5cache = "%s/static/md5"%(basedir)
 path_profile_cache = "%s/static/result/profilecache/"%(basedir)
 
 contact_email = "nanjiang.shu@scilifelab.se"
-vip_user_list = [
-        "nanjiang.shu@scilifelab.se"
-        ]
 
 # note that here the url should be without http://
 

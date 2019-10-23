@@ -37,9 +37,6 @@ TZ = 'Europe/Stockholm'
 os.environ['TZ'] = TZ
 time.tzset()
 
-vip_user_list = [
-        "nanjiang.shu@scilifelab.se"
-        ]
 
 # make sure that only one instance of the script is running
 # this code is working 
@@ -87,6 +84,7 @@ path_profilecache = "%s/static/result/profilecache"%(basedir)
 # each line is a record and contains two items
 # hostname MAX_ALLOWED_PARALLEL_JOBS
 computenodefile = "%s/config/computenode.txt"%(basedir)
+vip_email_file = "%s/config/vip_email.txt"%(basedir) 
 
 gen_errfile = "%s/static/log/%s.err"%(basedir, progname)
 gen_logfile = "%s/static/log/%s.log"%(basedir, progname)
@@ -509,7 +507,7 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
             if ip in g_params['blackiplist']:
                 priority = priority/1000.0
 
-            if email in vip_user_list:
+            if email in g_params['vip_user_list']:
                 numseq_this_user = 1
                 priority = 999999999.0
                 myfunc.WriteFile("email %s in vip_user_list\n"%(email), gen_logfile, "a", True)
@@ -716,7 +714,7 @@ def SubmitJob(jobid, cntSubmitJobDict, numModel_this_user, query_para):#{{{
                 query_para['submitter'] = submitter
                 para_str = json.dumps(query_para, sort_keys=True)
                 jobname = ""
-                if not email in vip_user_list:
+                if not email in g_params['vip_user_list']:
                     useemail = ""
                 else:
                     useemail = email
@@ -1926,6 +1924,7 @@ def main(g_params):#{{{
 
         date_str = time.strftime(g_params['FORMAT_DATETIME'])
         avail_computenode_list = myfunc.ReadIDList2(computenodefile, col=0)
+        g_params['vip_user_list'] = myfunc.ReadIDList2(vip_email_file, col=0)
         num_avail_node = len(avail_computenode_list)
         if loop == 0:
             myfunc.WriteFile("[Date: %s] start %s. loop %d\n"%(date_str, progname, loop), gen_logfile, "a", True)
@@ -2036,6 +2035,7 @@ def InitGlobalParameter():#{{{
     g_params = {}
     g_params['isQuiet'] = True
     g_params['blackiplist'] = []
+    g_params['vip_user_list'] = []
     g_params['DEBUG'] = True
     g_params['DEBUG_NO_SUBMIT'] = False
     g_params['DEBUG_CACHE'] = False
