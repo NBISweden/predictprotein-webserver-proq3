@@ -710,7 +710,8 @@ def SubmitJob(jobid, cntSubmitJobDict, numModel_this_user, query_para):#{{{
                 else:
                     query_para['url_profile'] = "http://proq3.bioinfo.se/static/result/profilecache/%s/%s.zip"%(subfoldername,  md5_key) 
 
-                query_para['pdb_model'] = model
+                query_para['url_pdb_model'] = "http://proq3.bioinfo.se/static/result/%s/%s/%s"%(jobid, os.path.basename(tmpdir.rstrip('/')), os.path.basename(modelfile_this_model))
+                #query_para['pdb_model'] = model
                 query_para['targetseq'] = seq
                 query_para['submitter'] = submitter
                 para_str = json.dumps(query_para, sort_keys=True)
