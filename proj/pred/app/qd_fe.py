@@ -1478,14 +1478,15 @@ def RunStatistics(path_result, path_log):#{{{
                 count = sortedlist[j][1]
                 fpout.write("%d\t%d\n"%(nseq,count))
             fpout.close()
-            #plot
-            cmd = ["%s/app/plot_numseq_of_job.sh"%(basedir), outfile]
-            webserver_common.RunCmd(cmd, gen_logfile, gen_errfile)
+            if os.path.getsize(outfile) > 0:
+                cmd = ["%s/app/plot_numseq_of_job.sh"%(basedir), outfile]
+                webserver_common.RunCmd(cmd, gen_logfile, gen_errfile)
         except IOError:
             continue
-    cmd = ["%s/app/plot_numseq_of_job_mtp.sh"%(basedir), "-web",
-            outfile_numseqjob_web, "-wsdl", outfile_numseqjob_wsdl]
-    webserver_common.RunCmd(cmd, gen_logfile, gen_errfile)
+    if os.path.getsize(outfile_numseqjob_wsdl) > 0:
+        cmd = ["%s/app/plot_numseq_of_job_mtp.sh"%(basedir), "-web",
+                outfile_numseqjob_web, "-wsdl", outfile_numseqjob_wsdl]
+        webserver_common.RunCmd(cmd, gen_logfile, gen_errfile)
 
 # output waittime vs numseq_of_job
 # output finishtime vs numseq_of_job
@@ -1565,7 +1566,6 @@ def RunStatistics(path_result, path_log):#{{{
         except IOError:
             pass
 
-    # plotting 
     flist = flist1
     for i in xrange(len(flist)):
         outfile = flist[i]
@@ -1750,10 +1750,11 @@ def RunStatistics(path_result, path_log):#{{{
             cmd = ["%s/app/plot_length_runtime.sh"%(basedir), outfile]
             webserver_common.RunCmd(cmd, gen_logfile, gen_errfile)
 
-    cmd = ["%s/app/plot_length_runtime_mtp.sh"%(basedir), "-pfam",
-            outfile_runtime_pfam, "-cdd", outfile_runtime_cdd, "-uniref",
-            outfile_runtime_uniref, "-sep-avg"]
-    webserver_common.RunCmd(cmd, gen_logfile, gen_errfile)
+    if os.path.exists(outfile_runtime_cdd):
+        cmd = ["%s/app/plot_length_runtime_mtp.sh"%(basedir), "-pfam",
+                outfile_runtime_pfam, "-cdd", outfile_runtime_cdd, "-uniref",
+                outfile_runtime_uniref, "-sep-avg"]
+        webserver_common.RunCmd(cmd, gen_logfile, gen_errfile)
 
 
 #5. output num-submission time series with different bins (day, week, month, year)
@@ -1887,7 +1888,6 @@ def RunStatistics(path_result, path_log):#{{{
             fpout.close()
         except IOError:
             pass
-        #plot
         if os.path.exists(outfile):
             cmd = ["%s/app/plot_numsubmit.sh"%(basedir), outfile]
             webserver_common.RunCmd(cmd, gen_logfile, gen_errfile)
