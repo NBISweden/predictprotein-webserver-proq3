@@ -1,0 +1,2 @@
+localhost
+proq3.bioinfo.se
