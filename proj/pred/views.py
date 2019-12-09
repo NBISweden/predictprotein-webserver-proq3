@@ -224,7 +224,7 @@ def submit_seq(request):#{{{
             query['errinfo'] = ""
             query['method_submission'] = "web"
             query['isForceRun'] = isForceRun
-            query['username'] = username
+            query['username'] = info['username']
             query['isKeepFiles'] = isKeepFiles
             query['isRepack'] = isRepack
             query['isDeepLearning'] = isDeepLearning
