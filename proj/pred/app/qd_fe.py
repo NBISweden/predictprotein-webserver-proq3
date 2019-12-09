@@ -1800,7 +1800,7 @@ def main(g_params):#{{{
                             continue
 
                         if (webcom.IsHaveAvailNode(cntSubmitJobDict)):
-                            if not g_params['DEBUG_NO_SUBMIT']):
+                            if not g_params['DEBUG_NO_SUBMIT']:
                                 SubmitJob(jobid, cntSubmitJobDict, numModel_this_user, query_para)
                         GetResult(jobid, query_para) # the start tagfile is written when got the first result
                         CheckIfJobFinished(jobid, numseq, email, query_para)
