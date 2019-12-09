@@ -312,7 +312,7 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
             if os.path.exists(finishtagfile):
                 finish_date_str = myfunc.ReadFile(finishtagfile).strip()
 
-            li = [jobid, status, jobname, ip, email, numModel_str,
+            li = [jobid, status, jobname, ip, email, str(numModel_str),
                     method_submission, submit_date_str, start_date_str,
                     finish_date_str]
             if status in ["Finished", "Failed"]:
