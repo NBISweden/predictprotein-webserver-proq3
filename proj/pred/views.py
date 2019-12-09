@@ -1614,7 +1614,7 @@ def get_results(request, jobid="1"):#{{{
                         # For single model jobs, the start time will be the
                         # same as finish time, so reset the runtime
                         if nummodel <= 1:
-                            resultdict['runtime'] = myfunc.second_to_human(float(strs[2]))
+                            resultdict['runtime'] = myfunc.second_to_human(int(float(strs[2])+0.5))
                     except:
                         runtime_in_sec_str = ""
 
@@ -1678,7 +1678,7 @@ def get_results(request, jobid="1"):#{{{
             else:
                 time_remain_in_sec = int ( runtime_total_in_sec/float(cntnewrun)*cnt_torun+ 0.5)
 
-    time_remain = myfunc.second_to_human(time_remain_in_sec)
+    time_remain = myfunc.second_to_human(int(time_remain_in_sec+0.5))
     resultdict['time_remain'] = time_remain
 
 
