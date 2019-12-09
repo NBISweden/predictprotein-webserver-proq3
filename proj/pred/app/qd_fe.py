@@ -356,6 +356,8 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
     for li in new_finished_list:
         if 'DEBUG_LIST_TYPE' in g_params and  g_params['DEBUG_LIST_TYPE']:
             webcom.loginfo('DEBUG_LIST_TYPE (new_finished_list): %s'%(str(li)), gen_logfile)
+            for tss in li:
+                webcom.loginfo("DEBUG_LIST_TYPE, type(%s) = %s"%(str(tss), str(type(tss))), gen_logfile)
         li_str.append("\t".join(li))
     if len(li_str)>0:
         myfunc.WriteFile("\n".join(li_str)+"\n", finishedjoblogfile, "w", True)
