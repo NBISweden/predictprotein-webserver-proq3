@@ -699,7 +699,7 @@ def SubmitJob(jobid, cntSubmitJobDict, numModel_this_user, query_para):#{{{
                 fastaseq = myfunc.ReadFile(seqfile_this_model)#seq text in fasta format
                 model = myfunc.ReadFile(modelfile_this_model)#model text in PDB format
                 (seqid, seqanno, seq) = myfunc.ReadSingleFasta(seqfile_this_model)
-                md5_key = hashlib.md5(seq).encode('utf-8')).hexdigest()
+                md5_key = hashlib.md5(seq).encode('utf-8').hexdigest()
                 subfoldername = md5_key[:2]
 
                 isSubmitSuccess = False
@@ -987,7 +987,7 @@ def GetResult(jobid, query_para):#{{{
 
                         seqfile_of_profile = "%s/query.fasta"%(profile_this_model)
                         (t_seqid, t_seqanno, t_seq) = myfunc.ReadSingleFasta(seqfile_of_profile)
-                        md5_key = hashlib.md5(t_seq).encode('utf-8')).hexdigest()
+                        md5_key = hashlib.md5(t_seq).encode('utf-8').hexdigest()
                         md5_subfoldername = md5_key[:2]
                         zipfile_profilecache = "%s/%s/%s.zip"%(path_profilecache, md5_subfoldername, md5_key) 
 
