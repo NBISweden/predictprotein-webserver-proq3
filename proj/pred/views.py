@@ -1364,10 +1364,10 @@ def get_serverstatus(request):#{{{
         if cnt >= MAX_ACTIVE_USER:
             break
 
-    info['longestlength_str'] = str(longestlength)
     info['total_num_finished_job'] = len(allfinished_job_dict)
     info['num_unique_ip'] = len(uniq_iplist)
     info['num_unique_country'] = len(uniq_countrylist)
+    info['total_num_finished_seq'] = total_num_finished_seq
     info['num_finished_seqs_str'] = str(info['total_num_finished_seq'])
     info['num_finished_jobs_str'] = str(info['total_num_finished_job'])
     info['num_finished_jobs_web_str'] = str(numjob_wed)
