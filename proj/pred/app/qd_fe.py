@@ -354,6 +354,7 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
 # re-write logs of finished jobs
     li_str = []
     for li in new_finished_list:
+        li = [str(x) for x in li]
         if 'DEBUG_LIST_TYPE' in g_params and  g_params['DEBUG_LIST_TYPE']:
             webcom.loginfo('DEBUG_LIST_TYPE (new_finished_list): %s'%(str(li)), gen_logfile)
             for tss in li:
@@ -376,6 +377,7 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
                 ip)
         li_str = []
         for li in finished_list_for_this_ip:
+            li = [str(x) for x in li]
             li_str.append("\t".join(li))
         if len(li_str)>0:
             myfunc.WriteFile("\n".join(li_str)+"\n", divide_finishedjoblogfile, "w", True)
@@ -398,6 +400,7 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
     allfinished_jobid_set = set(myfunc.ReadIDList2(allfinishedjoblogfile, col=0, delim="\t"))
     li_str = []
     for li in new_finished_list:
+        li = [str(x) for x in li]
         jobid = li[0]
         if not jobid in allfinished_jobid_set:
             li_str.append("\t".join(li))
