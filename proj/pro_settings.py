@@ -17,7 +17,7 @@ sys.path.append("%s/pred/app/"%(BASE_DIR))
 import myfunc
 
 try:
-    from shared_settings import *
+    from .shared_settings import *
 except ImportError:
     pass
 
@@ -28,7 +28,7 @@ with open('/etc/django_pro_secret_key.txt') as f:
 DEBUG = False
 
 
-ALLOWED_HOSTS = [u'localhost', u'dev.proq3.bioinfo.se', u'proq3.bioinfo.se']
+ALLOWED_HOSTS = ['localhost', 'dev.proq3.bioinfo.se', 'proq3.bioinfo.se']
 
 computenodefile = "%s/pred/static/computenode.txt"%(BASE_DIR)
 if os.path.exists(computenodefile):

@@ -87,11 +87,11 @@ def index(request):#{{{
     path_tmp = "%s/static/tmp"%(SITE_ROOT)
     path_md5 = "%s/static/md5"%(SITE_ROOT)
     if not os.path.exists(path_result):
-        os.mkdir(path_result, 0755)
+        os.mkdir(path_result, 0o755)
     if not os.path.exists(path_result):
-        os.mkdir(path_tmp, 0755)
+        os.mkdir(path_tmp, 0o755)
     if not os.path.exists(path_md5):
-        os.mkdir(path_md5, 0755)
+        os.mkdir(path_md5, 0o755)
     base_www_url_file = "%s/static/log/base_www_url.txt"%(SITE_ROOT)
     if not os.path.exists(base_www_url_file):
         base_www_url = "http://" + request.META['HTTP_HOST']
@@ -226,11 +226,11 @@ def submit_seq(request):#{{{
 
             try:
                 seqfile = request.FILES['seqfile']
-            except KeyError, MultiValueDictKeyError:
+            except KeyError as MultiValueDictKeyError:
                 seqfile = ""
             try:
                 modelfile = request.FILES['modelfile']
-            except KeyError, MultiValueDictKeyError:
+            except KeyError as MultiValueDictKeyError:
                 modelfile = ""
             date_str = time.strftime(g_params['FORMAT_DATETIME'])
             query = {}
@@ -602,7 +602,7 @@ def ValidateQuery(request, query):#{{{
         return False
     else:
         tmpli = []
-        for ii in xrange(nummodel):
+        for ii in range(nummodel):
             tmpli.append("MODEL %d"%(ii+1))
             tmpli.append(modelList[ii])
             tmpli.append("ENDMDL")
@@ -617,7 +617,7 @@ def ValidateQuery(request, query):#{{{
 def RunQuery(request, query):#{{{
     errmsg = []
     rstdir = tempfile.mkdtemp(prefix="%s/static/result/rst_"%(SITE_ROOT))
-    os.chmod(rstdir, 0755)
+    os.chmod(rstdir, 0o755)
     jobid = os.path.basename(rstdir)
     query['jobid'] = jobid
 
@@ -672,8 +672,8 @@ def RunQuery_wsdl(rawseq, filtered_seq, seqinfo):#{{{
     errmsg = []
     tmpdir = tempfile.mkdtemp(prefix="%s/static/tmp/tmp_"%(SITE_ROOT))
     rstdir = tempfile.mkdtemp(prefix="%s/static/result/rst_"%(SITE_ROOT))
-    os.chmod(tmpdir, 0755)
-    os.chmod(rstdir, 0755)
+    os.chmod(tmpdir, 0o755)
+    os.chmod(rstdir, 0o755)
     jobid = os.path.basename(rstdir)
     seqinfo['jobid'] = jobid
     numseq = seqinfo['numseq']
@@ -703,8 +703,8 @@ def RunQuery_wsdl_local(rawseq, filtered_seq, seqinfo):#{{{
     errmsg = []
     tmpdir = tempfile.mkdtemp(prefix="%s/static/tmp/tmp_"%(SITE_ROOT))
     rstdir = tempfile.mkdtemp(prefix="%s/static/result/rst_"%(SITE_ROOT))
-    os.chmod(tmpdir, 0755)
-    os.chmod(rstdir, 0755)
+    os.chmod(tmpdir, 0o755)
+    os.chmod(rstdir, 0o755)
     jobid = os.path.basename(rstdir)
     seqinfo['jobid'] = jobid
     numseq = seqinfo['numseq']
@@ -1488,7 +1488,7 @@ def get_serverstatus(request):#{{{
             if line.find("runjob") != -1:
                 cntjob += 1
         num_seq_in_local_queue = cntjob
-    except subprocess.CalledProcessError, e:
+    except subprocess.CalledProcessError as e:
         date_str = time.strftime(g_params['FORMAT_DATETIME'])
         myfunc.WriteFile("[%s] %s\n"%(date_str, str(e)), gen_errfile, "a")
 
@@ -1589,7 +1589,7 @@ def help_wsdl_api(request):#{{{
     api_script_lang_list = ["Python"]
     api_script_info_list = []
 
-    for i in xrange(len(extlist)):
+    for i in range(len(extlist)):
         ext = extlist[i]
         api_script_file = "%s/%s/%s"%(SITE_ROOT,
                 "static/download/script", "%s%s"%(api_script_rtname,
@@ -1600,7 +1600,7 @@ def help_wsdl_api(request):#{{{
         cmd = [api_script_file, "-h"]
         try:
             usage = myfunc.check_output(cmd)
-        except subprocess.CalledProcessError, e:
+        except subprocess.CalledProcessError as e:
             usage = ""
         api_script_info_list.append([api_script_lang_list[i], api_script_basename, usage])
 
@@ -1914,7 +1914,7 @@ def get_results(request, jobid="1"):#{{{
                         t_modelfile = "%s/%s/%s/query.pdb"%(rstdir, jobid, subfolder)
                         t_globalscorefile = "%s.%s.%s.global"%(modelfile, m_str, method_quality)
                         (t_dict_globalscore, t_itemList) = webserver_common.ReadProQ3GlobalScore(t_globalscorefile)
-                        for ii in xrange(len(t_itemList)):
+                        for ii in range(len(t_itemList)):
                             scoreList.append(t_dict_globalscore[t_itemList[ii]])
 
                     rank = "%d"%(cnt)
@@ -2069,7 +2069,7 @@ def get_results_eachseq(request, jobid="1", seqindex="1"):#{{{
         topolist = []
         TMlist = []
         methodlist = ['BOCTOPUS2']
-        for i in xrange(len(methodlist)):
+        for i in range(len(methodlist)):
             color = "#000000"
             seqid = ""
             seqanno = ""

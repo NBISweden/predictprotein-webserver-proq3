@@ -63,9 +63,9 @@ Examples:
 """%(progname)
 
 def PrintHelp(fpout=sys.stdout):#{{{
-    print >> fpout, usage_short
-    print >> fpout, usage_ext
-    print >> fpout, usage_exp#}}}
+    print(usage_short, file=fpout)
+    print(usage_ext, file=fpout)
+    print(usage_exp, file=fpout)#}}}
 
 def CreateProfile(seqfile, outpath_profile, outpath_result, tmp_outpath_result, timefile, runjob_errfile):#{{{
     (seqid, seqanno, seq) = myfunc.ReadSingleFasta(seqfile)
@@ -100,7 +100,7 @@ def CreateProfile(seqfile, outpath_profile, outpath_result, tmp_outpath_result, 
         try:
             rmsg = subprocess.check_output(cmd)
             g_params['runjob_log'].append("profile_building:\n"+rmsg+"\n")
-        except subprocess.CalledProcessError, e:
+        except subprocess.CalledProcessError as e:
             g_params['runjob_err'].append(str(e)+"\n")
             g_params['runjob_err'].append("cmdline: "+cmdline+"\n")
             g_params['runjob_err'].append("profile_building:\n"+rmsg + "\n")
@@ -124,7 +124,7 @@ def CreateProfile(seqfile, outpath_profile, outpath_result, tmp_outpath_result, 
             try:
                 subprocess.check_output(cmd)
                 isCmdSuccess = True
-            except subprocess.CalledProcessError, e:
+            except subprocess.CalledProcessError as e:
                 msg =  "Failed to run get profile for the target sequence %s"%(seq)
                 g_params['runjob_err'].append(msg)
                 g_params['runjob_err'].append(str(e)+"\n")
@@ -138,7 +138,7 @@ def CreateProfile(seqfile, outpath_profile, outpath_result, tmp_outpath_result, 
                 cmd = ["zip", "-rq", "%s.zip"%(md5_key), md5_key]
                 try:
                     subprocess.check_output(cmd)
-                except subprocess.CalledProcessError, e:
+                except subprocess.CalledProcessError as e:
                     g_params['runjob_err'].append(str(e))
                     pass
                 os.chdir(cwd)
@@ -217,7 +217,7 @@ def ScoreModel(query_para, model_file, outpath_this_model, profilename, outpath_
     try:
         rmsg = subprocess.check_output(cmd)
         g_params['runjob_log'].append("model scoring:\n"+rmsg+"\n")
-    except subprocess.CalledProcessError, e:
+    except subprocess.CalledProcessError as e:
         g_params['runjob_err'].append(str(e)+"\n")
         g_params['runjob_err'].append("cmdline: "+ cmdline + "\n")
         g_params['runjob_err'].append("model scoring:\n" + rmsg + "\n")
@@ -232,7 +232,7 @@ def ScoreModel(query_para, model_file, outpath_this_model, profilename, outpath_
         try:
             subprocess.check_output(cmd)
             isCmdSuccess = True
-        except subprocess.CalledProcessError, e:
+        except subprocess.CalledProcessError as e:
             msg =  "Failed to move result from %s to %s."%(tmp_outpath_this_model, outpath_this_model)
             g_params['runjob_err'].append(msg)
             g_params['runjob_err'].append(str(e)+"\n")
@@ -247,7 +247,7 @@ def ScoreModel(query_para, model_file, outpath_this_model, profilename, outpath_
 
     modelinfo = [subfoldername_this_model, str(modellength), str(runtime_in_sec)]
     if globalscore:
-        for i in xrange(len(itemList)):
+        for i in range(len(itemList)):
             modelinfo.append(str(globalscore[itemList[i]]))
     return modelinfo
 #}}}
@@ -322,7 +322,7 @@ def RunJob(modelfile, seqfile, outpath, tmpdir, email, jobid, g_params):#{{{
             # run proq3 for models
             modelList = myfunc.ReadPDBModel(modelfile)
             numModel = len(modelList)
-            for ii in xrange(len(modelList)):
+            for ii in range(len(modelList)):
                 model = modelList[ii]
                 tmp_model_file = "%s/query_%d.pdb"%(tmp_outpath_result, ii)
                 myfunc.WriteFile(model+"\n", tmp_model_file)
@@ -339,7 +339,7 @@ def RunJob(modelfile, seqfile, outpath, tmpdir, email, jobid, g_params):#{{{
         else: # no seqfile supplied, sequences are obtained from the model file
             modelList = myfunc.ReadPDBModel(modelfile)
             numModel = len(modelList)
-            for ii in xrange(len(modelList)):
+            for ii in range(len(modelList)):
                 model = modelList[ii]
                 tmp_model_file = "%s/query_%d.pdb"%(tmp_outpath_result, ii)
                 myfunc.WriteFile(model+"\n", tmp_model_file)
@@ -353,7 +353,7 @@ def RunJob(modelfile, seqfile, outpath, tmpdir, email, jobid, g_params):#{{{
                 try:
                     rmsg = subprocess.check_output(cmd)
                     g_params['runjob_log'].append("extracting sequence from modelfile:\n"+rmsg+"\n")
-                except subprocess.CalledProcessError, e:
+                except subprocess.CalledProcessError as e:
                     g_params['runjob_err'].append(str(e)+"\n")
                     g_params['runjob_err'].append(rmsg + "\n")
 
@@ -397,7 +397,7 @@ def RunJob(modelfile, seqfile, outpath, tmpdir, email, jobid, g_params):#{{{
         cmd = ["zip", "-rq", zipfile, resultpathname]
         try:
             subprocess.check_output(cmd)
-        except subprocess.CalledProcessError, e:
+        except subprocess.CalledProcessError as e:
             g_params['runjob_err'].append(str(e))
             pass
 
@@ -499,35 +499,35 @@ def main(g_params):#{{{
                 g_params['isForceRun'] = True
                 i += 1
             else:
-                print >> sys.stderr, "Error! Wrong argument:", argv[i]
+                print("Error! Wrong argument:", argv[i], file=sys.stderr)
                 return 1
         else:
             modelfile = argv[i]
             i += 1
 
     if jobid == "":
-        print >> sys.stderr, "%s: jobid not set. exit"%(sys.argv[0])
+        print("%s: jobid not set. exit"%(sys.argv[0]), file=sys.stderr)
         return 1
 
     if myfunc.checkfile(modelfile, "modelfile") != 0:
         return 1
     if outpath == "":
-        print >> sys.stderr, "outpath not set. exit"
+        print("outpath not set. exit", file=sys.stderr)
         return 1
     elif not os.path.exists(outpath):
         try:
             subprocess.check_output(["mkdir", "-p", outpath])
-        except subprocess.CalledProcessError, e:
-            print >> sys.stderr, e
+        except subprocess.CalledProcessError as e:
+            print(e, file=sys.stderr)
             return 1
     if tmpdir == "":
-        print >> sys.stderr, "tmpdir not set. exit"
+        print("tmpdir not set. exit", file=sys.stderr)
         return 1
     elif not os.path.exists(tmpdir):
         try:
             subprocess.check_output(["mkdir", "-p", tmpdir])
-        except subprocess.CalledProcessError, e:
-            print >> sys.stderr, e
+        except subprocess.CalledProcessError as e:
+            print(e, file=sys.stderr)
             return 1
 
     g_params['debugfile'] = "%s/debug.log"%(outpath)
