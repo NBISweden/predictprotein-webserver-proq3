@@ -50,6 +50,7 @@ rootname_progname = os.path.splitext(progname)[0]
 path_app = "%s/app"%(SITE_ROOT)
 sys.path.append(path_app)
 path_log = "%s/static/log"%(SITE_ROOT)
+path_stat = "%s/stat"%(path_log)
 gen_logfile = "%s/static/log/%s.log"%(SITE_ROOT, progname)
 path_result = "%s/static/result"%(SITE_ROOT)
 
