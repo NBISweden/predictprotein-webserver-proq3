@@ -11,6 +11,8 @@ import time
 import math
 import shutil
 import json
+from libpredweb import myfunc
+from libpredweb import webserver_common as webcom
 
 TZ = 'Europe/Stockholm'
 os.environ['TZ'] = TZ
@@ -59,12 +61,6 @@ elif os.path.exists("/tmp"):
 suq_exec = "/usr/bin/suq";
 
 python_exec = os.path.realpath("%s/../../env/bin/python"%(SITE_ROOT))
-
-
-from libpredweb import myfunc
-from libpredweb import webserver_common as webcom
-
-STATIC_URL = settings.STATIC_URL
 
 rundir = SITE_ROOT
 
@@ -231,7 +227,7 @@ def submit_seq(request):#{{{
             query['isKeepFiles'] = isKeepFiles
             query['isRepack'] = isRepack
             query['isDeepLearning'] = isDeepLearning
-            query['STATIC_URL'] = STATIC_URL
+            query['STATIC_URL'] = settings.STATIC_URL
 
             is_valid = ValidateQuery(request, query)
 
@@ -284,7 +280,6 @@ def submit_seq(request):#{{{
     # if a GET (or any other method) we'll create a blank form
     else:
         form = SubmissionForm()
-
 
     jobcounter = webcom.GetJobCounter(info)
     info['form'] = form
