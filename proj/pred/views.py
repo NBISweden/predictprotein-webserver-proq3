@@ -1175,6 +1175,7 @@ def download(request):#{{{
     info['zipfile_wholepackage'] = ""
     info['size_wholepackage'] = ""
     size_wholepackage = 0
+    zipfile_wholepackage = ""
     #zipfile_wholepackage = "%s/%s/%s"%(SITE_ROOT, "static/download", "NN.zip")
     if os.path.exists(zipfile_wholepackage):
         info['zipfile_wholepackage'] = os.path.basename(zipfile_wholepackage)
