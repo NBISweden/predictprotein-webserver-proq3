@@ -354,6 +354,8 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
 # re-write logs of finished jobs
     li_str = []
     for li in new_finished_list:
+        if 'DEBUG_LIST_TYPE' in g_params and  g_params['DEBUG_LIST_TYPE']:
+            webcom.loginfo('DEBUG_LIST_TYPE (new_finished_list): %s'%(str(li)), gen_logfile)
         li_str.append("\t".join(li))
     if len(li_str)>0:
         myfunc.WriteFile("\n".join(li_str)+"\n", finishedjoblogfile, "w", True)
@@ -1695,7 +1697,7 @@ def main(g_params):#{{{
             RunStatistics(path_result, path_log)
             isOldRstdirDeleted = webcom.DeleteOldResult(path_result, path_log, gen_logfile, MAX_KEEP_DAYS=g_params['MAX_KEEP_DAYS'])
             webcom.CleanServerFile(path_static, gen_logfile, gen_errfile)
-        webcom.ArchiveLogFile(path_static, path_log, threshold_logfilesize=threshold_logfilesize) 
+        webcom.ArchiveLogFile(path_log, threshold_logfilesize=threshold_logfilesize) 
 
         base_www_url_file = "%s/static/log/base_www_url.txt"%(basedir)
         if os.path.exists(base_www_url_file):
