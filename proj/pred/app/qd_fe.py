@@ -1485,8 +1485,9 @@ def RunStatistics(path_result, path_log):#{{{
                 fpout.write("%d\t%d\n"%(nseq,count))
             fpout.close()
             #plot
-            cmd = ["%s/app/other/plot_numseq_of_job.sh"%(basedir), outfile]
-            webcom.RunCmd(cmd, gen_logfile, gen_errfile)
+            if os.path.exists(outfile) and len(sortedlist)>0: #plot only when there are valid data
+                cmd = ["%s/app/other/plot_numseq_of_job.sh"%(basedir), outfile]
+                webcom.RunCmd(cmd, gen_logfile, gen_errfile)
         except IOError:
             continue
     cmd = ["%s/app/other/plot_numseq_of_job_mtp.sh"%(basedir), "-web",
@@ -1626,7 +1627,7 @@ def RunStatistics(path_result, path_log):#{{{
         except IOError:
             pass
         #plot
-        if os.path.exists(outfile):
+        if os.path.exists(outfile) and len(li) > 0: #have at least one record
             #if os.path.basename(outfile).find('day') == -1:
             # extends date time series for missing dates
             freq = dataprocess.date_range_frequency(os.path.basename(outfile))
