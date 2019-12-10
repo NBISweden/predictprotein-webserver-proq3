@@ -716,8 +716,10 @@ def SubmitJob(jobid, cntSubmitJobDict, numModel_this_user, query_para):#{{{
                 else:
                     query_para['url_profile'] = "http://proq3.bioinfo.se/static/result/profilecache/%s/%s.zip"%(subfoldername,  md5_key) 
 
-                query_para['url_pdb_model'] = "http://proq3.bioinfo.se/static/result/%s/%s/%s"%(jobid, os.path.basename(tmpdir.rstrip('/')), os.path.basename(modelfile_this_model))
-                #query_para['pdb_model'] = model
+                if (len(model) < g_params['MAXSIZE_MODEL_TO_SEND_BY_POST']):
+                    query_para['pdb_model'] = model
+                else:
+                    query_para['url_pdb_model'] = "http://proq3.bioinfo.se/static/result/%s/%s/%s"%(jobid, os.path.basename(tmpdir.rstrip('/')), os.path.basename(modelfile_this_model))
                 query_para['targetseq'] = seq
                 query_para['submitter'] = submitter
                 para_str = json.dumps(query_para, sort_keys=True)
@@ -1792,6 +1794,7 @@ def InitGlobalParameter():#{{{
     g_params['base_www_url'] = "http://proq3.bioinfo.se"
     g_params['FORMAT_DATETIME'] = "%Y-%m-%d %H:%M:%S %Z"
     g_params['STATUS_UPDATE_FREQUENCY'] = [500, 50]  # updated by if loop%$1 == $2
+    g_params['MAXSIZE_MODEL_TO_SEND_BY_POST'] = 500*1024
     return g_params
 #}}}
 if __name__ == '__main__' :
