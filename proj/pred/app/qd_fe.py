@@ -1491,59 +1491,6 @@ def RunStatistics(path_result, path_log):#{{{
             outfile_numseqjob_web, "-wsdl", outfile_numseqjob_wsdl]
     webcom.RunCmd(cmd, gen_logfile, gen_errfile)
 
-
-# get longest predicted seq
-# get query with most TM helics
-# get query takes the longest time
-    extreme_runtimelogfile = "%s/stat/extreme_jobruntime.log"%(path_log)
-
-    longestlength = -1
-    mostTM = -1
-    longestruntime = -1.0
-    line_longestlength = ""
-    line_mostTM = ""
-    line_longestruntime = ""
-
-    # get lengthseq -vs- average_runtime
-    dict_list = [dict_length_runtime, dict_length_runtime_pfam, dict_length_runtime_cdd, dict_length_runtime_uniref]
-    li_list = [li_length_runtime_avg, li_length_runtime_pfam_avg, li_length_runtime_cdd_avg, li_length_runtime_uniref_avg]
-    li_sum_runtime = [0.0]*len(dict_list)
-    for i in range(len(dict_list)):
-        dt = dict_list[i]
-        li = li_list[i]
-        for lengthseq in dt:
-            avg_runtime = sum(dt[lengthseq])/float(len(dt[lengthseq]))
-            li.append([lengthseq, avg_runtime])
-            li_sum_runtime[i] += sum(dt[lengthseq])
-
-    avg_runtime = myfunc.FloatDivision(li_sum_runtime[0], len(li_length_runtime))
-    avg_runtime_pfam = myfunc.FloatDivision(li_sum_runtime[1], len(li_length_runtime_pfam))
-    avg_runtime_cdd = myfunc.FloatDivision(li_sum_runtime[2], len(li_length_runtime_cdd))
-    avg_runtime_uniref = myfunc.FloatDivision(li_sum_runtime[3], len(li_length_runtime_uniref))
-
-    li_list = [li_length_runtime, li_length_runtime_pfam,
-            li_length_runtime_cdd, li_length_runtime_uniref,
-            li_length_runtime_avg, li_length_runtime_pfam_avg,
-            li_length_runtime_cdd_avg, li_length_runtime_uniref_avg]
-    flist = [outfile_runtime, outfile_runtime_pfam, outfile_runtime_cdd,
-            outfile_runtime_uniref, outfile_runtime_avg,
-            outfile_runtime_pfam_avg, outfile_runtime_cdd_avg,
-            outfile_runtime_uniref_avg]
-    for i in range(len(flist)):
-        outfile = flist[i]
-        li = li_list[i]
-        sortedlist = sorted(li, key=lambda x:x[0])
-        try:
-            fpout = open(outfile,"w")
-            fpout.write("%s\t%s\n"%('lengthseq','runtime'))
-            for j in range(len(sortedlist)):
-                lengthseq = sortedlist[j][0]
-                runtime = sortedlist[j][1]
-                fpout.write("%d\t%f\n"%(lengthseq,runtime))
-            fpout.close()
-        except IOError:
-            continue
-
 #5. output num-submission time series with different bins (day, week, month, year)
     hdl = myfunc.ReadLineByBlock(allsubmitjoblogfile)
     dict_submit_day = {}  #["name" numjob, numseq, numjob_web, numseq_web,numjob_wsdl, numseq_wsdl]
