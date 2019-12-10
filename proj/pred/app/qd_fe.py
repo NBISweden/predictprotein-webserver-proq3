@@ -1050,8 +1050,10 @@ def GetResult(jobid, query_para):#{{{
                                 logmsg = "Failed to call deletejob %s via WSDL on %s\n"%(remote_jobid, node)
 
                             # delete the zip file
-                            os.remove(outfile_zip)
-                            shutil.rmtree("%s/%s"%(tmpdir, remote_jobid))
+                            if not ('DEBUG_KEEP_TMPDIR' in g_params and
+                                    g_params['DEBUG_KEEP_TMPDIR']):
+                                os.remove(outfile_zip)
+                                shutil.rmtree("%s/%s"%(tmpdir, remote_jobid))
 
 #}}}
                 elif status in ["Failed", "None"]:
