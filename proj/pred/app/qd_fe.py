@@ -1036,20 +1036,21 @@ def GetResult(jobid, query_para):#{{{
                                     rtValue2 = []
                                     pass
 
-                            logmsg = ""
-                            if len(rtValue2) >= 1:
-                                ss2 = rtValue2[0]
-                                if len(ss2) >= 2:
-                                    status = ss2[0]
-                                    errmsg = ss2[1]
-                                    if status == "Succeeded":
-                                        logmsg = "Successfully deleted data on %s "\
-                                                "for %s"%(node, remote_jobid)
-                                    else:
-                                        logmsg = "Failed to delete data on %s for "\
-                                                "%s\nError message:\n%s\n"%(node, remote_jobid, errmsg)
-                            else:
-                                logmsg = "Failed to call deletejob %s via WSDL on %s\n"%(remote_jobid, node)
+                                logmsg = ""
+                                if len(rtValue2) >= 1:
+                                    ss2 = rtValue2[0]
+                                    if len(ss2) >= 2:
+                                        status = ss2[0]
+                                        errmsg = ss2[1]
+                                        if status == "Succeeded":
+                                            logmsg = "Successfully deleted data on %s "\
+                                                    "for %s"%(node, remote_jobid)
+                                        else:
+                                            logmsg = "Failed to delete data on %s for "\
+                                                    "%s\nError message:\n%s\n"%(node, remote_jobid, errmsg)
+                                else:
+                                    logmsg = "Failed to call deletejob %s via WSDL on %s\n"%(remote_jobid, node)
+                                webcom.loginfo(logmsg, gen_logfile)
 
                             # delete the zip file
                             if not ('DEBUG_KEEP_TMPDIR' in g_params and
@@ -1106,12 +1107,14 @@ def GetResult(jobid, query_para):#{{{
             # problem of dead jobs in the remote server due to server
             # rebooting)
             if status != "Running" and time_in_remote_queue > g_params['MAX_TIME_IN_REMOTE_QUEUE']:
+                msg = "Trying to delete the job in the remote queue since time_in_remote_queue = %d and status = '%s'"%(time_in_remote_queue, status)
+                webcom.loginfo(msg, gen_logfile)
                 # delete the remote job on the remote server
                 try:
                     rtValue2 = myclient.service.deletejob(remote_jobid)
                 except Exception as e:
-                    date_str = time.strftime(g_params['FORMAT_DATETIME'])
-                    myfunc.WriteFile( "[%s] Failed to run myclient.service.deletejob(%s) on node %s with msg %s\n"%(date_str, remote_jobid, node, str(e)), gen_logfile, "a", True)
+                    msg = "Failed to run myclient.service.deletejob(%s) on node %s with msg %s\n"%(remote_jobid, node, str(e))
+                    webcom.loginfo(msg, gen_logfile)
                     rtValue2 = []
                     pass
             else:
@@ -1189,9 +1192,7 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
 
         if numModel == 0: #handling wired cases:
             # bad input
-            msg = "Number of input model is zero"
-            date_str = time.strftime(g_params['FORMAT_DATETIME'])
-            myfunc.WriteFile("[%s] %s\n"%(date_str, msg), runjob_errfile, "a", True)
+            webcom.loginfo("Number of input model is zero", runjob_errfile)
             finish_status = "failed"
 
         date_str_epoch = time.time()
@@ -1213,8 +1214,7 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
             all_runtime_in_sec = float(date_str_epoch) - float(start_date_epoch)
 
             msg = "Dump result to a single text file %s"%(resultfile_text)
-            date_str = time.strftime(g_params['FORMAT_DATETIME'])
-            myfunc.WriteFile("[%s] %s.\n" %(date_str, msg), gen_logfile, "a", True)
+            webcom.loginfo(msg, gen_logfile)
             webcom.WriteProQ3TextResultFile(resultfile_text, query_para, modelFileList,
                     all_runtime_in_sec, g_params['base_www_url'], proq3opt, statfile=statfile)
 
