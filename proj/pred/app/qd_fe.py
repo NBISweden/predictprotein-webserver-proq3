@@ -1234,7 +1234,8 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
                 myfunc.WriteFile(date_str, failedtagfile, "w", True)
 
             if finish_status == "success":
-                shutil.rmtree(tmpdir)
+                if not ('DEBUG_KEEP_TMPDIR' in g_params and g_params['DEBUG_KEEP_TMPDIR']):
+                    shutil.rmtree(tmpdir)
 
         # send the result to email
         if myfunc.IsValidEmailAddress(email):#{{{
