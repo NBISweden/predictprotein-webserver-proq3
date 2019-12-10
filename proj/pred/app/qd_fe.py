@@ -1026,13 +1026,13 @@ def GetResult(jobid, query_para):#{{{
                             isSuccess = True
 
                             # delete the data on the remote server
-                            try:
-                                rtValue2 = myclient.service.deletejob(remote_jobid)
-                            except:
-                                date_str = time.strftime(g_params['FORMAT_DATETIME'])
-                                myfunc.WriteFile( "[Date: %s] Failed to run myclient.service.deletejob(%s)\n"%(date_str, remote_jobid), gen_errfile, "a", True)
-                                rtValue2 = []
-                                pass
+                            if not ('DEBUG_KEEP_REMOTE' in g_params and g_params['DEBUG_KEEP_REMOTE']):
+                                try:
+                                    rtValue2 = myclient.service.deletejob(remote_jobid)
+                                except:
+                                    webcom.loginfo( "Failed to run myclient.service.deletejob(%s)"%(remote_jobid), gen_logfile)
+                                    rtValue2 = []
+                                    pass
 
                             logmsg = ""
                             if len(rtValue2) >= 1:
