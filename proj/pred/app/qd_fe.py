@@ -1491,9 +1491,9 @@ def RunStatistics(path_result, path_log):#{{{
                 webcom.RunCmd(cmd, gen_logfile, gen_errfile)
         except IOError:
             continue
-    cmd = ["%s/app/other/plot_numseq_of_job_mtp.sh"%(basedir), "-web",
-            outfile_numseqjob_web, "-wsdl", outfile_numseqjob_wsdl]
-    webcom.RunCmd(cmd, gen_logfile, gen_errfile)
+#     cmd = ["%s/app/other/plot_numseq_of_job_mtp.sh"%(basedir), "-web",
+#             outfile_numseqjob_web, "-wsdl", outfile_numseqjob_wsdl]
+#     webcom.RunCmd(cmd, gen_logfile, gen_errfile)
 
 #5. output num-submission time series with different bins (day, week, month, year)
     hdl = myfunc.ReadLineByBlock(allsubmitjoblogfile)
