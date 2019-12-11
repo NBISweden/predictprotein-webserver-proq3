@@ -18,6 +18,10 @@ TZ = 'Europe/Stockholm'
 os.environ['TZ'] = TZ
 time.tzset()
 
+# for dealing with IP address and country names
+from geoip import geolite2
+import pycountry
+
 from django.core.exceptions import ValidationError
 from django.db.utils import IntegrityError
 from django.views.decorators.csrf import csrf_exempt  
