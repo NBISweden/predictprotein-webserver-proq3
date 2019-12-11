@@ -58,16 +58,7 @@ path_stat = "%s/stat"%(path_log)
 gen_logfile = "%s/static/log/%s.log"%(SITE_ROOT, progname)
 path_result = "%s/static/result"%(SITE_ROOT)
 
-suq_basedir = "/tmp"
-if os.path.exists("/scratch"):
-    suq_basedir = "/scratch"
-elif os.path.exists("/tmp"):
-    suq_basedir = "/tmp"
-suq_exec = "/usr/bin/suq";
-
 python_exec = os.path.realpath("%s/../../env/bin/python"%(SITE_ROOT))
-
-rundir = SITE_ROOT
 
 qd_fe_scriptfile = "%s/qd_fe.py"%(path_app)
 gen_errfile = "%s/static/log/%s.err"%(SITE_ROOT, progname)
