@@ -776,7 +776,7 @@ def SubmitJob(jobid, cntSubmitJobDict, numModel_this_user, query_para):#{{{
                     if g_params['DEBUG']:
                         myfunc.WriteFile("DEBUG: jobid %s processedIndexSet.add(str(%d))\n"%(jobid, origIndex), gen_logfile, "a", True)
             # update cntSubmitJobDict for this node
-            cntSubmitJobDict[node] = [cnt, maxnum]
+            cntSubmitJobDict[node][0] = cnt
 
     # update torun_idx_file
     newToRunIndexList = []
@@ -1750,7 +1750,7 @@ def main(g_params):#{{{
                         if content != "":
                             query_para = json.loads(content)
 
-                        webcom.loginfo("CompNodeStatus: %s\n"%(str(cntSubmitJobDict)), gen_logfile)
+                        webcom.loginfo("CompNodeStatus: %s"%(str(cntSubmitJobDict)), gen_logfile)
 
                         runjob_lockfile = "%s/%s/%s.lock"%(path_result, jobid, "runjob.lock")
                         if os.path.exists(runjob_lockfile):
