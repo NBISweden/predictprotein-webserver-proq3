@@ -27,3 +27,6 @@ proj/cgi-bin/restart_qd_topcons2_fe.cgi
 proj/pred/static/download/proq3d_train_and_test_data
 proj/pred/static/images/example_snapshot.thumb.png
 proj/settings.py
+
+proj/pred/config/forward_email.txt
+proj/pred/config/vip_email.txt
