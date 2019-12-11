@@ -515,3 +515,55 @@ table.sortable td
 }
 table.sortable tr:nth-child(even) {background: #EEE}
 table.sortable tr.nth-child(odd) {background: #FFF}
+
+
+
+/*---Table Style List 1 */
+table.liststyle1{
+  border-collapse: collapse;
+}
+table.liststyle1 th {
+  background-color:#ede;
+  color:#666666;
+  font-weight: bold;
+  cursor: default;
+  padding-top: 2px;
+  padding-right: 3px;
+  padding-bottom: 3px;
+  padding-left: 2px;
+  border: 1px solid white;
+}
+table.liststyle1 td
+{
+   font-family:Arial; font-size: 11px;
+   vertical-align: middle;
+   /*text-align: left;*/
+   max-width: 600px;
+   padding-top: 1px;
+   padding-right: 3px;
+   padding-bottom: 3px;
+   padding-left: 2px;
+   line-height: 150%;
+   border: 0px solid black;
+}
+table.liststyle1 tr:nth-child(even) {background: #EfE}
+table.liststyle1 tr.nth-child(odd) {background: #FFF}
+
+div#commandline {
+    font-family : monospace;
+    background:#F3F3F3;
+    border:#000;
+    border-radius: 1px;
+    margin-left: 20px;
+    margin-bottom: 15px;
+    padding: 5px;
+}
+
+div.floattable{
+    /*top right bottom left*/
+    margin:5px 0px 25px 10px;
+}
+p.section{
+   /*top right bottom left*/
+    padding: 10px 5px 20px 5px;
+}
