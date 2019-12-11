@@ -20,6 +20,7 @@ urlpatterns = [
     url(r'^help/$', views.get_help, name='pred.get_help'),
     url(r'^news/$', views.get_news, name='pred.get_news'),
     url(r'^serverstatus/$', views.get_serverstatus, name='pred.get_serverstatus'),
+    url(r'^countjobcountry/$', views.get_countjob_country, name='pred.get_countjob_country'),
     url(r'^reference/$', views.get_reference, name='pred.get_reference'),
     url(r'^example/$', views.get_example, name='pred.get_example'),
     url(r'^proq2/$', views.proq2, name='pred.proq2'),

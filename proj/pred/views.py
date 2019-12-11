@@ -1201,21 +1201,8 @@ def get_serverstatus(request):#{{{
 
 # javascript to show finished sequences of the data (histogram)
 
-# get jobs queued locally (at the front end)
+# get jobs queued locally (at the front end), no jobs will be submitted locally
     num_seq_in_local_queue = 0
-    cmd = [suq_exec, "-b", suq_basedir, "ls"]
-    cmdline = " ".join(cmd)
-    try:
-        suq_ls_content =  myfunc.check_output(cmd, encoding='UTF-8', stderr=subprocess.STDOUT)
-        lines = suq_ls_content.split('\n')
-        cntjob = 0
-        for line in lines:
-            if line.find("runjob") != -1:
-                cntjob += 1
-        num_seq_in_local_queue = cntjob
-    except subprocess.CalledProcessError as e:
-        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
-        myfunc.WriteFile("[%s] %s\n"%(date_str, str(e)), gen_errfile, "a", True)
 
 # get jobs queued remotely ()
     runjob_dict = {}
@@ -1233,8 +1220,6 @@ def get_serverstatus(request):#{{{
             num_finished = 0
 
         cntseq_in_remote_queue += (numseq - num_finished)
-
-
 
 # get number of finished seqs
     allfinishedjoblogfile = "%s/all_finished_job.log"%(path_log)
