@@ -1796,6 +1796,11 @@ def InitGlobalParameter():#{{{
     g_params['FORMAT_DATETIME'] = "%Y-%m-%d %H:%M:%S %Z"
     g_params['STATUS_UPDATE_FREQUENCY'] = [500, 50]  # updated by if loop%$1 == $2
     g_params['MAXSIZE_MODEL_TO_SEND_BY_POST'] = 500*1024
+    g_params['gen_logfile'] = gen_logfile
+    g_params['gen_errfile'] = gen_errfile
+    g_params['path_static']  = path_static
+    g_params['path_log']  = path_log
+    g_params['path_stat'] = path_stat
     g_params['TZ'] = webcom.TZ
     return g_params
 #}}}
