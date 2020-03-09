@@ -1222,15 +1222,14 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
             zipfile = "%s.zip"%(jobid)
             zipfile_fullpath = "%s/%s"%(rstdir, zipfile)
 
-            msg = "Compress the result folder to zipfile %s"%(zipfile_fullpath)
-            myfunc.WriteFile("[%s] %s.\n" %(date_str, msg), gen_logfile, "a", True)
+            webcom.loginfo("Compress the result folder to zipfile %s"%(zipfile_fullpath), gen_logfile)
             os.chdir(rstdir)
             cmd = ["zip", "-rq", zipfile, jobid]
             webcom.RunCmd(cmd, gen_logfile, gen_errfile)
             os.chdir(cwd)
 
             if len(failed_idx_list)>0:
-                myfunc.WriteFile(date_str, failedtagfile, "w", True)
+                webcom.WriteDateTimeTagFile(failedtagfile, runjob_logfile, runjob_errfile)
 
             if finish_status == "success":
                 if not ('DEBUG_KEEP_TMPDIR' in g_params and g_params['DEBUG_KEEP_TMPDIR']):
@@ -1686,9 +1685,9 @@ def main(g_params):#{{{
             g_params['base_www_url'] = "http://proq3.bioinfo.se"
 
 
-#         CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,
-#                 finishedjoblogfile, loop, isOldRstdirDeleted)
-        qdcom.CreateRunJoblog(loop, isOldRstdirDeleted, g_params)
+        CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,
+                finishedjoblogfile, loop, isOldRstdirDeleted)
+        # qdcom.CreateRunJoblog(loop, isOldRstdirDeleted, g_params)
 
         # Get number of jobs submitted to the remote server based on the
         # runjoblogfile
@@ -1801,6 +1800,7 @@ def InitGlobalParameter():#{{{
     g_params['path_static']  = path_static
     g_params['path_log']  = path_log
     g_params['path_stat'] = path_stat
+    g_params['name_server'] = "ProQ3"
     g_params['TZ'] = webcom.TZ
     return g_params
 #}}}
