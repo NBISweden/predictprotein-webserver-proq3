@@ -37,10 +37,6 @@ import numpy
 from geoip import geolite2
 import pycountry
 
-TZ = 'Europe/Stockholm'
-os.environ['TZ'] = TZ
-time.tzset()
-
 # make sure that only one instance of the script is running
 # this code is working 
 progname = os.path.basename(__file__)
@@ -329,7 +325,7 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
                 isValidSubmitDate = False
 
             if isValidSubmitDate:
-                current_time = datetime.now(timezone(TZ))
+                current_time = datetime.now(timezone(g_params['TZ']))
                 timeDiff = current_time - submit_date
                 queuetime_in_sec = timeDiff.seconds
             else:
@@ -1800,6 +1796,7 @@ def InitGlobalParameter():#{{{
     g_params['FORMAT_DATETIME'] = "%Y-%m-%d %H:%M:%S %Z"
     g_params['STATUS_UPDATE_FREQUENCY'] = [500, 50]  # updated by if loop%$1 == $2
     g_params['MAXSIZE_MODEL_TO_SEND_BY_POST'] = 500*1024
+    g_params['TZ'] = webcom.TZ
     return g_params
 #}}}
 if __name__ == '__main__' :
