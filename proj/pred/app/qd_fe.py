@@ -20,6 +20,7 @@ sys.path.append("/usr/local/lib/python2.7/dist-packages")
 from libpredweb import myfunc
 from libpredweb import dataprocess
 from libpredweb import webserver_common as webcom
+from libpredweb import qd_fe_common as qdcom
 import math
 import time
 from datetime import datetime
@@ -1650,19 +1651,8 @@ def main(g_params):#{{{
 
     loop = 0
     while 1:
-        isOldRstdirDeleted = False
-        if loop % g_params['STATUS_UPDATE_FREQUENCY'][0] == g_params['STATUS_UPDATE_FREQUENCY'][1]:
-            RunStatistics(path_result, path_log)
-            isOldRstdirDeleted = webcom.DeleteOldResult(path_result, path_log, gen_logfile, MAX_KEEP_DAYS=g_params['MAX_KEEP_DAYS'])
-            webcom.CleanServerFile(path_static, gen_logfile, gen_errfile)
-        webcom.ArchiveLogFile(path_log, threshold_logfilesize=threshold_logfilesize) 
-
-        base_www_url_file = "%s/static/log/base_www_url.txt"%(basedir)
-        if os.path.exists(base_www_url_file):
-            g_params['base_www_url'] = myfunc.ReadFile(base_www_url_file).strip()
-        if g_params['base_www_url'] == "":
-            g_params['base_www_url'] = "http://proq3.bioinfo.se"
-
+        if os.path.exists("%s/CACHE_CLEANING_IN_PROGRESS"%(path_result)):#pause when cache cleaning is in progress
+            continue
         # load the config file if exists
         configfile = "%s/config/config.json"%(basedir)
         config = {}
@@ -1676,18 +1666,33 @@ def main(g_params):#{{{
         if os.path.exists(black_iplist_file):
             g_params['blackiplist'] = myfunc.ReadIDList(black_iplist_file)
 
-        date_str = time.strftime(g_params['FORMAT_DATETIME'])
+        os.environ['TZ'] = g_params['TZ']
+        time.tzset()
+
         avail_computenode = webcom.ReadComputeNode(computenodefile) # return value is a dict
-        g_params['vip_user_list'] = myfunc.ReadIDList2(vip_email_file, col=0)
+        g_params['vip_user_list'] = myfunc.ReadIDList2(vip_email_file,  col=0)
         g_params['forward_email_list'] = myfunc.ReadIDList2(forward_email_file, col=0)
         num_avail_node = len(avail_computenode)
-        if loop == 0:
-            myfunc.WriteFile("[Date: %s] start %s. loop %d\n"%(date_str, progname, loop), gen_logfile, "a", True)
-        else:
-            myfunc.WriteFile("[Date: %s] loop %d\n"%(date_str, loop), gen_logfile, "a", True)
 
-        CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,
-                finishedjoblogfile, loop, isOldRstdirDeleted)
+        webcom.loginfo("loop %d"%(loop), gen_logfile)
+
+        isOldRstdirDeleted = False
+        if loop % g_params['STATUS_UPDATE_FREQUENCY'][0] == g_params['STATUS_UPDATE_FREQUENCY'][1]:
+            qdcom.RunStatistics_basic(webserver_root, gen_logfile, gen_errfile)
+            isOldRstdirDeleted = webcom.DeleteOldResult(path_result, path_log, gen_logfile, MAX_KEEP_DAYS=g_params['MAX_KEEP_DAYS'])
+            webcom.CleanServerFile(path_static, gen_logfile, gen_errfile)
+        webcom.ArchiveLogFile(path_log, threshold_logfilesize=threshold_logfilesize) 
+
+        base_www_url_file = "%s/static/log/base_www_url.txt"%(basedir)
+        if os.path.exists(base_www_url_file):
+            g_params['base_www_url'] = myfunc.ReadFile(base_www_url_file).strip()
+        if g_params['base_www_url'] == "":
+            g_params['base_www_url'] = "http://proq3.bioinfo.se"
+
+
+#         CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,
+#                 finishedjoblogfile, loop, isOldRstdirDeleted)
+        qdcom.CreateRunJoblog(loop, isOldRstdirDeleted, g_params)
 
         # Get number of jobs submitted to the remote server based on the
         # runjoblogfile
