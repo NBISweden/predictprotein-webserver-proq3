@@ -96,54 +96,6 @@ def PrintHelp(fpout=sys.stdout):#{{{
     print(usage_ext, file=fpout)
     print(usage_exp, file=fpout)#}}}
 
-def get_job_status(jobid):#{{{
-    status = "";
-    rstdir = "%s/%s"%(path_result, jobid)
-    starttagfile = "%s/%s"%(rstdir, "runjob.start")
-    finishtagfile = "%s/%s"%(rstdir, "runjob.finish")
-    failedtagfile = "%s/%s"%(rstdir, "runjob.failed")
-    if os.path.exists(failedtagfile):
-        status = "Failed"
-    elif os.path.exists(finishtagfile):
-        status = "Finished"
-    elif os.path.exists(starttagfile):
-        status = "Running"
-    elif os.path.exists(rstdir):
-        status = "Wait"
-    return status
-#}}}
-def get_total_seconds(td): #{{{
-    """
-    return the total_seconds for the timedate.timedelta object
-    for python version >2.7 this is not needed
-    """
-    return (td.microseconds + (td.seconds + td.days * 24 * 3600) * 1e6) / 1e6
-#}}}
-def GetNumSuqJob(node):#{{{
-    # get the number of queueing jobs on the node
-    # return -1 if the url is not accessible
-    url = "http://%s/cgi-bin/get_suqlist.cgi?base=log"%(node)
-    try:
-        rtValue = requests.get(url, timeout=2)
-        if rtValue.status_code < 400:
-            lines = rtValue.content.split("\n")
-            cnt_queue_job = 0
-            for line in lines:
-                strs = line.split()
-                if len(strs)>=4 and strs[0].isdigit():
-                    status = strs[2]
-                    if status == "Wait":
-                        cnt_queue_job += 1
-            return cnt_queue_job
-        else:
-            return -1
-    except:
-        date_str = time.strftime(g_params['FORMAT_DATETIME'])
-        myfunc.WriteFile("[%s] requests.get(%s) failed\n"%(date_str,
-            url), gen_errfile, "a", True)
-        return -1
-
-#}}}
 def GetEmailSubject_CAMEO(query_para):# {{{
     try:
         subject = ""
@@ -289,7 +241,7 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
                     new_finished_list.append(li)
                 continue
 
-            status = get_job_status(jobid)
+            status = webcom.get_job_status(jobid, path_result)
 
             if not os.path.exists(numModelFile):
                 date_str = time.strftime(g_params['FORMAT_DATETIME'])
