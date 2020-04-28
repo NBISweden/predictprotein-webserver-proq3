@@ -891,7 +891,7 @@ def GetResult(jobid, query_para):#{{{
             myclient = Client(wsdl_url, cache=None, timeout=30)
             myclientDict[node] = myclient
         except:
-            webcom.loginfo("Failed to access %s\n"%(date_str, wsdl_url), gen_logfile)
+            webcom.loginfo("Failed to access %s\n"%(wsdl_url), gen_logfile)
             pass
 
 
@@ -934,8 +934,7 @@ def GetResult(jobid, query_para):#{{{
                 errinfo = ss2[2]
                 if g_params['DEBUG']:
                     msg = "checkjob(%s), status=\"%s\", errinfo = \"%s\""%(remote_jobid, status, errinfo)
-                    date_str = time.strftime(g_params['FORMAT_DATETIME'])
-                    myfunc.WriteFile("[%s] %s.\n" %(date_str, msg), gen_logfile, "a", True)
+                    webcom.loginfo(msg, gen_logfile)
 
                 if errinfo and errinfo.find("does not exist")!=-1:
                     isFinish_remote = True
@@ -968,10 +967,9 @@ def GetResult(jobid, query_para):#{{{
                             try:
                                 shutil.copytree(profile_this_model, outpath_profile)
                             except Exception as e:
-                                date_str = time.strftime(g_params['FORMAT_DATETIME'])
                                 msg = "Failed to copy %s to %s. message = \"%s\""%(
                                         profile_this_model, outpath_profile, str(e))
-                                myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_errfile, "a", True)
+                                webcom.loginfo(msg, gen_logfile)
 
                         seqfile_of_profile = "%s/query.fasta"%(profile_this_model)
                         (t_seqid, t_seqanno, t_seq) = myfunc.ReadSingleFasta(seqfile_of_profile)
@@ -991,15 +989,14 @@ def GetResult(jobid, query_para):#{{{
                             if not os.path.exists(os.path.dirname(zipfile_profilecache)):
                                 os.makedirs(os.path.dirname(zipfile_profilecache))
 
-                            date_str = time.strftime(g_params['FORMAT_DATETIME'])
                             try:
                                 shutil.copyfile("%s.zip"%(md5_key), zipfile_profilecache)
                                 msg = "copyfile %s.zip -> %s"%(md5_key, zipfile_profilecache)
-                                myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
+                                webcom.loginfo(msg, gen_logfile)
                             except Exception as e:
                                 msg = "copyfile %s.zip -> %s failed with message %s"%(
                                         md5_key, zipfile_profilecache, str(e))
-                                myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_errfile, "a", True)
+                                webcom.loginfo(msg, gen_logfile)
 
                             os.chdir(cwd)
 
@@ -1017,8 +1014,7 @@ def GetResult(jobid, query_para):#{{{
                             try:
                                 rtValue2 = myclient.service.deletejob(remote_jobid)
                             except:
-                                date_str = time.strftime(g_params['FORMAT_DATETIME'])
-                                myfunc.WriteFile( "[Date: %s] Failed to run myclient.service.deletejob(%s)\n"%(date_str, remote_jobid), gen_errfile, "a", True)
+                                webcom.loginfo("Failed to run myclient.service.deletejob(%s)\n"%(remote_jobid), gen_logfile)
                                 rtValue2 = []
                                 pass
 
@@ -1094,8 +1090,7 @@ def GetResult(jobid, query_para):#{{{
                 try:
                     rtValue2 = myclient.service.deletejob(remote_jobid)
                 except Exception as e:
-                    date_str = time.strftime(g_params['FORMAT_DATETIME'])
-                    myfunc.WriteFile( "[%s] Failed to run myclient.service.deletejob(%s) on node %s with msg %s\n"%(date_str, remote_jobid, node, str(e)), gen_logfile, "a", True)
+                    webcom.loginfo("Failed to run myclient.service.deletejob(%s) on node %s with msg %s\n"%(remote_jobid, node, str(e)), gen_logfile)
                     rtValue2 = []
                     pass
             else:
@@ -1174,8 +1169,7 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
         if numModel == 0: #handling wired cases:
             # bad input
             msg = "Number of input model is zero"
-            date_str = time.strftime(g_params['FORMAT_DATETIME'])
-            myfunc.WriteFile("[%s] %s\n"%(date_str, msg), runjob_errfile, "a", True)
+            webcom.loginfo(msg, runjob_errfile, "a", True)
             finish_status = "failed"
 
         date_str_epoch = time.time()
@@ -1197,8 +1191,7 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
             all_runtime_in_sec = float(date_str_epoch) - float(start_date_epoch)
 
             msg = "Dump result to a single text file %s"%(resultfile_text)
-            date_str = time.strftime(g_params['FORMAT_DATETIME'])
-            myfunc.WriteFile("[%s] %s.\n" %(date_str, msg), gen_logfile, "a", True)
+            webcom.loginfo(msg, gen_logfile)
             webcom.WriteProQ3TextResultFile(resultfile_text, query_para, modelFileList,
                     all_runtime_in_sec, g_params['base_www_url'], proq3opt, statfile=statfile)
 
@@ -1210,14 +1203,14 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
             zipfile_fullpath = "%s/%s"%(rstdir, zipfile)
 
             msg = "Compress the result folder to zipfile %s"%(zipfile_fullpath)
-            myfunc.WriteFile("[%s] %s.\n" %(date_str, msg), gen_logfile, "a", True)
+            webcom.logfile(msg, gen_logfile)
             os.chdir(rstdir)
             cmd = ["zip", "-rq", zipfile, jobid]
             webcom.RunCmd(cmd, gen_logfile, gen_errfile)
             os.chdir(cwd)
 
             if len(failed_idx_list)>0:
-                myfunc.WriteFile(date_str, failedtagfile, "w", True)
+                myfunc.WriteDateTimeTagFile(failedtagfile, runjob_logfile, runjob_errfile)
 
             if finish_status == "success":
                 shutil.rmtree(tmpdir)
@@ -1251,15 +1244,14 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
             # do not send job finishing notification to CAMEO, only the
             # repacked models
             if submitter != "CAMEO":
-                date_str = time.strftime(g_params['FORMAT_DATETIME'])
                 msg = "Sendmail %s -> %s, %s"%(from_email, to_email, subject)
-                myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
+                webcom.loginfo(msg, gen_logfile)
                 rtValue = myfunc.Sendmail(from_email, to_email, subject, bodytext)
                 if rtValue != 0:
                     msg = "Sendmail to {} failed with status {}".format(to_email, rtValue),
                     webcom.loginfo(msg, gen_logfile)
                 msg = "Send notification to %s"%(to_email)
-                myfunc.WriteFile("[%s] %s\n"%(date_str, msg), sendmaillogfile, "a", True)
+                webcom.loginfo(msg, gen_logfile)
 
             # send the repacked pdb models to CAMEO
             if submitter in ["CAMEO", "VIP"]:
@@ -1268,14 +1260,14 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
                     subject = GetEmailSubject_CAMEO(query_para)
                     bodytext = GetEmailBody_CAMEO(jobid, query_para)
                     msg = "Sendmail %s -> %s, %s"%(from_email, to_email, subject)
-                    date_str = time.strftime(g_params['FORMAT_DATETIME'])
-                    myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
+                    webcom.loginfo(msg, gen_logfile)
+
                     rtValue = myfunc.Sendmail(from_email, to_email, subject, bodytext)
                     if rtValue != 0:
                         msg = "Sendmail to {} failed with status {}".format(to_email, rtValue),
                         webcom.loginfo(msg, gen_logfile)
                     msg = "Send CAMEO_result to %s"%(to_email)
-                    myfunc.WriteFile("[%s] %s\n"%(date_str, msg), sendmaillogfile, "a", True)
+                    webcom.loginfo(msg, gen_logfile)
 
 #}}}
 #}}}
@@ -1925,15 +1917,12 @@ def main(g_params):#{{{
         if os.path.exists(black_iplist_file):
             g_params['blackiplist'] = myfunc.ReadIDList(black_iplist_file)
 
-        date_str = time.strftime(g_params['FORMAT_DATETIME'])
         avail_computenode_list = myfunc.ReadIDList2(computenodefile, col=0)
         g_params['vip_user_list'] = myfunc.ReadIDList2(vip_email_file, col=0)
         g_params['forward_email_list'] = myfunc.ReadIDList2(forward_email_file, col=0)
         num_avail_node = len(avail_computenode_list)
-        if loop == 0:
-            myfunc.WriteFile("[Date: %s] start %s. loop %d\n"%(date_str, progname, loop), gen_logfile, "a", True)
-        else:
-            myfunc.WriteFile("[Date: %s] loop %d\n"%(date_str, loop), gen_logfile, "a", True)
+
+        webcom.loginfo("loop %d"%(loop), gen_logfile)
 
         CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,
                 finishedjoblogfile, loop, isOldRstdirDeleted)
@@ -2045,9 +2034,8 @@ def InitGlobalParameter():#{{{
 #}}}
 if __name__ == '__main__' :
     g_params = InitGlobalParameter()
-
     date_str = time.strftime(g_params['FORMAT_DATETIME'])
-    print >> sys.stderr, "\n\n[Date: %s]\n"%(date_str)
-    status = main(g_params)
+    print("\n#%s#\n[Date: %s] qd_fe.py restarted"%('='*80,date_str))
+    sys.stdout.flush()
+    sys.exit(main(g_params))
 
-    sys.exit(status)
