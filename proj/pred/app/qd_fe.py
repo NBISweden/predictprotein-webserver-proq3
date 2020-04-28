@@ -920,7 +920,7 @@ def GetResult(jobid, query_para):#{{{
         try:
             rtValue = myclient.service.checkjob(remote_jobid)
         except:
-            webcom.logfiles("Failed to run myclient.service.checkjob(%s), with rtvalue=%s\n"%(remote_jobid, str(rtValue)), gen_logfile)
+            webcom.logfile("Failed to run myclient.service.checkjob(%s), with rtvalue=%s\n"%(remote_jobid, str(rtValue)), gen_logfile)
             rtValue = []
             pass
         isSuccess = False
