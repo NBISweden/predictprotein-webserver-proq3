@@ -138,9 +138,7 @@ def GetNumSuqJob(node):#{{{
         else:
             return -1
     except:
-        date_str = time.strftime(g_params['FORMAT_DATETIME'])
-        myfunc.WriteFile("[%s] requests.get(%s) failed\n"%(date_str,
-            url), gen_errfile, "a", True)
+        webcom.loginfo("requests.get(%s) failed\n"%(url), gen_logfile)
         return -1
 
 #}}}
@@ -479,9 +477,8 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
 
                             myfunc.WriteFile("\t".join(modelinfo)+"\n", finished_model_file, "a", True)
                 except Exception as e:
-                    date_str = time.strftime(g_params['FORMAT_DATETIME'])
                     msg = "Init scanning resut folder for jobid %s failed with message \"%s\""%(jobid, str(e))
-                    myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_errfile, "a", True)
+                    webcom.loginfo(msg, gen_logfile)
                     raise
                 if len(finished_idx_set) > 0:
                     myfunc.WriteFile("\n".join(list(finished_idx_set))+"\n", finished_idx_file, "w", True)
@@ -672,9 +669,7 @@ def SubmitJob(jobid, cntSubmitJobDict, numModel_this_user, query_para):#{{{
             try:
                 myclient = Client(wsdl_url, cache=None, timeout=30)
             except:
-                date_str = time.strftime(g_params['FORMAT_DATETIME'])
-                myfunc.WriteFile("[Date: %s] Failed to access %s\n"%(date_str,
-                    wsdl_url), gen_errfile, "a", True)
+                webcom.loginfo("Failed to access %s\n"%(wsdl_url),gen_logfile)
                 break
 
             [cnt, maxnum] = cntSubmitJobDict[node]
@@ -727,7 +722,7 @@ def SubmitJob(jobid, cntSubmitJobDict, numModel_this_user, query_para):#{{{
                 except Exception as e:
                     date_str = time.strftime(g_params['FORMAT_DATETIME'])
                     msg = "Failed to run myclient.service.submitjob_remote with message \"%s\""%(str(e))
-                    myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_errfile, "a", True)
+                    myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
                     rtValue = []
                     pass
 
@@ -751,7 +746,7 @@ def SubmitJob(jobid, cntSubmitJobDict, numModel_this_user, query_para):#{{{
                             cnttry = 0  #reset cnttry to zero
                     else:
                         date_str = time.strftime(g_params['FORMAT_DATETIME'])
-                        myfunc.WriteFile("[Date: %s] bad wsdl return value\n"%(date_str), gen_errfile, "a", True)
+                        myfunc.WriteFile("[Date: %s] bad wsdl return value\n"%(date_str), gen_logfile, "a", True)
                 if isSubmitSuccess:
                     cnt += 1
                     myfunc.WriteFile(" succeeded\n", gen_logfile, "a", True)
@@ -896,8 +891,7 @@ def GetResult(jobid, query_para):#{{{
             myclient = Client(wsdl_url, cache=None, timeout=30)
             myclientDict[node] = myclient
         except:
-            date_str = time.strftime(g_params['FORMAT_DATETIME'])
-            myfunc.WriteFile("[Date: %s] Failed to access %s\n"%(date_str, wsdl_url), gen_errfile, "a", True)
+            webcom.loginfo("Failed to access %s\n"%(date_str, wsdl_url), gen_logfile)
             pass
 
 
@@ -926,8 +920,7 @@ def GetResult(jobid, query_para):#{{{
         try:
             rtValue = myclient.service.checkjob(remote_jobid)
         except:
-            date_str = time.strftime(g_params['FORMAT_DATETIME'])
-            myfunc.WriteFile("[Date: %s] Failed to run myclient.service.checkjob(%s)\n"%(date_str, remote_jobid), gen_errfile, "a", True)
+            webcom.logfiles("Failed to run myclient.service.checkjob(%s), with rtvalue=%s\n"%(remote_jobid, str(rtValue)), gen_logfile)
             rtValue = []
             pass
         isSuccess = False
@@ -1264,7 +1257,7 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
                 rtValue = myfunc.Sendmail(from_email, to_email, subject, bodytext)
                 if rtValue != 0:
                     msg = "Sendmail to {} failed with status {}".format(to_email, rtValue),
-                    myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_errfile, "a", True)
+                    webcom.loginfo(msg, gen_logfile)
                 msg = "Send notification to %s"%(to_email)
                 myfunc.WriteFile("[%s] %s\n"%(date_str, msg), sendmaillogfile, "a", True)
 
@@ -1280,7 +1273,7 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
                     rtValue = myfunc.Sendmail(from_email, to_email, subject, bodytext)
                     if rtValue != 0:
                         msg = "Sendmail to {} failed with status {}".format(to_email, rtValue),
-                        myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_errfile, "a", True)
+                        webcom.loginfo(msg, gen_logfile)
                     msg = "Send CAMEO_result to %s"%(to_email)
                     myfunc.WriteFile("[%s] %s\n"%(date_str, msg), sendmaillogfile, "a", True)
 
@@ -2006,13 +1999,12 @@ def main(g_params):#{{{
                         if content != "":
                             query_para = json.loads(content)
 
-                        myfunc.WriteFile("CompNodeStatus: %s\n"%(str(cntSubmitJobDict)), gen_logfile, "a", True)
+                        webcom.loginfo("CompNodeStatus: %s\n"%(str(cntSubmitJobDict)), gen_logfile)
 
                         runjob_lockfile = "%s/%s/%s.lock"%(path_result, jobid, "runjob.lock")
                         if os.path.exists(runjob_lockfile):
                             msg = "runjob_lockfile %s exists, ignore the job %s" %(runjob_lockfile, jobid)
-                            date_str = time.strftime(g_params['FORMAT_DATETIME'])
-                            myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
+                            webcom.loginfo(msg, gen_logfile)
                             continue
 
                         if IsHaveAvailNode(cntSubmitJobDict) and not g_params['DEBUG_NO_SUBMIT']:
@@ -2023,7 +2015,7 @@ def main(g_params):#{{{
                 lines = hdl.readlines()
             hdl.close()
 
-        myfunc.WriteFile("sleep for %d seconds\n"%(g_params['SLEEP_INTERVAL']), gen_logfile, "a", True)
+        webcom.loginfo("sleep for %d seconds\n"%(g_params['SLEEP_INTERVAL']), gen_logfile)
         time.sleep(g_params['SLEEP_INTERVAL'])
         loop += 1
 
