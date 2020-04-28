@@ -932,6 +932,7 @@ def GetResult(jobid, query_para):#{{{
             pass
         isSuccess = False
         isFinish_remote = False
+        status = ""
         if len(rtValue) >= 1:
             ss2 = rtValue[0]
             if len(ss2)>=3:
