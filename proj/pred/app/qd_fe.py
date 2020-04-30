@@ -617,6 +617,8 @@ def SubmitJob(jobid, cntSubmitJobDict, numModel_this_user, query_para):#{{{
     starttagfile = "%s/%s"%(rstdir, "runjob.start")
     split_seq_dir = "%s/splitaa"%(tmpdir)
     forceruntagfile = "%s/forcerun"%(rstdir)
+    numModelFile = "%s/query.numModel.txt"%(rstdir)
+    numModel = int(myfunc.ReadFile(numModelFile).strip())
 
     cntTryDict = webcom.InitCntTryDict(cnttry_idx_file, numModel)
 
