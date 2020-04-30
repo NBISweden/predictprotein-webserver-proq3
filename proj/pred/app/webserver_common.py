@@ -20,6 +20,7 @@ import logging
 import subprocess
 import re
 import shutil
+import json
 FORMAT_DATETIME = "%Y-%m-%d %H:%M:%S %Z"
 TZ = 'Europe/Stockholm'
 def ReadProQ3GlobalScore(infile):#{{{
@@ -216,6 +217,18 @@ def WriteProQ3TextResultFile(outfile, query_para, modelFileList, #{{{
     except IOError:
         print "Failed to write to file %s"%(outfile)
 #}}}
+def InitCntTryDict(cnttry_idx_file, numseq):# {{{
+    """Initialize the cntTryDict
+    """
+    cntTryDict = {}
+    if os.path.exists(cnttry_idx_file):
+        with open(cnttry_idx_file, 'r') as fpin:
+            cntTryDict = json.load(fpin)
+    else:
+        for idx in range(numseq):
+            cntTryDict[idx] = 0
+    return cntTryDict
+# }}}
 
 def GetLocDef(predfile):#{{{
     """

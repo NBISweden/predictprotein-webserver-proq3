@@ -577,8 +577,8 @@ def InitJob(jobid):# {{{
 
     # write cnttry file for each jobs to run
     cntTryDict = {}
-    for idx in torun_idx_str_list:
-        cntTryDict[int(idx)] = 0
+    for idx in range(numModel):
+        cntTryDict[idx] = 0
     json.dump(cntTryDict, open(cnttry_idx_file, "w"))
 
     webcom.WriteDateTimeTagFile(qdinittagfile, runjob_logfile, runjob_errfile)
@@ -617,6 +617,8 @@ def SubmitJob(jobid, cntSubmitJobDict, numModel_this_user, query_para):#{{{
     starttagfile = "%s/%s"%(rstdir, "runjob.start")
     split_seq_dir = "%s/splitaa"%(tmpdir)
     forceruntagfile = "%s/forcerun"%(rstdir)
+
+    cntTryDict = webcom.InitCntTryDict(cnttry_idx_file, numModel)
 
 
     submitter = ""
@@ -755,6 +757,7 @@ def SubmitJob(jobid, cntSubmitJobDict, numModel_this_user, query_para):#{{{
                         date_str = time.strftime(g_params['FORMAT_DATETIME'])
                         myfunc.WriteFile("[Date: %s] bad wsdl return value\n"%(date_str), gen_logfile, "a", True)
                 if isSubmitSuccess:
+                    cntTryDict[origIndex] += 1  #cntTryDict increment by 1
                     cnt += 1
                     myfunc.WriteFile(" succeeded\n", gen_logfile, "a", True)
                 else:
@@ -784,6 +787,10 @@ def SubmitJob(jobid, cntSubmitJobDict, numModel_this_user, query_para):#{{{
         myfunc.WriteFile("\n".join(newToRunIndexList)+"\n", torun_idx_file, "w", True)
     else:
         myfunc.WriteFile("", torun_idx_file, "w", True)
+
+    # update the cnttry_idx_file
+    with open(cnttry_idx_file, 'w') as fpout:
+        json.dump(cntTryDict, fpout)
 
     return 0
 #}}}
@@ -835,10 +842,7 @@ def GetResult(jobid, query_para):#{{{
     resubmit_idx_list = []  # [origIndex]
     keep_queueline_list = [] # [line] still in queue
 
-    cntTryDict = {}
-    if os.path.exists(cnttry_idx_file):
-        with open(cnttry_idx_file, 'r') as fpin:
-            cntTryDict = json.load(fpin)
+    cntTryDict = webcom.InitCntTryDict(cnttry_idx_file, numModel)
 
     # in case of missing queries, if remotequeue_idx_file is empty  but the job
     # is still not finished, force re-creating torun_idx_file
@@ -860,12 +864,6 @@ def GetResult(jobid, query_para):#{{{
         if len(completed_idx_set) < numModel:
             all_idx_list = [str(x) for x in xrange(numModel)]
             torun_idx_str_list = list(set(all_idx_list)-completed_idx_set)
-            for idx in torun_idx_str_list:
-                try:
-                    cntTryDict[int(idx)] += 1
-                except:
-                    cntTryDict[int(idx)] = 1
-                    pass
             myfunc.WriteFile("\n".join(torun_idx_str_list)+"\n", torun_idx_file, "w", True)
 
             if g_params['DEBUG']:
@@ -1051,13 +1049,11 @@ def GetResult(jobid, query_para):#{{{
                     isFinish_remote = True
                     cnttry = 1
                     try:
-                        cnttry = cntTryDict[int(origIndex)]
+                        cnttry = int(cntTryDict[int(origIndex)])
                     except KeyError:
                         cnttry = 1
-                        pass
-                    if cnttry < g_params['MAX_RESUBMIT']:
+                    if cnttry <= g_params['MAX_RESUBMIT']:
                         resubmit_idx_list.append(str(origIndex))
-                        cntTryDict[int(origIndex)] = cnttry+1
                     else:
                         failed_idx_list.append(str(origIndex))
                 if status != "Wait" and not os.path.exists(starttagfile):
@@ -1093,7 +1089,7 @@ def GetResult(jobid, query_para):#{{{
             # running) delete it and try to resubmit it. This solved the
             # problem of dead jobs in the remote server due to server
             # rebooting)
-            if status != "Running" and time_in_remote_queue > g_params['MAX_TIME_IN_REMOTE_QUEUE']:
+            if status != "Running" and status != "" and time_in_remote_queue > g_params['MAX_TIME_IN_REMOTE_QUEUE']:
                 # delete the remote job on the remote server
                 try:
                     rtValue2 = myclient.service.deletejob(remote_jobid)
@@ -1123,8 +1119,6 @@ def GetResult(jobid, query_para):#{{{
     else:
         myfunc.WriteFile("", remotequeue_idx_file, "w", True);
 
-    with open(cnttry_idx_file, 'w') as fpout:
-        json.dump(cntTryDict, fpout)
 
     return 0
 #}}}
