@@ -1205,7 +1205,7 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
             zipfile_fullpath = "%s/%s"%(rstdir, zipfile)
 
             msg = "Compress the result folder to zipfile %s"%(zipfile_fullpath)
-            webcom.logfile(msg, gen_logfile)
+            webcom.loginfo(msg, gen_logfile)
             os.chdir(rstdir)
             cmd = ["zip", "-rq", zipfile, jobid]
             webcom.RunCmd(cmd, gen_logfile, gen_errfile)
