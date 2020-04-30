@@ -23,6 +23,12 @@ from Bio.PDB.Polypeptide import PPBuilder
 GAP = "-"
 BLOCK_SIZE = 100000 #set a good value for reading text file by block reading
 
+aa_three2one ={'ALA': 'A', 'ARG': 'R', 'ASN': 'N', 'ASP': 'D',
+        'CYS': 'C', 'GLU': 'E', 'GLN': 'Q', 'GLY': 'G',
+        'HIS': 'H', 'ILE': 'I', 'LEU': 'L', 'LYS': 'K',
+        'MET': 'M', 'PHE': 'F', 'PRO': 'P', 'SER': 'S',
+        'THR': 'T', 'TRP': 'W', 'TYR': 'Y', 'VAL': 'V'}
+
 def myopen(filename = "", default_fp = None, mode = "w", isRaise=False):#{{{
     """
     A wrapper of file open function
@@ -2389,7 +2395,7 @@ def IsDNASeq(seq):#{{{
     else:
         return False
 #}}}
-def PDB2Seq(pdbfile):# {{{
+def PDB2Seq_obs(pdbfile):# {{{
     """Return a list of sequences given the pdbfile
     """
     seqList = []
@@ -2400,6 +2406,48 @@ def PDB2Seq(pdbfile):# {{{
     return seqList
 
 # }}}
+def PDB2Seq(pdbfile): #{{{
+    """The PDBparser has a bug when PDB structure in ATOM record has e.g. HD13
+    Use a simpler version of PDB2Seq converter derived from Rosetta
+    This works only for single chain seq
+    """
+    try:
+        fpin = open(pdbfile, 'r')
+        lines = fpin.read().split('\n')
+        fpin.close()
+    except:
+        lines = []
+
+    oldresnum = '   '
+    count = 0
+    seq = ""
+    for line in lines:
+        if (len(line)<=20):
+            continue
+
+        line_edit = line
+        if (line[0:6] == 'HETATM') & (line[17:20]=='MSE'): #Selenomethionine
+            line_edit = 'ATOM  '+line[6:17]+'MET'+line[20:]
+            if (line_edit[12:14] == 'SE'):
+                line_edit = line_edit[0:12]+' S'+line_edit[14:]
+            if len(line_edit)>75:
+                if (line_edit[76:78] == 'SE'):
+                    line_edit = line_edit[0:76]+' S'+line_edit[78:]
+
+        if line_edit[0:4] == 'ATOM':
+            resnum = line_edit[23:26]
+            if not resnum == oldresnum:
+                count = count + 1
+                longname = line_edit[17:20]
+                if aa_three2one.has_key(longname):
+                    seq += aa_three2one[longname]
+                else:
+                    seq += 'X'
+            oldresnum = resnum
+
+    return seq
+
+#}}}
 def week_beg_end(day):#{{{
     """
     Given a date return the date of the 

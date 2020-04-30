@@ -53,5 +53,10 @@ if TESTMODE == 'readruntime':# {{{
 # }}}
 if TESTMODE == 'pdb2seq':
     pdbfile = sys.argv[2]
-    seq = myfunc.PDB2Seq(pdbfile)[0]
-    print seq
+    seq = myfunc.PDB2Seq(pdbfile)
+    print(">using PDB2Seq()")
+    print(seq)
+    seq = myfunc.PDB2Seq_obs(pdbfile)[0]
+    print(">using PDB2Seq_obs()")
+    print(seq)
+

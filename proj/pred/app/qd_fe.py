@@ -559,7 +559,7 @@ def InitJob(jobid):# {{{
             shutil.copyfile(seqfile, seqfile_this_model)
         else:
             try:
-                seq = myfunc.PDB2Seq(modelfile_this_model)[0]
+                seq = myfunc.PDB2Seq(modelfile_this_model)
                 myfunc.WriteFile(">query_0\n%s\n"%(seq), seqfile_this_model, "w")
             except Exception as e:
                 date_str = time.strftime(g_params['FORMAT_DATETIME'])
