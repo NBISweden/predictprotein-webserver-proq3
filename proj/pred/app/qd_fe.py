@@ -545,6 +545,7 @@ def InitJob(jobid):# {{{
     failed_idx_file = "%s/failed_seqindex.txt"%(rstdir)
     numModelFile = "%s/query.numModel.txt"%(rstdir)
     numModel = len(modelList)
+    cnttry_idx_file = "%s/cntsubmittry_seqindex.txt"%(rstdir)#index file to keep log of tries
     torun_idx_str_list = []
 
     if not os.path.exists(numModelFile) or os.stat(numModelFile).st_size < 1:
@@ -573,6 +574,12 @@ def InitJob(jobid):# {{{
 
     torun_idx_file = "%s/torun_seqindex.txt"%(rstdir) # model index to be run
     myfunc.WriteFile("\n".join(torun_idx_str_list)+"\n", torun_idx_file, "w", True)
+
+    # write cnttry file for each jobs to run
+    cntTryDict = {}
+    for idx in torun_idx_str_list:
+        cntTryDict[int(idx)] = 0
+    json.dump(cntTryDict, open(cnttry_idx_file, "w"))
 
     webcom.WriteDateTimeTagFile(qdinittagfile, runjob_logfile, runjob_errfile)
 
