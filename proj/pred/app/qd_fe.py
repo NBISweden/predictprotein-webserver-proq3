@@ -1223,6 +1223,7 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
         # send the result to email
         if myfunc.IsValidEmailAddress(email):#{{{
 
+            err_msg = ""
             if os.path.exists(runjob_errfile):
                 err_msg = myfunc.ReadFile(runjob_errfile)
 
