@@ -578,7 +578,7 @@ def InitJob(jobid):# {{{
     # write cnttry file for each jobs to run
     cntTryDict = {}
     for idx in range(numModel):
-        cntTryDict[idx] = 0
+        cntTryDict[str(idx)] = 0
     json.dump(cntTryDict, open(cnttry_idx_file, "w"))
 
     webcom.WriteDateTimeTagFile(qdinittagfile, runjob_logfile, runjob_errfile)
@@ -759,7 +759,7 @@ def SubmitJob(jobid, cntSubmitJobDict, numModel_this_user, query_para):#{{{
                         date_str = time.strftime(g_params['FORMAT_DATETIME'])
                         myfunc.WriteFile("[Date: %s] bad wsdl return value\n"%(date_str), gen_logfile, "a", True)
                 if isSubmitSuccess:
-                    cntTryDict[origIndex] += 1  #cntTryDict increment by 1
+                    cntTryDict[str(origIndex)] += 1  #cntTryDict increment by 1
                     cnt += 1
                     myfunc.WriteFile(" succeeded\n", gen_logfile, "a", True)
                 else:
@@ -1051,7 +1051,7 @@ def GetResult(jobid, query_para):#{{{
                     isFinish_remote = True
                     cnttry = 1
                     try:
-                        cnttry = int(cntTryDict[int(origIndex)])
+                        cnttry = int(cntTryDict[str(origIndex)])
                     except KeyError:
                         cnttry = 1
                     if cnttry <= g_params['MAX_RESUBMIT']:

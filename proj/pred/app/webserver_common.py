@@ -226,7 +226,7 @@ def InitCntTryDict(cnttry_idx_file, numseq):# {{{
             cntTryDict = json.load(fpin)
     else:
         for idx in range(numseq):
-            cntTryDict[idx] = 0
+            cntTryDict[str(idx)] = 0
     return cntTryDict
 # }}}
 
