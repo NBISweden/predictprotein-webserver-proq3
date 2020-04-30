@@ -1056,8 +1056,6 @@ def GetResult(jobid, query_para):#{{{
                         cnttry = 1
                     if cnttry <= g_params['MAX_RESUBMIT']:
                         resubmit_idx_list.append(str(origIndex))
-                    else:
-                        failed_idx_list.append(str(origIndex))
                 if status != "Wait" and not os.path.exists(starttagfile):
                     webcom.WriteDateTimeTagFile(starttagfile, runjob_logfile, runjob_errfile)
 
@@ -1101,6 +1099,8 @@ def GetResult(jobid, query_para):#{{{
                     pass
             else:
                 keep_queueline_list.append(line)
+        if cntTryDict[str(origIndex)] > g_params['MAX_RESUBMIT']:
+            failed_idx_list.append(str(origIndex))
 #}}}
     #Finally, write log files
     finished_idx_list = list(set(finished_idx_list))
