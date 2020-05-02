@@ -1215,7 +1215,7 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
             os.chdir(cwd)
 
             if len(failed_idx_list)>0:
-                myfunc.WriteDateTimeTagFile(failedtagfile, runjob_logfile, runjob_errfile)
+                webcom.WriteDateTimeTagFile(failedtagfile, runjob_logfile, runjob_errfile)
 
             if finish_status == "success":
                 shutil.rmtree(tmpdir)
