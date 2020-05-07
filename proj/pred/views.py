@@ -1924,8 +1924,8 @@ def get_results(request, jobid="1"):#{{{
                         for ii in xrange(len(t_itemList)):
                             scoreList.append(t_dict_globalscore[t_itemList[ii]])
 
-                    rank = "%d"%(cnt)
-                    index_table_content_list.append([rank, length_str,
+                    model_idx = subfolder.lstrip('model_')
+                    index_table_content_list.append([model_idx, length_str,
                         runtime_in_sec_str] + scoreList)
                     cnt += 1
                     set_seqidx.add(subfolder)
