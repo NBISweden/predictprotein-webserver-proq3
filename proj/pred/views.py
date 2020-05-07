@@ -1697,6 +1697,13 @@ def get_results(request, jobid="1"):#{{{
     seqid_index_mapfile = "%s/%s/%s"%(rstdir,jobid, "seqid_index_map.txt")
     finished_model_file = "%s/%s/finished_models.txt"%(rstdir, jobid)
 
+    finished_seqindex_file = "%s/finished_seqindex.txt"%(rstdir)
+    idx0_finished = 0
+    if os.path.exists(finished_seqindex_file):
+        finished_idx_list = myfunc.ReadIDList2(finished_seqindex_file, 0, None)
+        if len(finished_idx_list) > 0:
+            idx0_finished = int(finished_idx_list[0])
+
     try:
         method_quality = query_para['method_quality']
     except KeyError:
@@ -1712,7 +1719,7 @@ def get_results(request, jobid="1"):#{{{
     else:
         m_str = "proq3"
 
-    modelfile = "%s/%s/model_0/query.pdb"%(rstdir, jobid)
+    modelfile = "%s/%s/model_%d/query.pdb"%(rstdir, jobid, idx0_finished)
     globalscorefile = "%s.%s.%s.global"%(modelfile, m_str, method_quality)
     if not os.path.exists(globalscorefile):
         globalscorefile = "%s.proq3.%s.global"%(modelfile, method_quality)
