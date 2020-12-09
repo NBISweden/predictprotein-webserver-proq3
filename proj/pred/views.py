@@ -376,7 +376,7 @@ def ValidateQuery(request, query):#{{{
             Failed to read the uploaded file \"%s\"
             """%(query['modelfile'])
             return False
-        query['rawmodel'] = content.replace('\r','')
+        query['rawmodel'] = content.decode('utf-8').replace('\r','')
 
     if has_pasted_seq and has_upload_seqfile:
         query['errinfo_br'] += "Confused input!"
@@ -403,7 +403,7 @@ def ValidateQuery(request, query):#{{{
             Failed to read the uploaded file \"%s\"
             """%(query['seqfile'])
             return False
-        query['rawseq'] = content
+        query['rawseq'] = content.decode('utf-8')
 
     # parsing the raw model file by the MODEL, ENDMDL tag
     query['rawmodel'] = re.sub(r'[^\x00-\x7f]',r' ',query['rawmodel']) # remove non-ASCII characters
