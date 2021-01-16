@@ -75,7 +75,7 @@ class FieldContainer(models.Model):
     custom_one_to_one_field = models.OneToOneField('RelatedFieldContainer',
             null=True, on_delete=models.CASCADE)
 
-    url_field = models.URLField(default='http://example.com')
+    url_field = models.URLField(default='https://example.com')
     file_field = models.FileField(upload_to='test_file', null=True)
     excluded_field = models.CharField(max_length=32, default='excluded')
     blank_field = models.CharField(max_length=32, blank=True)

@@ -130,7 +130,7 @@ def index(request):#{{{
         os.mkdir(path_md5, 0o755)
     base_www_url_file = "%s/static/log/base_www_url.txt"%(SITE_ROOT)
     if not os.path.exists(base_www_url_file):
-        base_www_url = "http://" + request.META['HTTP_HOST']
+        base_www_url = "https://" + request.META['HTTP_HOST']
         myfunc.WriteFile(base_www_url, base_www_url_file, "w", True)
 
     # read the local config file if exists
@@ -258,7 +258,7 @@ def submit_seq(request):#{{{
 
                 # start the qd_fe if not, in the background
 #                 cmd = [qd_fe_scriptfile]
-                base_www_url = "http://" + request.META['HTTP_HOST']
+                base_www_url = "https://" + request.META['HTTP_HOST']
                 if webcom.IsFrontEndNode(base_www_url): #run the daemon only at the frontend
                     cmd = "nohup python %s &"%(qd_fe_scriptfile)
                     os.system(cmd)
@@ -477,7 +477,7 @@ def RunQuery(request, query):#{{{
         errmsg.append(myfunc.WriteFile(query['filtered_seq'], seqfile_r, "w"))
     errmsg.append(myfunc.WriteFile(query['filtered_model'], modelfile_r, "w"))
     errmsg.append(myfunc.WriteFile(json.dumps(query_para, sort_keys=True), query_parafile, "w"))
-    base_www_url = "http://" + request.META['HTTP_HOST']
+    base_www_url = "https://" + request.META['HTTP_HOST']
     query['base_www_url'] = base_www_url
 
 #     if query['nummodel'] <= -1 : # do not submit any job to local queue
@@ -513,7 +513,7 @@ def RunQuery_wsdl(rawseq, filtered_seq, seqinfo):#{{{
     errmsg.append(myfunc.WriteFile(rawseq, rawseqfile, "w"))
     errmsg.append(myfunc.WriteFile(filtered_seq, seqfile_t, "w"))
     errmsg.append(myfunc.WriteFile(filtered_seq, seqfile_r, "w"))
-    base_www_url = "http://" + seqinfo['hostname']
+    base_www_url = "https://" + seqinfo['hostname']
     seqinfo['base_www_url'] = base_www_url
 
     # changed 2015-03-26, any jobs submitted via wsdl is hadndel
@@ -544,7 +544,7 @@ def RunQuery_wsdl_local(rawseq, filtered_seq, seqinfo):#{{{
     errmsg.append(myfunc.WriteFile(rawseq, rawseqfile, "w"))
     errmsg.append(myfunc.WriteFile(filtered_seq, seqfile_t, "w"))
     errmsg.append(myfunc.WriteFile(filtered_seq, seqfile_r, "w"))
-    base_www_url = "http://" + seqinfo['hostname']
+    base_www_url = "https://" + seqinfo['hostname']
     seqinfo['base_www_url'] = base_www_url
 
     rtvalue = SubmitQueryToLocalQueue(seqinfo, tmpdir, rstdir)
@@ -1555,8 +1555,8 @@ def get_results(request, jobid="1"):#{{{
 
     resultdict['isHasTargetseq'] = isHasTargetseq
     resultdict['raw_query_modelfile'] = os.path.basename(raw_query_modelfile)
-    base_www_url = "http://" + request.META['HTTP_HOST']
-#   note that here one must add http:// in front of the url
+    base_www_url = "https://" + request.META['HTTP_HOST']
+#   note that here one must add https:// in front of the url
     resultdict['url_result'] = "%s/pred/result/%s"%(base_www_url, jobid)
 
     sum_run_time = 0.0
@@ -1719,7 +1719,7 @@ def get_results_eachseq(request, jobid="1", seqindex="1"):#{{{
     resultdict['BASEURL'] = g_params['BASEURL']
     resultdict['status'] = status
     resultdict['numseq'] = numseq
-    base_www_url = "http://" + request.META['HTTP_HOST']
+    base_www_url = "https://" + request.META['HTTP_HOST']
 
     resultfile = "%s/%s/%s/%s"%(rstdir, outpathname, seqindex, "query_topologies.txt")
     if os.path.exists(resultfile):
