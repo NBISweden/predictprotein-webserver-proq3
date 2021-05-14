@@ -515,12 +515,18 @@ def InitJob(jobid):# {{{
             try:
                 seq = myfunc.PDB2Seq(modelfile_this_model)
                 myfunc.WriteFile(">query_0\n%s\n"%(seq), seqfile_this_model, "w")
+                if len(seq) < 1 or ''.join(set(seq)) == 'X':
+                    webcom.loginfo('Bad model sequence \'%s\'model %d'%(seq, ii), runjob_errfile)
+                    myfunc.WriteFile("%d\n"%(ii), failed_idx_file, "a", True)
+                    if not os.path.exists(starttagfile):
+                        webcom.WriteDateTimeTagFile(starttagfile, runjob_logfile, runjob_errfile)
             except Exception as e:
                 date_str = time.strftime(g_params['FORMAT_DATETIME'])
                 msg = "Failed to run PDB2Seq, wrong PDB format for the model structure. errmsg=%s"%(str(e))
                 myfunc.WriteFile("[%s] %s\n"%(date_str, msg), runjob_errfile, "a", True)
                 myfunc.WriteFile("%d\n"%(ii), failed_idx_file, "a", True)
-                webcom.WriteDateTimeTagFile(starttagfile, runjob_logfile, runjob_errfile)
+                if not os.path.exists(starttagfile):
+                    webcom.WriteDateTimeTagFile(starttagfile, runjob_logfile, runjob_errfile)
                 isFailed = True
         if not isFailed:
             torun_idx_str_list.append(str(ii))
