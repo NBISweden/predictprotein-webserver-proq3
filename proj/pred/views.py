@@ -621,7 +621,6 @@ def get_serverstatus(request):# {{{
 
 def get_results(request, jobid="1"):#{{{
     resultdict = {}
-    set_basic_config(request, resultdict)
     webcom.set_basic_config(request, resultdict, g_params)
 
     rstdir = "%s/%s"%(path_result, jobid)
