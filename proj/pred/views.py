@@ -91,48 +91,6 @@ from proj.pred.models import SubmissionForm
 from proj.pred.models import FieldContainer
 from django.template import Context, loader
 
-def set_basic_config(request, info):# {{{
-    """Set basic configurations for the template dict"""
-    username = request.user.username
-    client_ip = request.META['REMOTE_ADDR']
-    if username in settings.SUPER_USER_LIST:
-        isSuperUser = True
-        divided_logfile_query =  "%s/%s/%s"%(SITE_ROOT,
-                "static/log", "submitted_seq.log")
-        divided_logfile_finished_jobid =  "%s/%s/%s"%(SITE_ROOT,
-                "static/log", "failed_job.log")
-    else:
-        isSuperUser = False
-        divided_logfile_query =  "%s/%s/%s"%(SITE_ROOT,
-                "static/log/divided", "%s_submitted_seq.log"%(client_ip))
-        divided_logfile_finished_jobid =  "%s/%s/%s"%(SITE_ROOT,
-                "static/log/divided", "%s_failed_job.log"%(client_ip))
-
-    if isSuperUser:
-        info['MAX_DAYS_TO_SHOW'] = g_params['BIG_NUMBER']
-    else:
-        info['MAX_DAYS_TO_SHOW'] = g_params['MAX_DAYS_TO_SHOW']
-
-
-    info['username'] = username
-    info['isSuperUser'] = isSuperUser
-    info['divided_logfile_query'] = divided_logfile_query
-    info['divided_logfile_finished_jobid'] = divided_logfile_finished_jobid
-    info['client_ip'] = client_ip
-    info['BASEURL'] = g_params['BASEURL']
-    info['STATIC_URL'] = settings.STATIC_URL
-    info['path_result'] = path_result
-# }}}
-def SetColorStatus(status):#{{{
-    if status == "Finished":
-        return "green"
-    elif status == "Failed":
-        return "red"
-    elif status == "Running":
-        return "blue"
-    else:
-        return "black"
-#}}}
 
 def index(request):#{{{
     path_tmp = "%s/static/tmp"%(SITE_ROOT)
@@ -164,7 +122,7 @@ def index(request):#{{{
 #}}}
 def submit_seq(request):#{{{
     info = {}
-    set_basic_config(request, info)
+    webcom.set_basic_config(request, info, g_params)
 
     # if this is a POST request we need to process the form data
     if request.method == 'POST':
@@ -317,9 +275,8 @@ def IsDeepLearningFromLogFile(infile):#{{{
     return False
 #}}}
 def login(request):#{{{
-    #logout(request)
     info = {}
-    set_basic_config(request, info)
+    webcom.set_basic_config(request, info, g_params)
     info['jobcounter'] = webcom.GetJobCounter(info)
     return render(request, 'pred/login.html', info)
 #}}}
@@ -635,13 +592,13 @@ def help_wsdl_api(request):# {{{
 
 def get_reference(request):#{{{
     info = {}
-    set_basic_config(request, info)
+    webcom.set_basic_config(request, info, g_params)
     info['jobcounter'] = webcom.GetJobCounter(info)
     return render(request, 'pred/reference.html', info)
 #}}}
 def get_example(request):#{{{
     info = {}
-    set_basic_config(request, info)
+    webcom.set_basic_config(request, info, g_params)
     info['jobcounter'] = webcom.GetJobCounter(info)
     return render(request, 'pred/example.html', info)
 #}}}
@@ -665,6 +622,7 @@ def get_serverstatus(request):# {{{
 def get_results(request, jobid="1"):#{{{
     resultdict = {}
     set_basic_config(request, resultdict)
+    webcom.set_basic_config(request, resultdict, g_params)
 
     rstdir = "%s/%s"%(path_result, jobid)
     outpathname = jobid
@@ -813,7 +771,7 @@ def get_results(request, jobid="1"):#{{{
                 if isValidSubmitDate:
                     queuetime = myfunc.date_diff(submit_date, current_time)
 
-    color_status = SetColorStatus(status)
+    color_status = webcom.SetColorStatus(status)
 
     file_seq_warning = "%s/%s/%s/%s"%(SITE_ROOT, "static/result", jobid, "query.warn.txt")
     seqwarninfo = ""
@@ -982,7 +940,7 @@ def get_results(request, jobid="1"):#{{{
 #}}}
 def get_results_eachseq(request, jobid="1", seqindex="1"):#{{{
     resultdict = {}
-    set_basic_config(request, resultdict)
+    webcom.set_basic_config(request, resultdict, g_params)
 
     rstdir = "%s/%s"%(path_result, jobid)
     outpathname = jobid
