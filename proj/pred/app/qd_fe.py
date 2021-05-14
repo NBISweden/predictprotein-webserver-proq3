@@ -516,7 +516,7 @@ def InitJob(jobid):# {{{
                 seq = myfunc.PDB2Seq(modelfile_this_model)
                 myfunc.WriteFile(">query_0\n%s\n"%(seq), seqfile_this_model, "w")
                 if len(seq) < 1 or ''.join(set(seq)) == 'X':
-                    webcom.loginfo('Bad model sequence \'%s\'model %d'%(seq, ii), runjob_errfile)
+                    webcom.loginfo('Bad model sequence \'%s\' for model %d'%(seq, ii), runjob_errfile)
                     myfunc.WriteFile("%d\n"%(ii), failed_idx_file, "a", True)
                     if not os.path.exists(starttagfile):
                         webcom.WriteDateTimeTagFile(starttagfile, runjob_logfile, runjob_errfile)
