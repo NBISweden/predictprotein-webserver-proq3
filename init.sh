@@ -84,6 +84,17 @@ for f in $configfilelist; do
     touch $f
 done
 
+# create allowed host
+conf_file_list="
+$rundir/proj/allowed_host_dev.txt
+$rundir/proj/allowed_host_pro.txt
+"
+for file in $conf_file_list; do
+    if [ ! -f $file ];then
+        cp ${file}.example ${file}
+    fi
+done
+
 # create example result
 example_folder_list="
 example_oneseq_cad
