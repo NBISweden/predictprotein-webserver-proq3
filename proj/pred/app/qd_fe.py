@@ -668,12 +668,12 @@ def SubmitJob(jobid, cntSubmitJobDict, numModel_this_user, query_para):#{{{
                 if query_para['isForceRun']:
                     query_para['url_profile'] = ""
                 else:
-                    query_para['url_profile'] = "http://proq3.bioinfo.se/static/result/profilecache/%s/%s.zip"%(subfoldername,  md5_key) 
+                    query_para['url_profile'] = "https://proq3.bioinfo.se/static/result/profilecache/%s/%s.zip"%(subfoldername,  md5_key) 
 
                 if (len(model) < g_params['MAXSIZE_MODEL_TO_SEND_BY_POST']):
                     query_para['pdb_model'] = model
                 else:
-                    query_para['url_pdb_model'] = "http://proq3.bioinfo.se/static/result/%s/%s/%s"%(jobid, os.path.basename(tmpdir.rstrip('/')), os.path.basename(modelfile_this_model))
+                    query_para['url_pdb_model'] = "https://proq3.bioinfo.se/static/result/%s/%s/%s"%(jobid, os.path.basename(tmpdir.rstrip('/')), os.path.basename(modelfile_this_model))
                 query_para['targetseq'] = seq
                 query_para['submitter'] = submitter
                 para_str = json.dumps(query_para, sort_keys=True)
@@ -1640,7 +1640,7 @@ def main(g_params):#{{{
         if os.path.exists(base_www_url_file):
             g_params['base_www_url'] = myfunc.ReadFile(base_www_url_file).strip()
         if g_params['base_www_url'] == "":
-            g_params['base_www_url'] = "http://proq3.bioinfo.se"
+            g_params['base_www_url'] = "https://proq3.bioinfo.se"
 
 
         CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,
@@ -1749,7 +1749,7 @@ def InitGlobalParameter():#{{{
     g_params['MAX_RESUBMIT'] = 2
     g_params['MAX_SUBMIT_TRY'] = 3
     g_params['MAX_TIME_IN_REMOTE_QUEUE'] = 3600*24 # one day in seconds
-    g_params['base_www_url'] = "http://proq3.bioinfo.se"
+    g_params['base_www_url'] = "https://proq3.bioinfo.se"
     g_params['FORMAT_DATETIME'] = "%Y-%m-%d %H:%M:%S %Z"
     g_params['STATUS_UPDATE_FREQUENCY'] = [500, 50]  # updated by if loop%$1 == $2
     g_params['MAXSIZE_MODEL_TO_SEND_BY_POST'] = 500*1024
