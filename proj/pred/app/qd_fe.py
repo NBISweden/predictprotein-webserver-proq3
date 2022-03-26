@@ -5,16 +5,12 @@
 # 
 import os
 import sys
-import site
 
 rundir = os.path.dirname(os.path.realpath(__file__))
 webserver_root = os.path.realpath("%s/../../../"%(rundir))
 
 activate_env="%s/env/bin/activate_this.py"%(webserver_root)
 exec(compile(open(activate_env, "rb").read(), activate_env, 'exec'), dict(__file__=activate_env))
-#Add the site-packages of the virtualenv
-site.addsitedir("%s/env/lib/python3.7/site-packages/"%(webserver_root))
-sys.path.append("%s/env/lib/python3.7/site-packages/"%(webserver_root))
 
 from libpredweb import myfunc
 from libpredweb import dataprocess
@@ -90,12 +86,12 @@ gen_errfile = "%s/static/log/%s.err"%(basedir, progname)
 gen_logfile = "%s/static/log/%s.log"%(basedir, progname)
 black_iplist_file = "%s/config/black_iplist.txt"%(basedir)
 
-def PrintHelp(fpout=sys.stdout):#{{{
+def PrintHelp(fpout=sys.stdout):  # {{{
     print(usage_short, file=fpout)
     print(usage_ext, file=fpout)
-    print(usage_exp, file=fpout)#}}}
+    print(usage_exp, file=fpout)# }}}
 
-def GetEmailSubject_CAMEO(query_para):# {{{
+def GetEmailSubject_CAMEO(query_para):  # {{{
     try:
         subject = ""
         try:
@@ -117,7 +113,7 @@ def GetEmailSubject_CAMEO(query_para):# {{{
     except:
         raise
 # }}}
-def GetEmailBody_CAMEO(jobid, query_para):# {{{
+def GetEmailBody_CAMEO(jobid, query_para):  # {{{
     rstdir = "%s/%s"%(path_result, jobid)
     modelfile = "%s/%s/%s/%s"%(rstdir, jobid, "model_%d"%(0), "query.pdb")
     try:
@@ -138,7 +134,7 @@ def GetEmailBody_CAMEO(jobid, query_para):# {{{
     except:
         raise
 # }}}
-def GetNumModelSameUserDict(joblist):#{{{
+def GetNumModelSameUserDict(joblist):  # {{{
 # calculate the number of models for each user in the queue or running
     numModel_user_dict = {}
     for i in range(len(joblist)):
@@ -174,8 +170,8 @@ def GetNumModelSameUserDict(joblist):#{{{
                     (email2 != "" and email2 == email1)):
                 numModel_user_dict[jobid1] += numModel2
     return numModel_user_dict
-#}}}
-def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
+# }}}
+def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,# {{{
         finishedjoblogfile, loop, isOldRstdirDeleted):
     myfunc.WriteFile("CreateRunJoblog...\n", gen_logfile, "a", True)
     # Read entries from submitjoblogfile, checking in the result folder and
@@ -394,7 +390,7 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
 
             # if loop == 0 , for new_waitjob_list and new_runjob_list
             # re-generate finished_models.txt
-            if loop == 0 and os.path.exists(outpath_result):#{{{
+            if loop == 0 and os.path.exists(outpath_result):  # {{{
                 finished_model_file = "%s/finished_models.txt"%(outpath_result)
                 finished_idx_file = "%s/finished_seqindex.txt"%(rstdir)
                 finished_idx_set = set([])
@@ -439,7 +435,7 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
                 else:
                     myfunc.WriteFile("", finished_idx_file, "w", True)
 
-            #}}}
+            # }}}
 
             try:
                 numModel = int(li[5])
@@ -483,8 +479,8 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
     else:
         myfunc.WriteFile("", runjoblogfile, "w", True)
 
-#}}}
-def InitJob(jobid):# {{{
+# }}}
+def InitJob(jobid):  # {{{
     """Init job before submission
     """
     rstdir = "%s/%s"%(path_result, jobid)
@@ -537,7 +533,7 @@ def InitJob(jobid):# {{{
     webcom.WriteDateTimeTagFile(qdinittagfile, runjob_logfile, runjob_errfile)
 
 # }}}
-def SubmitJob(jobid, cntSubmitJobDict, numModel_this_user, query_para):#{{{
+def SubmitJob(jobid, cntSubmitJobDict, numModel_this_user, query_para):  # {{{
 # for each job rstdir, keep three log files, 
 # 1.seqs finished, finished_seq log keeps all information, finished_index_log
 #   can be very compact to speed up reading, e.g.
@@ -746,8 +742,8 @@ def SubmitJob(jobid, cntSubmitJobDict, numModel_this_user, query_para):#{{{
         myfunc.WriteFile("", torun_idx_file, "w", True)
 
     return 0
-#}}}
-def GetResult(jobid, query_para):#{{{
+# }}}
+def GetResult(jobid, query_para):  # {{{
     # retrieving result from the remote server for this job
     myfunc.WriteFile("GetResult for %s.\n" %(jobid), gen_logfile, "a", True)
     rstdir = "%s/%s"%(path_result, jobid)
@@ -863,7 +859,7 @@ def GetResult(jobid, query_para):#{{{
             pass
 
 
-    for i in range(len(lines)):#{{{
+    for i in range(len(lines)):  # {{{
         line = lines[i]
 
         if g_params['DEBUG']:
@@ -909,7 +905,7 @@ def GetResult(jobid, query_para):#{{{
                 if errinfo and errinfo.find("does not exist")!=-1:
                     isFinish_remote = True
 
-                if status == "Finished":#{{{
+                if status == "Finished":  # {{{
                     isFinish_remote = True
                     outfile_zip = "%s/%s.zip"%(tmpdir, remote_jobid)
                     isRetrieveSuccess = False
@@ -1013,7 +1009,7 @@ def GetResult(jobid, query_para):#{{{
                                 os.remove(outfile_zip)
                                 shutil.rmtree("%s/%s"%(tmpdir, remote_jobid))
 
-#}}}
+# }}}
                 elif status in ["Failed", "None"]:
                     # the job is failed for this sequence, try to re-submit
                     isFinish_remote = True
@@ -1034,7 +1030,7 @@ def GetResult(jobid, query_para):#{{{
                 if g_params['DEBUG_CACHE']:
                     myfunc.WriteFile("\n", gen_logfile, "a", True)
 
-        if isSuccess:#{{{
+        if isSuccess:  # {{{
             time_now = time.time()
             runtime = 5.0
             runtime1 = time_now - submit_time_epoch #in seconds
@@ -1053,7 +1049,7 @@ def GetResult(jobid, query_para):#{{{
 
             myfunc.WriteFile("\t".join(modelinfo)+"\n", finished_model_file, "a", True)
 
-            finished_idx_list.append(str(origIndex))#}}}
+            finished_idx_list.append(str(origIndex))# }}}
 
         if not isFinish_remote:
             time_in_remote_queue = time.time() - submit_time_epoch
@@ -1074,7 +1070,7 @@ def GetResult(jobid, query_para):#{{{
                     pass
             else:
                 keep_queueline_list.append(line)
-#}}}
+# }}}
     #Finally, write log files
     finished_idx_list = list(set(finished_idx_list))
     failed_idx_list = list(set(failed_idx_list))
@@ -1097,9 +1093,9 @@ def GetResult(jobid, query_para):#{{{
         json.dump(cntTryDict, fpout)
 
     return 0
-#}}}
+# }}}
 
-def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
+def CheckIfJobFinished(jobid, numModel, email, query_para):  # {{{
     # check if the job is finished and write tagfiles
     myfunc.WriteFile("CheckIfJobFinished for %s.\n" %(jobid), gen_logfile, "a", True)
     rstdir = "%s/%s"%(path_result, jobid)
@@ -1137,7 +1133,7 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
 
 
 
-    if num_processed >= numModel:# finished
+    if num_processed >= numModel:  # finished
         if len(failed_idx_list) == 0:
             finish_status = "success"
         elif len(failed_idx_list) >= numModel:
@@ -1194,7 +1190,7 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
                     shutil.rmtree(tmpdir)
 
         # send the result to email
-        if myfunc.IsValidEmailAddress(email):#{{{
+        if myfunc.IsValidEmailAddress(email):  # {{{
 
             if os.path.exists(runjob_errfile):
                 err_msg = myfunc.ReadFile(runjob_errfile)
@@ -1248,9 +1244,9 @@ def CheckIfJobFinished(jobid, numModel, email, query_para):#{{{
                     msg = "Send CAMEO_result to %s"%(to_email)
                     myfunc.WriteFile("[%s] %s\n"%(date_str, msg), sendmaillogfile, "a", True)
 
-#}}}
-#}}}
-def RunStatistics(path_result, path_log):#{{{
+# }}}
+# }}}
+def RunStatistics(path_result, path_log):  # {{{
 # 1. calculate average running time, only for those sequences with time.txt
 # show also runtime of type and runtime -vs- seqlength
     webcom.loginfo("RunStatistics...\n", gen_logfile)
@@ -1476,7 +1472,7 @@ def RunStatistics(path_result, path_log):#{{{
                     submit_date = webcom.datetime_str_to_time(submit_date_str)
                 except ValueError:
                     isValidSubmitDate = False
-                if isValidSubmitDate:#{{{
+                if isValidSubmitDate:  # {{{
                     day_str = submit_date_str.split()[0]
                     (beginning_of_week, end_of_week) = myfunc.week_beg_end(submit_date)
                     week_str = beginning_of_week.strftime("%Y-%m-%d")
@@ -1521,7 +1517,7 @@ def RunStatistics(path_result, path_log):#{{{
                         dict_submit_month[month][6] += numseq
                         dict_submit_year[year][5] += 1
                         dict_submit_year[year][6] += numseq
-#}}}
+# }}}
             lines = hdl.readlines()
         hdl.close()
 
@@ -1592,9 +1588,10 @@ def RunStatistics(path_result, path_log):#{{{
             cmd = ["%s/app/other/plot_numsubmit.sh"%(basedir), outfile]
             webcom.RunCmd(cmd, gen_logfile, gen_errfile)
 
-#}}}
+# }}}
 
-def main(g_params):#{{{
+
+def main(g_params):  # {{{
     submitjoblogfile = "%s/submitted_seq.log"%(path_log)
     runjoblogfile = "%s/runjob_log.log"%(path_log)
     finishedjoblogfile = "%s/finished_job.log"%(path_log)
@@ -1604,7 +1601,7 @@ def main(g_params):#{{{
 
     loop = 0
     while 1:
-        if os.path.exists("%s/CACHE_CLEANING_IN_PROGRESS"%(path_result)):#pause when cache cleaning is in progress
+        if os.path.exists("%s/CACHE_CLEANING_IN_PROGRESS"%(path_result)):  #pause when cache cleaning is in progress
             continue
         # load the config file if exists
         configfile = "%s/config/config.json"%(basedir)
@@ -1631,7 +1628,7 @@ def main(g_params):#{{{
 
         isOldRstdirDeleted = False
         if loop % g_params['STATUS_UPDATE_FREQUENCY'][0] == g_params['STATUS_UPDATE_FREQUENCY'][1]:
-            qdcom.RunStatistics_basic(webserver_root, gen_logfile, gen_errfile)
+            qdcom.RunStatistics(g_params)
             isOldRstdirDeleted = webcom.DeleteOldResult(path_result, path_log, gen_logfile, MAX_KEEP_DAYS=g_params['MAX_KEEP_DAYS'])
             webcom.CleanServerFile(path_static, gen_logfile, gen_errfile)
         webcom.ArchiveLogFile(path_log, threshold_logfilesize=threshold_logfilesize) 
@@ -1642,14 +1639,13 @@ def main(g_params):#{{{
         if g_params['base_www_url'] == "":
             g_params['base_www_url'] = "https://proq3.bioinfo.se"
 
-
         CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,
                 finishedjoblogfile, loop, isOldRstdirDeleted)
         # qdcom.CreateRunJoblog(loop, isOldRstdirDeleted, g_params)
 
         # Get number of jobs submitted to the remote server based on the
         # runjoblogfile
-        runjobidlist = myfunc.ReadIDList2(runjoblogfile,0)
+        runjobidlist = myfunc.ReadIDList2(runjoblogfile, 0)
         remotequeueDict = {}
         for node in avail_computenode:
             remotequeueDict[node] = []
@@ -1666,8 +1662,6 @@ def main(g_params):#{{{
                         remotejobid = strs[2]
                         if node in remotequeueDict:
                             remotequeueDict[node].append(remotejobid)
-
-
 
         cntSubmitJobDict = {} # format of cntSubmitJobDict {'node_ip': INT, 'node_ip': INT}
         for node in avail_computenode:
@@ -1730,11 +1724,11 @@ def main(g_params):#{{{
         time.sleep(g_params['SLEEP_INTERVAL'])
         loop += 1
 
-
     return 0
-#}}}
+# }}}
 
-def InitGlobalParameter():#{{{
+
+def InitGlobalParameter():  # {{{
     g_params = {}
     g_params['isQuiet'] = True
     g_params['blackiplist'] = []
@@ -1748,21 +1742,24 @@ def InitGlobalParameter():#{{{
     g_params['MAX_KEEP_DAYS'] = 60
     g_params['MAX_RESUBMIT'] = 2
     g_params['MAX_SUBMIT_TRY'] = 3
-    g_params['MAX_TIME_IN_REMOTE_QUEUE'] = 3600*24 # one day in seconds
+    g_params['MAX_TIME_IN_REMOTE_QUEUE'] = 3600*24  # one day in seconds
     g_params['base_www_url'] = "https://proq3.bioinfo.se"
     g_params['FORMAT_DATETIME'] = "%Y-%m-%d %H:%M:%S %Z"
     g_params['STATUS_UPDATE_FREQUENCY'] = [500, 50]  # updated by if loop%$1 == $2
     g_params['MAXSIZE_MODEL_TO_SEND_BY_POST'] = 500*1024
     g_params['gen_logfile'] = gen_logfile
     g_params['gen_errfile'] = gen_errfile
-    g_params['path_static']  = path_static
-    g_params['path_log']  = path_log
+    g_params['path_static'] = path_static
+    g_params['path_log'] = path_log
     g_params['path_stat'] = path_stat
     g_params['name_server'] = "ProQ3"
+    g_params['webserver_root'] = webserver_root
     g_params['TZ'] = webcom.TZ
     return g_params
-#}}}
-if __name__ == '__main__' :
+# }}}
+
+
+if __name__ == '__main__':
     g_params = InitGlobalParameter()
 
     date_str = time.strftime(g_params['FORMAT_DATETIME'])
