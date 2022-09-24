@@ -14,7 +14,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import os
 import logging
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
-PARENT_DIR = os.path.realpath("%s/../"%(BASE_DIR))
+PARENT_DIR = os.path.abspath(os.path.join(BASE_DIR, os.pardir))
 
 # Application definition
 
@@ -55,8 +55,8 @@ DATABASES = {
     },
 }
 
-TEMPLATES = [ 
-    {   
+TEMPLATES = [
+    {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
             os.path.join(BASE_DIR, 'pred', 'templates'),
@@ -70,9 +70,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-            ],  
-        },  
-    },  
+            ],
+        },
+    },
 ]
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -98,7 +98,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': "%s/%s/%s/%s/debug.log"%(BASE_DIR,"pred", "static", "log"),
+            'filename': os.path.join(BASE_DIR, "pred", "static", "log"),
         },
     },
     'loggers': {
@@ -110,7 +110,7 @@ LOGGING = {
     },
 }
 logging.basicConfig(level=logging.INFO)
-logging.getLogger('spyne.protocol.xml').setLevel(logging.DEBUG)
+logging.getLogger('spyne.protocol.xml').setLevel(logging.INFO)
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
@@ -130,6 +130,5 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = "%s/pred/static"%(BASE_DIR)
-SUPER_USER_LIST = ["admin","nanjiang", "njshu"]
-
+STATIC_ROOT = f"{BASE_DIR}/pred/static"
+SUPER_USER_LIST = ["admin", "nanjiang", "njshu"]
