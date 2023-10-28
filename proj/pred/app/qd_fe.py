@@ -630,7 +630,7 @@ def SubmitJob(jobid, cntSubmitJobDict, numModel_this_user, query_para):  # {{{
                     wsdl_url), gen_errfile, "a", True)
                 break
 
-            [cnt, maxnum, queue_method] = cntSubmitJobDict[node]
+            [cnt, maxnum, queue_method, node_status] = cntSubmitJobDict[node]
             cnttry = 0
             while cnt < maxnum and iToRun < numToRun:
                 origIndex = int(toRunIndexList[iToRun])
